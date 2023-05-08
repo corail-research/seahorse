@@ -20,11 +20,15 @@
 - Package backend : [hatch](https://hatch.pypa.io/)
 - Docs with [pdoc](https://pdoc.dev/): 
   - (Re)generate docs `hatch env run gen-doc`
-  - See doc without generating static `hatch env serve-doc`
+  - See doc without generating static `hatch env run serve-doc`
 
 ### Contributing
 
+> *A Foolish Consistency is the Hobgoblin of Little Minds* - Ralph Waldo Emerson
+
 - Please make a branch, a PR and wait for your code to be reviewed.
+- **[WARN]** please use `[ctrl]+[shift]+F` on you edited files before committing to comply with most of [PEP8](https://peps.python.org/pep-0008/)'s rules. 
+
 
 ## Installation
 
