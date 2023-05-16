@@ -1,36 +1,61 @@
 from coliseum.player.player import Player
 from coliseum.game.representation import Representation
-
+from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
 class GameState:
-    score: list[float]
-    to_play: Player
-    players: list[Player]
-    rep: Representation
-
-    def __init__(self) -> None:
-        pass
+    """
+    Attributes:
+        score (list[float]): scores of the state for each players
+        to_play (Player): next player to play
+        players (list[Player]): list of players
+        rep (Representation): representation of the game
+    """
+    
+    def __init__(self,
+                 score: list[float],
+                 to_play: Player,
+                 players: list[Player],
+                 rep: Representation
+                 ) -> None:
+        self.score = score
+        self.to_play = to_play
+        self.players = players
+        self.rep = rep
 
     def get_next_player(self):
-        pass
-
+        """
+        Returns:
+            Player: to_play
+        """
+        if not self.is_done():
+            return self.to_play
+        
     def is_done(self):
-        pass
+        raise MethodNotImplementedError()
 
     def get_score(self):
-        pass
-
-    def get_to_play(self):
-        pass
+        """
+        Returns:
+            int: score
+        """
+        return self.score
 
     def get_players(self):
-        pass
+        """
+        Returns:
+            list[Player]: players
+        """
+        return self.players
 
     def get_rep(self):
-        pass
+        """
+        Returns:
+            Representation: rep
+        """
+        return self.rep
 
     def update_score(self):
-        pass
+        raise MethodNotImplementedError()
 
     def update_rep(self):
-        pass
+        raise MethodNotImplementedError()

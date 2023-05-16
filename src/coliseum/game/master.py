@@ -1,7 +1,14 @@
 from coliseum.game.game_state import GameState
+from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
 
-class Master():
+class Master:
+    """
+    Attributes:
+        name (str): name of the instance
+        game_state (GameState): state of the game
+        log_file (str): name of the log file
+    """
 
     def __init__(self,
                  name: str,
@@ -13,19 +20,31 @@ class Master():
         self.log_file = log_file
 
     def play(self):
-        pass
+        raise MethodNotImplementedError()
 
     def update_json(self):
-        pass
+        raise MethodNotImplementedError()
 
     def get_name(self):
-        pass
+        """
+        Returns:
+            str: name
+        """
+        return self.name
 
     def get_game_state(self):
-        pass
+        """
+        Returns:
+            GameState: game_state
+        """
+        return self.game_state
 
     def get_json_path(self):
-        pass
+        """
+        Returns:
+            str: log_file
+        """
+        return self.log_file
 
     def update_game_state(self):
-        pass
+        raise MethodNotImplementedError()

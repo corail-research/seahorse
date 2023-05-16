@@ -32,3 +32,12 @@ class TimerNotInitializedError(Exception):
     def __init__(self,  message: str = "Timer not initialized."):
         self.message = message
         super().__init__(message)
+
+
+class MethodNotImplementedError(Exception):
+    """Thrown when trying to use a method not implemented
+    """
+
+    def __init__(self,  message: str = "Method not implemented."):
+        self.message = message
+        super().__init__(message)
