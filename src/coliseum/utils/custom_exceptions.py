@@ -16,7 +16,7 @@ class NotRunningError(Exception):
         super().__init__(message)
 
 
-class TimeoutError(Exception):
+class ColiseumTimeoutError(Exception):
     """Thrown when trying to modify an expired element
     """
 

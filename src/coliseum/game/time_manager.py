@@ -1,6 +1,6 @@
 import time
 from typing import Any
-from coliseum.utils.custom_exceptions import AlreadyRunningError, NotRunningError, TimeoutError, TimerNotInitializedError
+from coliseum.utils.custom_exceptions import AlreadyRunningError, NotRunningError, ColiseumTimeoutError, TimerNotInitializedError
 
 
 def _timer_init_safeguard(fun):
@@ -132,7 +132,7 @@ class TimeMixin:
         """
         try:
             if self.is_locked():
-                raise TimeoutError()
+                raise ColiseumTimeoutError()
             else:
                 self.__dict__[__name] = value
 
