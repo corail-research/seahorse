@@ -9,16 +9,16 @@ class Player:
         id_player (int): id of the player
 
     Class attributes:
-        id (int): id to be assigned to the next player
+        next_id (int): id to be assigned to the next player
     """
-    
-    id = 0
+
+    next_id = 0
 
     def __init__(self,
                  obs: Representation
                  ) -> None:
         self.obs = obs
-        self.id_player = Player.id
+        self.id_player = Player.next_id
         Player.id += 1
 
     def generate_action(self):

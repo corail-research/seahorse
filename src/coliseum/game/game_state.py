@@ -10,7 +10,7 @@ class GameState:
         players (list[Player]): list of players
         rep (Representation): representation of the game
     """
-    
+
     def __init__(self,
                  score: list[float],
                  to_play: Player,
@@ -29,7 +29,7 @@ class GameState:
         """
         if not self.is_done():
             return self.to_play
-        
+
     def is_done(self):
         raise MethodNotImplementedError()
 
