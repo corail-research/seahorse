@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from coliseum.game.representation import Representation
 from coliseum.player.player import Player
 from coliseum.utils.custom_exceptions import MethodNotImplementedError
@@ -34,6 +35,6 @@ class Action:
     def update_new_rep(self):
         raise MethodNotImplementedError()
 
+    @abstractmethod
     def check_action(self, player: Player):
-        #raise MethodNotImplementedError()
-        pass
+        raise MethodNotImplementedError()
