@@ -35,4 +35,5 @@ class Action:
         raise MethodNotImplementedError()
 
     def check_action(self, player: Player):
-        raise MethodNotImplementedError()
+        #raise MethodNotImplementedError()
+        pass
