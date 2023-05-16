@@ -27,7 +27,7 @@ class TimeMixin:
             x.set_time_limit(10)
             x.start_timer()
             time.sleep(11)
-            x.myattr=5  # raises TimeouException
+            x.myattr=5  # raises ColiseumTimeoutException
 
         ```
     """
