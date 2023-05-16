@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from coliseum.player.player import Player
 from coliseum.game.representation import Representation
 from coliseum.utils.custom_exceptions import MethodNotImplementedError
@@ -30,6 +31,7 @@ class GameState:
         if not self.is_done():
             return self.to_play
 
+    @abstractmethod
     def is_done(self):
         raise MethodNotImplementedError()
 
@@ -54,8 +56,10 @@ class GameState:
         """
         return self.rep
 
+    @abstractmethod
     def update_score(self):
         raise MethodNotImplementedError()
 
+    @abstractmethod
     def update_rep(self):
         raise MethodNotImplementedError()

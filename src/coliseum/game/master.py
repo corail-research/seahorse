@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from coliseum.game.game_state import GameState
 from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
@@ -19,9 +20,11 @@ class Master:
         self.game_state = game_state
         self.log_file = log_file
 
+    @abstractmethod
     def play(self):
         raise MethodNotImplementedError()
 
+    @abstractmethod
     def update_json(self):
         raise MethodNotImplementedError()
 
@@ -46,5 +49,6 @@ class Master:
         """
         return self.log_file
 
+    @abstractmethod
     def update_game_state(self):
         raise MethodNotImplementedError()

@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from coliseum.game.representation import Representation
 from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
@@ -21,6 +22,7 @@ class Player:
         self.id_player = Player.next_id
         Player.id += 1
 
+    @abstractmethod
     def generate_action(self):
         raise MethodNotImplementedError()
 

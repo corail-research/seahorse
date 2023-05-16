@@ -32,9 +32,22 @@ class Action:
         """
         return self.new_rep
 
+    @abstractmethod
     def update_new_rep(self):
+        """
+        Raises:
+            MethodNotImplementedError: _description_
+        """
         raise MethodNotImplementedError()
 
     @abstractmethod
     def check_action(self, player: Player):
+        """returns True if the action is allowed, False otherwise
+
+        Args:
+            player (Player): 
+
+        Raises:
+            MethodNotImplementedError: _description_
+        """
         raise MethodNotImplementedError()
