@@ -1,9 +1,11 @@
+import functools
 import time
 from typing import Any
 from coliseum.utils.custom_exceptions import AlreadyRunningError, NotRunningError, ColiseumTimeoutError, TimerNotInitializedError
 
 
 def _timer_init_safeguard(fun):
+    @functools.wraps(fun)
     def wrapper(self, *args, **kwargs):
         if not hasattr(self, "_is_initialized"):
             raise TimerNotInitializedError()
@@ -52,7 +54,7 @@ class TimeMixin:
 
     @_timer_init_safeguard
     def start_timer(self) -> None:
-        """Is the timer running ?
+        """Starts the timer
 
         Raises:
             AlreadyRunningException: when trying to start twice.
