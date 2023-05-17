@@ -41,3 +41,12 @@ class MethodNotImplementedError(Exception):
     def __init__(self,  message: str = "Method not implemented."):
         self.message = message
         super().__init__(message)
+
+
+class ActionNotPermittedError(Exception):
+    """Thrown when trying to generate an action that's not permitted
+    """
+
+    def __init__(self,  message: str = "Action not permitted"):
+        self.message = message
+        super().__init__(message)
