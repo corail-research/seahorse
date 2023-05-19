@@ -1,5 +1,5 @@
 import random
-from typing import Callable, List, Dict
+from typing import List
 import unittest
 from coliseum.game.action import Action
 
@@ -25,14 +25,20 @@ class RandomPlayerIterator:
 
 class PlayerStub(Player):
     def solve(self, current_rep: Representation, **kwargs) -> Representation:
+        if kwargs:
+            pass
         return current_rep
 
     def check_action(self, action: Action) -> bool:
+        if action:
+            pass
         return True
 
 
 class GameMasterStub(GameMaster):
     def compute_scores(self, representation: Representation) -> List[float]:
+        if representation:
+            pass
         return {x.get_id(): 1 for x in self.players}
 
 
