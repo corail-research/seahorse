@@ -1,9 +1,13 @@
+from __future__ import annotations
 from abc import abstractmethod
-from argparse import Action
-from coliseum.game.game_state import GameState
+from typing import TYPE_CHECKING
+from coliseum.game.action import Action
 from coliseum.game.representation import Representation
 from coliseum.game.time_manager import TimeMixin
 from coliseum.utils.custom_exceptions import MethodNotImplementedError
+
+if TYPE_CHECKING:
+    from coliseum.game.game_state import GameState
 
 
 class Player(TimeMixin):
@@ -25,7 +29,9 @@ class Player(TimeMixin):
 
     def play(self, current_state: GameState) -> Action:
         """
-        Implements the player's logic
+        Implements the player's logic, calls solve with minimal informations
+        Given the problem statement one might override this to add some information
+        in the solve call.
 
         Args:
             current_state (GameState): the current game state
@@ -45,6 +51,29 @@ class Player(TimeMixin):
 
     @abstractmethod
     def solve(self, **kwargs) -> Representation:
+        """
+        Should be dedicated to adversarial search
+
+        Raises:
+            MethodNotImplementedError: _description_
+
+        Returns:
+            Representation: the next state representation
+        """
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def check_action(self, action: Action) -> bool:
+        """
+
+        Must return `True` if the current action is allowed.
+
+        Args:
+            player (Player): the originating player
+
+        Raises:
+            MethodNotImplementedError: _description_
+        """
         raise MethodNotImplementedError()
 
     def get_id(self):

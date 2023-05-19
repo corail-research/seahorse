@@ -1,8 +1,8 @@
 from abc import abstractmethod
-from typing import Dict,List
+from typing import Dict, List
 from coliseum.player.player import Player
 from coliseum.game.representation import Representation
-from coliseum.utils.custom_exceptions import MethodNotImplementedError 
+from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
 
 class GameState:
@@ -25,7 +25,7 @@ class GameState:
         self.players = players
         self.rep = rep
 
-    def get_player_score(self,player:Player)->float:
+    def get_player_score(self, player: Player) -> float:
         """
         Gets a player's score
 

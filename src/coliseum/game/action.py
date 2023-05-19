@@ -1,7 +1,4 @@
-from abc import abstractmethod
 from coliseum.game.representation import Representation
-from coliseum.player.player import Player
-from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
 
 class Action:
@@ -31,17 +28,3 @@ class Action:
             Representation: new_rep
         """
         return self.new_rep
-
-    @abstractmethod
-    def check_action(self, player: Player) -> bool:
-        """
-
-        Must return `True` if the current action is allowed.
-
-        Args:
-            player (Player): the originating player
-
-        Raises:
-            MethodNotImplementedError: _description_
-        """
-        raise MethodNotImplementedError()
