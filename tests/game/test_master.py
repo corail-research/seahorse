@@ -1,5 +1,5 @@
 import random
-from typing import List
+from typing import Dict, List
 import unittest
 from coliseum.game.action import Action
 
@@ -15,12 +15,11 @@ class RandomPlayerIterator:
         self.players = players
 
     def __iter__(self):
-        self.current_player = self.players[random.randint(
-            0, len(self.players))]
+        self.current_player = self.players[random.randint(0, len(self.players))]
         return self
 
     def __next__(self):
-        return self.players[random.randint(0, len(self.players)-1)]
+        return self.players[random.randint(0, len(self.players) - 1)]
 
 
 class PlayerStub(Player):
@@ -36,7 +35,7 @@ class PlayerStub(Player):
 
 
 class GameMasterStub(GameMaster):
-    def compute_scores(self, representation: Representation) -> List[float]:
+    def compute_scores(self, representation: Representation) -> Dict[int, float]:
         if representation:
             pass
         return {x.get_id(): 1 for x in self.players}
@@ -48,10 +47,8 @@ class GameStateStub(GameState):
 
 
 class MasterTestCase(unittest.TestCase):
-
     def test_step(self):
-        players_list = [PlayerStub("bob"), PlayerStub(
-            "marcel"), PlayerStub("jean")]
+        players_list = [PlayerStub("bob"), PlayerStub("marcel"), PlayerStub("jean")]
         players_iter = RandomPlayerIterator(players=players_list)
         m = GameMasterStub(
             name="julie",
@@ -60,11 +57,10 @@ class MasterTestCase(unittest.TestCase):
                 scores={x.get_id(): 1 for x in players_list},
                 next_player=next(players_iter),
                 players=players_list,
-                rep=Representation(None)
+                rep=Representation(None),
             ),
-            log_file=""
+            log_file="",
         )
         for _ in range(10):
             new_state = m.step()
-            assert new_state.get_next_player().name in [
-                "bob", "jean", "marcel"]
+            assert new_state.get_next_player().name in ["bob", "jean", "marcel"]

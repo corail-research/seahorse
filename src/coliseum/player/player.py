@@ -25,6 +25,7 @@ class Player(TimeMixin):
     def __init__(self, name: str = "bob") -> None:
         self.id_player = Player.next_id
         self.name = name
+        self.possible_actions: list[Representation] = []
         Player.next_id += 1
 
     def play(self, current_state: GameState) -> Action:
@@ -40,14 +41,12 @@ class Player(TimeMixin):
             MethodNotImplementedError: _description_
 
         Returns:
-            Action: The action resulting 
+            Action: The action resulting
         """
 
-        return Action(current_state.get_rep(),
-                      self.solve(
-                          current_rep=current_state.get_rep(),
-                          scores=current_state.get_scores()
-        ))
+        return Action(
+            current_state.get_rep(), self.solve(current_rep=current_state.get_rep(), scores=current_state.get_scores())
+        )
 
     @abstractmethod
     def solve(self, **kwargs) -> Representation:
@@ -70,6 +69,20 @@ class Player(TimeMixin):
 
         Args:
             player (Player): the originating player
+
+        Raises:
+            MethodNotImplementedError: _description_
+        """
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def get_possible_actions(self, rep: Representation) -> list[Representation]:
+        """
+
+        Return the list of all possible actions the player can do
+
+        Args:
+            rep (Representation): representation of the current state
 
         Raises:
             MethodNotImplementedError: _description_

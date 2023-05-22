@@ -1,6 +1,13 @@
+from typing import Tuple
 from coliseum.game.game_layout.board import Board, Piece
 
 
-class BoardTictac(Board) :
-    def __init__(self, env: dict[list[int], Piece], dim: list[int]) -> None:
+class BoardTictac(Board):
+    """
+    Attributes:
+        env: environnement dictionnary (composed of pieces)
+        dimensions: dimensions of the board
+    """
+
+    def __init__(self, env: dict[Tuple[int], Piece], dim: list[int]) -> None:
         super().__init__(env, dim)
