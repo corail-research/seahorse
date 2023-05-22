@@ -4,7 +4,7 @@ from coliseum.game.game_state import GameState
 from coliseum.game.representation import Representation
 from coliseum.player.player import Player
 from coliseum.utils.custom_exceptions import ActionNotPermittedError, MethodNotImplementedError
-from typing import Iterable, List
+from typing import Iterable
 from itertools import cycle
 
 

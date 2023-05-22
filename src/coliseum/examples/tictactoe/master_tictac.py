@@ -1,4 +1,4 @@
-from typing import Iterable, List
+from typing import Iterable
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
@@ -37,7 +37,7 @@ class MasterTictac(GameMaster):
         scores = {}
         for player in self.players:
             score, pieces = representation.get_pieces_player(player)
-            print(pieces)
+            # TODO print(pieces)
             scores[player.get_id()] = score
-        print(scores)
+        # TODO print(scores)
         return scores

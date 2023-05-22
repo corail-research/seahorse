@@ -15,6 +15,8 @@ class GameStateTictac(GameState):
 
     def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardTictac) -> None:
         super().__init__(scores, next_player, players, rep)
+        self.num_pieces = 9
+        self.num_obj = 3
 
     def is_done(self) -> bool:
         """
@@ -23,7 +25,7 @@ class GameStateTictac(GameState):
         Returns:
             bool: -
         """
-        if len(self.rep.get_env().keys()) == 9 or self.winning():
+        if len(self.rep.get_env().keys()) == self.num_pieces or self.winning():
             return True
         return False
 
@@ -39,7 +41,7 @@ class GameStateTictac(GameState):
             for j in range(self.rep.get_dimensions()[1]):
                 if self.rep.get_env().get((i, j)):
                     dict_result[self.rep.get_env().get((i, j)).get_owner_id()] += 1
-            if 3 in dict_result.values():
+            if self.num_obj in dict_result.values():
                 return True
 
         for i in range(self.rep.get_dimensions()[1]):
@@ -47,21 +49,21 @@ class GameStateTictac(GameState):
             for j in range(self.rep.get_dimensions()[0]):
                 if self.rep.get_env().get((i, j)):
                     dict_result[self.rep.get_env().get((i, j)).get_owner_id()] += 1
-            if 3 in dict_result.values():
+            if self.num_obj in dict_result.values():
                 return True
 
         dict_result = {key: 0 for key in self.scores.keys()}
         for i in range(self.rep.get_dimensions()[0]):
             if self.rep.get_env().get((i, i)):
                 dict_result[self.rep.get_env().get((i, i)).get_owner_id()] += 1
-        if 3 in dict_result.values():
+        if self.num_obj in dict_result.values():
             return True
 
         dict_result = {key: 0 for key in self.scores.keys()}
         for i in range(self.rep.get_dimensions()[0]):
             if self.rep.get_env().get((i, self.rep.get_dimensions()[0] - i)):
                 dict_result[self.rep.get_env().get((i, self.rep.get_dimensions()[0] - i)).get_owner_id()] += 1
-        if 3 in dict_result.values():
+        if self.num_obj in dict_result.values():
             return True
 
         return False

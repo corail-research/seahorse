@@ -34,7 +34,7 @@ class PlayerTictac(Player):
             for j in range(current_rep.get_dimensions()[1]):
                 if not current_rep.get_env().get((i, j)):
                     copy_rep = copy.deepcopy(current_rep)
-                    copy_rep.get_env()[(i, j)] = Piece(type="tic", owner=self)
+                    copy_rep.get_env()[(i, j)] = Piece(piece_type="tic", owner=self)
                     list_rep.append(copy.deepcopy(copy_rep))
         self.possible_actions = list_rep
         return list_rep
@@ -53,7 +53,7 @@ class PlayerTictac(Player):
             return True
         return False
 
-    def solve(self, current_rep: BoardTictac, scores: dict[int, float], **kwargs) -> BoardTictac:
+    def solve(self, current_rep: BoardTictac, **kwargs) -> BoardTictac:
         """
         Function to implement the logic of the player (here random selection of a feasible solution)
 
@@ -64,5 +64,7 @@ class PlayerTictac(Player):
         Returns:
             BoardTictac: future representation
         """
+        if kwargs:
+            pass
         list_possible_rep = self.get_possible_actions(current_rep)
         return random.choice(list_possible_rep)

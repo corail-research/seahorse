@@ -9,15 +9,12 @@ if TYPE_CHECKING:
 class Piece:
     """
     Attributes:
-        type: string to specify a certain type of piece
+        piece_type: string to specify a certain type of piece
         owner: player who possess the piece
-    Class attributes:
-        type: -
-        owner_id: id of the player
     """
 
-    def __init__(self, type: str, owner: Player) -> None:
-        self.type = type
+    def __init__(self, piece_type: str, owner: Player) -> None:
+        self.piece_type = piece_type
         self.owner_id = owner.get_id()
 
     def get_type(self) -> str:
@@ -25,7 +22,7 @@ class Piece:
         Returns:
             str: type string
         """
-        return self.type
+        return self.piece_type
 
     def get_owner_id(self) -> int:
         """
