@@ -38,16 +38,17 @@ class GameMaster:
         Calls the next player move
         """
         next_player = self.current_game_state.get_next_player()
+        next_player.start_timer()
         action = next_player.play(self.current_game_state)
+        next_player.stop_timer()
         if not next_player.check_action(action):
             raise ActionNotPermittedError()
 
         # TODO check against possible hacking
         new_scores = self.compute_scores(action.get_new_rep())
-
         return self.initial_game_state.__class__(
             new_scores, next(self.players_iterator), self.players, action.get_new_rep()
-        )
+            )
 
     def play_game(self) -> Player:
         """_summary_
@@ -57,6 +58,7 @@ class GameMaster:
         """
         while not self.current_game_state.is_done():
             self.current_game_state = self.step()
+            print(self.current_game_state)
 
         return
 

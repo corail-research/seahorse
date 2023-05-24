@@ -78,3 +78,8 @@ class GameState:
             bool: `True` if the state is final `False` else
         """
         raise MethodNotImplementedError()
+    
+    def __str__(self) -> str:
+        to_print = f'Current scores are {self.get_scores()}.\n'
+        to_print += f'Next person to play is player {self.get_next_player().get_id()} ({self.get_next_player().get_name()}).\n'
+        return to_print

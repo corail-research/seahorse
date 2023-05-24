@@ -16,7 +16,6 @@ class GameStateTictac(GameState):
     def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardTictac) -> None:
         super().__init__(scores, next_player, players, rep)
         self.num_pieces = 9
-        self.num_obj = 3
 
     def is_done(self) -> bool:
         """
@@ -36,34 +35,68 @@ class GameStateTictac(GameState):
         Returns:
             bool: finish or not
         """
-        for i in range(self.rep.get_dimensions()[0]):
-            dict_result = {key: 0 for key in self.scores.keys()}
-            for j in range(self.rep.get_dimensions()[1]):
-                if self.rep.get_env().get((i, j)):
-                    dict_result[self.rep.get_env().get((i, j)).get_owner_id()] += 1
-            if self.num_obj in dict_result.values():
+        dim = self.rep.get_dimensions()
+
+        won = False
+
+        if self.rep.get_env() == {}:
+            return False
+
+        for i in range(dim[0]): #check lines
+            won = True
+            prev = self.rep.get_env().get((i, 0), -1)
+            for j in range(dim[1]):
+                current = self.rep.get_env().get((i, j), -1)
+                if prev == -1 or current == -1:
+                    won = False
+                    break
+                elif current.get_type() != prev.get_type():
+                    won = False
+            if won:
+                return True
+                    
+        for i in range(dim[1]): #check columns
+            won = True
+            prev = self.rep.get_env().get((0, i), -1)
+            for j in range(dim[0]):
+                current = self.rep.get_env().get((j, i), -1)
+                if prev == -1 or current == -1:
+                    won = False
+                    break
+                elif current.get_type() != prev.get_type():
+                    won = False
+            if won:
                 return True
 
-        for i in range(self.rep.get_dimensions()[1]):
-            dict_result = {key: 0 for key in self.scores.keys()}
-            for j in range(self.rep.get_dimensions()[0]):
-                if self.rep.get_env().get((i, j)):
-                    dict_result[self.rep.get_env().get((i, j)).get_owner_id()] += 1
-            if self.num_obj in dict_result.values():
+        if dim[0] == dim[1]:
+            won = True
+            prev = self.rep.get_env().get((0, 0), -1)
+            for i in range(dim[0]): #check left diag
+                current = self.rep.get_env().get((i, i), -1)
+                if prev == -1 or current == -1:
+                    won = False
+                    break
+                elif current.get_type() != prev.get_type():
+                    won = False
+            if won:
                 return True
-
-        dict_result = {key: 0 for key in self.scores.keys()}
-        for i in range(self.rep.get_dimensions()[0]):
-            if self.rep.get_env().get((i, i)):
-                dict_result[self.rep.get_env().get((i, i)).get_owner_id()] += 1
-        if self.num_obj in dict_result.values():
-            return True
-
-        dict_result = {key: 0 for key in self.scores.keys()}
-        for i in range(self.rep.get_dimensions()[0]):
-            if self.rep.get_env().get((i, self.rep.get_dimensions()[0] - i)):
-                dict_result[self.rep.get_env().get((i, self.rep.get_dimensions()[0] - i)).get_owner_id()] += 1
-        if self.num_obj in dict_result.values():
-            return True
+            
+            won = True
+            prev = self.rep.get_env().get((dim[0]-1, dim[0]-1), -1)
+            for i in range(dim[0]): #check right diag
+                current = self.rep.get_env().get((dim[0]-1-i, dim[0]-1-i), -1)
+                if prev == -1 or current == -1:
+                    won = False
+                    break
+                elif current.get_type() != prev.get_type():
+                    won = False
+            if won:
+                return True
 
         return False
+    
+    def __str__(self) -> str:
+        print(self.get_rep())
+        if not self.is_done():
+            return super().__str__()
+        return 'The game is finished!'

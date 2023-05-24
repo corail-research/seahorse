@@ -11,3 +11,6 @@ class BoardTictac(Board):
 
     def __init__(self, env: dict[Tuple[int], Piece], dim: list[int]) -> None:
         super().__init__(env, dim)
+
+    def __str__(self) -> str:
+        return super().__str__()

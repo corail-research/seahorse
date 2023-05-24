@@ -22,11 +22,12 @@ class Player(TimeMixin):
 
     next_id = 0
 
-    def __init__(self, name: str = "bob") -> None:
+    def __init__(self, name: str = "bob", time_limit = 1e6) -> None:
         self.id_player = Player.next_id
         self.name = name
         self.possible_actions: list[Representation] = []
         Player.next_id += 1
+        self.init_timer(time_limit)
 
     def play(self, current_state: GameState) -> Action:
         """
@@ -95,3 +96,10 @@ class Player(TimeMixin):
             int: id_player
         """
         return self.id_player
+    
+    def get_name(self):
+        return self.name
+    
+    def __str__(self) -> str:
+        return f'Player {self.get_name()} has ID {self.get_id()}.'
+

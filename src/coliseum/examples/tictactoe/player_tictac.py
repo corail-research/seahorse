@@ -16,8 +16,12 @@ class PlayerTictac(Player):
         next_id (int): id to be assigned to the next player
     """
 
-    def __init__(self, name: str = "bob") -> None:
+    def __init__(self, piece_type: str, name: str = "bob") -> None:
         super().__init__(name)
+        self.piece_type = piece_type
+
+    def get_piece_type(self):
+        return self.piece_type
 
     def get_possible_actions(self, current_rep: BoardTictac) -> list[BoardTictac]:
         """
@@ -34,7 +38,7 @@ class PlayerTictac(Player):
             for j in range(current_rep.get_dimensions()[1]):
                 if not current_rep.get_env().get((i, j)):
                     copy_rep = copy.deepcopy(current_rep)
-                    copy_rep.get_env()[(i, j)] = Piece(piece_type="tic", owner=self)
+                    copy_rep.get_env()[(i, j)] = Piece(piece_type=self.get_piece_type(), owner=self)
                     list_rep.append(copy.deepcopy(copy_rep))
         self.possible_actions = list_rep
         return list_rep
@@ -68,3 +72,6 @@ class PlayerTictac(Player):
             pass
         list_possible_rep = self.get_possible_actions(current_rep)
         return random.choice(list_possible_rep)
+    
+    def __str__(self) -> str:
+        return super().__str__()
