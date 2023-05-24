@@ -80,5 +80,5 @@ class Board(Representation):
                     to_print += str(self.get_env().get((i,j)).get_type()) + " "
                 else:
                     to_print += "_ "
-            to_print += '\n'
+            to_print += "\n"
         return to_print

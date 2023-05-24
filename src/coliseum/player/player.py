@@ -96,10 +96,10 @@ class Player(TimeMixin):
             int: id_player
         """
         return self.id_player
-    
+
     def get_name(self):
         return self.name
-    
+
     def __str__(self) -> str:
-        return f'Player {self.get_name()} has ID {self.get_id()}.'
+        return f"Player {self.get_name()} has ID {self.get_id()}."
 

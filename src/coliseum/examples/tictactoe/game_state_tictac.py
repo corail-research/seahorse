@@ -54,7 +54,7 @@ class GameStateTictac(GameState):
                     won = False
             if won:
                 return True
-  
+
         for i in range(dim[1]): #check columns
             won = True
             prev = self.rep.get_env().get((0, i), -1)
