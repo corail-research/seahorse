@@ -54,7 +54,7 @@ class GameStateTictac(GameState):
                     won = False
             if won:
                 return True
-                    
+  
         for i in range(dim[1]): #check columns
             won = True
             prev = self.rep.get_env().get((0, i), -1)
@@ -80,7 +80,7 @@ class GameStateTictac(GameState):
                     won = False
             if won:
                 return True
-            
+
             won = True
             prev = self.rep.get_env().get((dim[0]-1, dim[0]-1), -1)
             for i in range(dim[0]): #check right diag
@@ -94,9 +94,9 @@ class GameStateTictac(GameState):
                 return True
 
         return False
-    
+
     def __str__(self) -> str:
         print(self.get_rep())
         if not self.is_done():
             return super().__str__()
-        return 'The game is finished!'
+        return "The game is finished!"

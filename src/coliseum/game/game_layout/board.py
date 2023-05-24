@@ -30,7 +30,7 @@ class Piece:
             int: owner's id
         """
         return self.owner_id
-    
+
     def __str__(self) -> str:
         return self.get_type()
 
@@ -70,15 +70,15 @@ class Board(Representation):
                 number += 1
                 pieces_list.append(key)
         return number, pieces_list
-    
+
     def __str__(self) -> str:
         dim = self.get_dimensions()
         to_print = ""
         for i in range(dim[0]):
             for j in range(dim[1]):
                 if self.get_env().get((i,j), -1) != -1:
-                    to_print += str(self.get_env().get((i,j)).get_type()) + ' '
+                    to_print += str(self.get_env().get((i,j)).get_type()) + " "
                 else:
-                    to_print += '_ '
+                    to_print += "_ "
             to_print += '\n'
         return to_print

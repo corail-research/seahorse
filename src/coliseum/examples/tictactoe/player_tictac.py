@@ -72,6 +72,6 @@ class PlayerTictac(Player):
             pass
         list_possible_rep = self.get_possible_actions(current_rep)
         return random.choice(list_possible_rep)
-    
+
     def __str__(self) -> str:
         return super().__str__()
