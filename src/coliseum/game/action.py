@@ -8,10 +8,7 @@ class Action:
         new_rep (Representation): new representation of the game
     """
 
-    def __init__(self,
-                 past_rep: Representation,
-                 new_rep: Representation
-                 ) -> None:
+    def __init__(self, past_rep: Representation, new_rep: Representation) -> None:
         self.past_rep = past_rep
         self.new_rep = new_rep
 

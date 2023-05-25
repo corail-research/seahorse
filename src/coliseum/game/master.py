@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict
+from typing import Dict, List
 from coliseum.game.game_state import GameState
 from coliseum.game.representation import Representation
 from coliseum.player.player import Player
@@ -48,10 +48,10 @@ class GameMaster:
         new_scores = self.compute_scores(action.get_new_rep())
         return self.initial_game_state.__class__(
             new_scores, next(self.players_iterator), self.players, action.get_new_rep()
-            )
+        )
 
-    def play_game(self) -> Player:
-        """_summary_
+    def play_game(self) -> Iterable[Player]:
+        """Play the game
 
         Returns:
             Player: winner of the game
@@ -59,8 +59,10 @@ class GameMaster:
         while not self.current_game_state.is_done():
             self.current_game_state = self.step()
             print(self.current_game_state)
-
-        return
+        self.winner = self.compute_winner(self.current_game_state.get_scores())
+        for w in self.winner:
+            print("Winner :", w)
+        return self.winner
 
     def update_log(self):
         # TODO: Implement I/O utilities for logging
@@ -78,7 +80,7 @@ class GameMaster:
         Returns:
             GameState: game_state
         """
-        return self.game_state
+        return self.current_game_state
 
     def get_json_path(self):
         """
@@ -86,6 +88,13 @@ class GameMaster:
             str: log_file
         """
         return self.log_file
+
+    def get_winner(self):
+        """
+        Returns:
+            Player: winner of the game
+        """
+        return self.winner
 
     @abstractmethod
     def compute_scores(self, representation: Representation) -> Dict[int, float]:
@@ -99,5 +108,20 @@ class GameMaster:
 
         Returns:
             List[float]: _description_
+        """
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:
+        """Computes the winners of the game based on the scores
+
+        Args:
+            scores (Dict[int, float]): score for each player
+
+        Raises:
+            MethodNotImplementedError: _description_
+
+        Returns:
+            Iterable[Player]: list of the player who won the game
         """
         raise MethodNotImplementedError()

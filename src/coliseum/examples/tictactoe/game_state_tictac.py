@@ -2,6 +2,7 @@ from typing import Dict, List
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
+from math import sqrt
 
 
 class GameStateTictac(GameState):
@@ -17,6 +18,13 @@ class GameStateTictac(GameState):
         super().__init__(scores, next_player, players, rep)
         self.num_pieces = 9
 
+    def get_num_pieces(self):
+        """
+        Returns:
+            num_pieces: number of pieces implied in the game
+        """
+        return self.num_pieces
+
     def is_done(self) -> bool:
         """
         Function to know if the game is finished
@@ -24,75 +32,38 @@ class GameStateTictac(GameState):
         Returns:
             bool: -
         """
-        if len(self.rep.get_env().keys()) == self.num_pieces or self.winning():
+        if len(self.rep.get_env().keys()) == self.num_pieces or self.has_won():
             return True
         return False
 
-    def winning(self) -> bool:
+    def has_won(self) -> bool:
         """
         Function to know if the game is finished
 
         Returns:
             bool: finish or not
         """
-        dim = self.rep.get_dimensions()
-
-        won = False
-
-        if self.rep.get_env() == {}:
-            return False
-
-        for i in range(dim[0]): #check lines
-            won = True
-            prev = self.rep.get_env().get((i, 0), -1)
-            for j in range(dim[1]):
-                current = self.rep.get_env().get((i, j), -1)
-                if prev == -1 or current == -1:
-                    won = False
-                    break
-                elif current.get_type() != prev.get_type():
-                    won = False
-            if won:
+        dim = self.get_num_pieces()
+        env = self.rep.get_env()
+        table = []
+        for k in range(dim):
+            table.append(
+                [p.get_owner_id() for p in [env.get((i, k), None) for i in range(int(sqrt(dim)))] if p != None]
+            )
+            table.append(
+                [p.get_owner_id() for p in [env.get((k, i), None) for i in range(int(sqrt(dim)))] if p != None]
+            )
+        table.append([p.get_owner_id() for p in [env.get((i, i), None) for i in range(int(sqrt(dim)))] if p != None])
+        table.append(
+            [
+                p.get_owner_id()
+                for p in [env.get((i, int(sqrt(dim)) - i - 1), None) for i in range(int(sqrt(dim)))]
+                if p != None
+            ]
+        )
+        for line in table:
+            if len(set(line)) == 1 and len(line) == 3:
                 return True
-
-        for i in range(dim[1]): #check columns
-            won = True
-            prev = self.rep.get_env().get((0, i), -1)
-            for j in range(dim[0]):
-                current = self.rep.get_env().get((j, i), -1)
-                if prev == -1 or current == -1:
-                    won = False
-                    break
-                elif current.get_type() != prev.get_type():
-                    won = False
-            if won:
-                return True
-
-        if dim[0] == dim[1]:
-            won = True
-            prev = self.rep.get_env().get((0, 0), -1)
-            for i in range(dim[0]): #check left diag
-                current = self.rep.get_env().get((i, i), -1)
-                if prev == -1 or current == -1:
-                    won = False
-                    break
-                elif current.get_type() != prev.get_type():
-                    won = False
-            if won:
-                return True
-
-            won = True
-            prev = self.rep.get_env().get((dim[0]-1, dim[0]-1), -1)
-            for i in range(dim[0]): #check right diag
-                current = self.rep.get_env().get((dim[0]-1-i, dim[0]-1-i), -1)
-                if prev == -1 or current == -1:
-                    won = False
-                    break
-                elif current.get_type() != prev.get_type():
-                    won = False
-            if won:
-                return True
-
         return False
 
     def __str__(self) -> str:

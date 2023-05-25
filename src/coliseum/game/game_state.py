@@ -14,12 +14,7 @@ class GameState:
         rep (Representation): representation of the game
     """
 
-    def __init__(self,
-                 scores: Dict,
-                 next_player: Player,
-                 players: List[Player],
-                 rep: Representation
-                 ) -> None:
+    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: Representation) -> None:
         self.scores = scores
         self.next_player = next_player
         self.players = players
@@ -81,5 +76,7 @@ class GameState:
 
     def __str__(self) -> str:
         to_print = f"Current scores are {self.get_scores()}.\n"
-        to_print += f"Next person to play is player {self.get_next_player().get_id()} ({self.get_next_player().get_name()}).\n"
+        to_print += (
+            f"Next person to play is player {self.get_next_player().get_id()} ({self.get_next_player().get_name()}).\n"
+        )
         return to_print

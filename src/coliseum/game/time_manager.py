@@ -1,6 +1,11 @@
 import time
 from typing import Any
-from coliseum.utils.custom_exceptions import AlreadyRunningError, NotRunningError, ColiseumTimeoutError, TimerNotInitializedError
+from coliseum.utils.custom_exceptions import (
+    AlreadyRunningError,
+    NotRunningError,
+    ColiseumTimeoutError,
+    TimerNotInitializedError,
+)
 
 
 def _timer_init_safeguard(fun):
@@ -9,32 +14,31 @@ def _timer_init_safeguard(fun):
             raise TimerNotInitializedError()
         else:
             return fun(self, *args, **kwargs)
+
     return wrapper
 
 
 class TimeMixin:
     """
-        When implemented allows any object to keep track of time
+    When implemented allows any object to keep track of time
 
-        Example usage:
-        ```
-            import time
-            class MyTimedObject(TimeMixin):
-                def __init__(self):
-                    self.myattr = 2
+    Example usage:
+    ```
+        import time
+        class MyTimedObject(TimeMixin):
+            def __init__(self):
+                self.myattr = 2
 
-            x = MyTimedObject()
-            x.set_time_limit(10)
-            x.start_timer()
-            time.sleep(11)
-            x.myattr=5  # raises TimeouException
+        x = MyTimedObject()
+        x.set_time_limit(10)
+        x.start_timer()
+        time.sleep(11)
+        x.myattr=5  # raises TimeouException
 
-        ```
+    ```
     """
 
-    def init_timer(self,
-                   time_limit: int
-                   ) -> None:
+    def init_timer(self, time_limit: int) -> None:
         """
         Initializes the time credit of the instance
 
@@ -66,7 +70,7 @@ class TimeMixin:
 
     @_timer_init_safeguard
     def is_running(self) -> bool:
-        """ 
+        """
         Is the timer running ?
 
         Returns:
@@ -89,7 +93,7 @@ class TimeMixin:
             float: the remaining time
         """
         if self._is_running:
-            return self._remaining_time - (time.time()-self._last_timestamp)
+            return self._remaining_time - (time.time() - self._last_timestamp)
         else:
             return self._remaining_time
 
@@ -106,8 +110,7 @@ class TimeMixin:
         if not self._is_running:
             raise NotRunningError()
 
-        self._remaining_time = self._remaining_time - \
-            (time.time()-self._last_timestamp)
+        self._remaining_time = self._remaining_time - (time.time() - self._last_timestamp)
 
         self._is_running = False
         return self._remaining_time

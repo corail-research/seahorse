@@ -21,6 +21,10 @@ class PlayerTictac(Player):
         self.piece_type = piece_type
 
     def get_piece_type(self):
+        """
+        Returns:
+            piece_type: string to represent the type of the piece
+        """
         return self.piece_type
 
     def get_possible_actions(self, current_rep: BoardTictac) -> list[BoardTictac]:
