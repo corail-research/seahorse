@@ -1,80 +1,36 @@
-from abc import abstractmethod
-from typing import Dict, List
-from coliseum.player.player import Player
 from coliseum.game.representation import Representation
-from coliseum.utils.custom_exceptions import MethodNotImplementedError
+from coliseum.player.player import Player
 
 
 class GameState:
-    """
-    Attributes:
-        score (list[float]): scores of the state for each players
-        next_player (Player): next player to play
-        players (list[Player]): list of players
-        rep (Representation): representation of the game
-    """
+    score: list[float]
+    to_play: Player
+    players: list[Player]
+    rep: Representation
 
-    def __init__(self,
-                 scores: Dict,
-                 next_player: Player,
-                 players: List[Player],
-                 rep: Representation
-                 ) -> None:
-        self.scores = scores
-        self.next_player = next_player
-        self.players = players
-        self.rep = rep
-
-    def get_player_score(self, player: Player) -> float:
-        """
-        Gets a player's score
-
-        Args:
-            player (Player): -
-
-        Returns:
-            float: the score
-        """
-        return self.scores[player.get_id()]
+    def __init__(self) -> None:
+        pass
 
     def get_next_player(self):
-        """
-        Returns:
-            Player: next_player
-        """
-        if not self.is_done():
-            return self.next_player
+        pass
 
-    def get_scores(self):
-        """
-        Returns:
-            int: score
-        """
-        return self.scores
+    def is_done(self):
+        pass
+
+    def get_score(self):
+        pass
+
+    def get_to_play(self):
+        pass
 
     def get_players(self):
-        """
-        Returns:
-            list[Player]: players
-        """
-        return self.players
+        pass
 
     def get_rep(self):
-        """
-        Returns:
-            Representation: rep
-        """
-        return self.rep
+        pass
 
-    @abstractmethod
-    def is_done(self) -> bool:
-        """
-        Indicates if the current GameState is final.
+    def update_score(self):
+        pass
 
-        Raises:
-            MethodNotImplementedError: _description_
-
-        Returns:
-            bool: `True` if the state is final `False` else
-        """
-        raise MethodNotImplementedError()
+    def update_rep(self):
+        pass
