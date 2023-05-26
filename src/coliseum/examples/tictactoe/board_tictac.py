@@ -1,4 +1,5 @@
 from typing import Tuple
+
 from coliseum.game.game_layout.board import Board, Piece
 
 

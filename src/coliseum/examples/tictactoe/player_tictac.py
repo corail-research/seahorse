@@ -1,8 +1,8 @@
-import copy
 import random
+from typing import Set
+
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.game.action import Action
-from coliseum.game.game_layout.board import Piece
 from coliseum.player.player import Player
 
 
@@ -27,41 +27,8 @@ class PlayerTictac(Player):
         """
         return self.piece_type
 
-    def get_possible_actions(self, current_rep: BoardTictac) -> list[BoardTictac]:
-        """
-        Function to generate all the possible actions
 
-        Args:
-            current_rep (BoardTictac): current game state representation
-
-        Returns:
-            list[BoardTictac]: list of the possible future representation
-        """
-        list_rep = []
-        for i in range(current_rep.get_dimensions()[0]):
-            for j in range(current_rep.get_dimensions()[1]):
-                if not current_rep.get_env().get((i, j)):
-                    copy_rep = copy.deepcopy(current_rep)
-                    copy_rep.get_env()[(i, j)] = Piece(piece_type=self.get_piece_type(), owner=self)
-                    list_rep.append(copy.deepcopy(copy_rep))
-        self.possible_actions = list_rep
-        return list_rep
-
-    def check_action(self, action: Action) -> bool:
-        """
-        Function to know if an action is feasible
-
-        Args:
-            action (Action): -
-
-        Returns:
-            bool: -
-        """
-        if action.get_new_rep() in self.possible_actions:
-            return True
-        return False
-
-    def solve(self, current_rep: BoardTictac, **kwargs) -> BoardTictac:
+    def solve(self, possible_actions: Set[Action], **kwargs) -> BoardTictac:
         """
         Function to implement the logic of the player (here random selection of a feasible solution)
 
@@ -74,7 +41,7 @@ class PlayerTictac(Player):
         """
         if kwargs:
             pass
-        list_possible_rep = self.get_possible_actions(current_rep)
+        list_possible_rep = [x.get_new_rep() for x in possible_actions]
         return random.choice(list_possible_rep)
 
     def __str__(self) -> str:

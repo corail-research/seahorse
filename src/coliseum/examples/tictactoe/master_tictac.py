@@ -1,8 +1,9 @@
 from typing import Dict, Iterable
+
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.game.game_state import GameState
-from coliseum.player.player import Player
 from coliseum.game.master import GameMaster
+from coliseum.player.player import Player
 
 
 class MasterTictac(GameMaster):

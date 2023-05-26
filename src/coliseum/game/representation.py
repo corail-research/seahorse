@@ -1,4 +1,7 @@
+from abc import abstractmethod
 from typing import Any
+
+from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
 
 class Representation:
@@ -31,3 +34,7 @@ class Representation:
             return -1
         else:
             return self.env[to_find]
+
+    @abstractmethod
+    def __hash__(self) -> int:
+        raise MethodNotImplementedError()

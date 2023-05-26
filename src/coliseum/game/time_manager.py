@@ -1,9 +1,10 @@
 import time
 from typing import Any
+
 from coliseum.utils.custom_exceptions import (
     AlreadyRunningError,
-    NotRunningError,
     ColiseumTimeoutError,
+    NotRunningError,
     TimerNotInitializedError,
 )
 

@@ -1,6 +1,8 @@
 from __future__ import annotations
+
 from abc import abstractmethod
 from typing import TYPE_CHECKING
+
 from coliseum.game.action import Action
 from coliseum.game.representation import Representation
 from coliseum.game.time_manager import TimeMixin
@@ -46,7 +48,8 @@ class Player(TimeMixin):
         """
 
         return Action(
-            current_state.get_rep(), self.solve(current_rep=current_state.get_rep(), scores=current_state.get_scores())
+            current_state.get_rep(), self.solve(possible_actions=current_state.get_possible_actions(),
+                                                scores=current_state.get_scores())
         )
 
     @abstractmethod
@@ -59,34 +62,6 @@ class Player(TimeMixin):
 
         Returns:
             Representation: the next state representation
-        """
-        raise MethodNotImplementedError()
-
-    @abstractmethod
-    def check_action(self, action: Action) -> bool:
-        """
-
-        Must return `True` if the current action is allowed.
-
-        Args:
-            player (Player): the originating player
-
-        Raises:
-            MethodNotImplementedError: _description_
-        """
-        raise MethodNotImplementedError()
-
-    @abstractmethod
-    def get_possible_actions(self, rep: Representation) -> list[Representation]:
-        """
-
-        Return the list of all possible actions the player can do
-
-        Args:
-            rep (Representation): representation of the current state
-
-        Raises:
-            MethodNotImplementedError: _description_
         """
         raise MethodNotImplementedError()
 

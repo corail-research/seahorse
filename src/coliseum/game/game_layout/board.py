@@ -1,6 +1,8 @@
 from __future__ import annotations
-from coliseum.game.representation import Representation
+
 from typing import TYPE_CHECKING
+
+from coliseum.game.representation import Representation
 
 if TYPE_CHECKING:
     from coliseum.player.player import Player
@@ -33,6 +35,9 @@ class Piece:
 
     def __str__(self) -> str:
         return self.get_type()
+
+    def __hash__(self) -> int:
+        return hash((hash(self.get_type()),hash(self.owner_id)))
 
 
 class Board(Representation):
@@ -82,3 +87,6 @@ class Board(Representation):
                     to_print += "_ "
             to_print += "\n"
         return to_print
+
+    def __hash__(self):
+        return hash(frozenset([(hash(pos),hash(piece)) for pos,piece in self.env.items()]))

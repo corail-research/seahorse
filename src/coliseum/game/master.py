@@ -1,11 +1,11 @@
 from abc import abstractmethod
-from typing import Dict
+from itertools import cycle
+from typing import Dict, Iterable
+
 from coliseum.game.game_state import GameState
 from coliseum.game.representation import Representation
 from coliseum.player.player import Player
 from coliseum.utils.custom_exceptions import ActionNotPermittedError, MethodNotImplementedError
-from typing import Iterable
-from itertools import cycle
 
 
 class GameMaster:
@@ -41,7 +41,7 @@ class GameMaster:
         next_player.start_timer()
         action = next_player.play(self.current_game_state)
         next_player.stop_timer()
-        if not next_player.check_action(action):
+        if not self.current_game_state.check_action(action):
             raise ActionNotPermittedError()
 
         # TODO check against possible hacking
@@ -58,10 +58,11 @@ class GameMaster:
         """
         while not self.current_game_state.is_done():
             self.current_game_state = self.step()
-            print(self.current_game_state)
+            #TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
-        for w in self.winner:
-            print("Winner :", w)
+        for _w in self.winner:
+            #TODO - outputting module print("Winner :", w)
+            pass
         return self.winner
 
     def update_log(self):

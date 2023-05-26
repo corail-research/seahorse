@@ -1,8 +1,12 @@
-from typing import Dict, List
+import copy
+from math import sqrt
+from typing import Dict, List, Set
+
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
+from coliseum.game.action import Action
+from coliseum.game.game_layout.board import Piece
 from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
-from math import sqrt
 
 
 class GameStateTictac(GameState):
@@ -36,6 +40,32 @@ class GameStateTictac(GameState):
             return True
         return False
 
+    def generate_possible_actions(self) -> Set[Action]:
+        """
+        Function to generate possible actions
+
+        Args:
+            current_rep (BoardTictac): current game state representation
+
+        Returns:
+            Set[Action]: list of the possible future representation
+        """
+
+        list_rep = []
+        current_rep = self.get_rep()
+        next_player = self.get_next_player()
+        for i in range(current_rep.get_dimensions()[0]):
+            for j in range(current_rep.get_dimensions()[1]):
+                if not current_rep.get_env().get((i, j)):
+                    copy_rep = copy.deepcopy(current_rep)
+                    copy_rep.get_env()[(i, j)] = Piece(
+                        piece_type=next_player.get_piece_type(), owner=next_player)
+                    list_rep.append(copy.deepcopy(copy_rep))
+        poss_actions = {Action(current_rep, valid_next_rep)
+                           for valid_next_rep in list_rep}
+
+        return poss_actions
+
     def has_won(self) -> bool:
         """
         Function to know if the game is finished
@@ -48,13 +78,16 @@ class GameStateTictac(GameState):
         table = []
         for k in range(dim):
             table.append(
-                [p.get_owner_id() for p in [env.get((i, k), None) for i in range(int(sqrt(dim)))] if p is not None]
+                [p.get_owner_id() for p in [env.get((i, k), None)
+                                            for i in range(int(sqrt(dim)))] if p is not None]
             )
             table.append(
-                [p.get_owner_id() for p in [env.get((k, i), None) for i in range(int(sqrt(dim)))] if p is not None]
+                [p.get_owner_id() for p in [env.get((k, i), None)
+                                            for i in range(int(sqrt(dim)))] if p is not None]
             )
         table.append(
-            [p.get_owner_id() for p in [env.get((i, i), None) for i in range(int(sqrt(dim)))] if p is not None]
+            [p.get_owner_id() for p in [env.get((i, i), None)
+                                        for i in range(int(sqrt(dim)))] if p is not None]
         )
         table.append(
             [
@@ -69,7 +102,6 @@ class GameStateTictac(GameState):
         return False
 
     def __str__(self) -> str:
-        print(self.get_rep())
         if not self.is_done():
             return super().__str__()
         return "The game is finished!"
