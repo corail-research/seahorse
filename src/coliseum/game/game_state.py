@@ -1,5 +1,5 @@
-from coliseum.player.player import Player
 from coliseum.game.representation import Representation
+from coliseum.player.player import Player
 
 
 class GameState:

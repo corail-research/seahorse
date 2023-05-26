@@ -1,10 +1,29 @@
 import functools
 import time
 from typing import Any
-from coliseum.utils.custom_exceptions import AlreadyRunningError, NotRunningError, ColiseumTimeoutError, TimerNotInitializedError
+
+from coliseum.utils.custom_exceptions import (
+    AlreadyRunningError,
+    ColiseumTimeoutError,
+    NotRunningError,
+    TimerNotInitializedError,
+)
 
 
 def _timer_init_safeguard(fun):
+    """
+    Interal decorator to prevent calling timer methods before
+    its inialization.
+
+    Args:
+        fun (_type_): _description_
+
+    Raises:
+        TimerNotInitializedError: _description_
+
+    Returns:
+        _type_: _description_
+    """
     @functools.wraps(fun)
     def wrapper(self, *args, **kwargs):
         if not hasattr(self, "_is_initialized"):
@@ -12,7 +31,6 @@ def _timer_init_safeguard(fun):
         else:
             return fun(self, *args, **kwargs)
     return wrapper
-
 
 class TimeMixin:
     """
@@ -68,7 +86,7 @@ class TimeMixin:
 
     @_timer_init_safeguard
     def is_running(self) -> bool:
-        """ 
+        """
         Is the timer running ?
 
         Returns:
@@ -142,3 +160,29 @@ class TimeMixin:
             self.__dict__[__name] = value
         except Exception as e:
             raise e
+
+def timed_function(fun):
+    """
+    Decorator to prevent using a function after object's timeout.
+    Args:
+        fun (_type_): wrapped function
+
+    Raises:
+        TimerNotInitializedError: _description_
+        Exception: _description_
+        ColiseumTimeoutError: _description_
+
+    Returns:
+        Callable[...]: wrapper
+    """
+    @functools.wraps(fun)
+    def wrapper(self, *args, **kwargs):
+        if not hasattr(self, "_is_initialized"):
+            raise TimerNotInitializedError()
+        if not hasattr(self,"get_time_limit"):
+            msg = "Using @timed_func within a object that is not timed.\n Please use TimeMixin."
+            raise Exception(msg)
+        elif(self.is_locked()):
+            raise ColiseumTimeoutError()
+        return fun(self, *args, **kwargs)
+    return wrapper
