@@ -48,21 +48,23 @@ class GameStateTictac(GameState):
         table = []
         for k in range(dim):
             table.append(
-                [p.get_owner_id() for p in [env.get((i, k), None) for i in range(int(sqrt(dim)))] if p != None]
+                [p.get_owner_id() for p in [env.get((i, k), None) for i in range(int(sqrt(dim)))] if p is not None]
             )
             table.append(
-                [p.get_owner_id() for p in [env.get((k, i), None) for i in range(int(sqrt(dim)))] if p != None]
+                [p.get_owner_id() for p in [env.get((k, i), None) for i in range(int(sqrt(dim)))] if p is not None]
             )
-        table.append([p.get_owner_id() for p in [env.get((i, i), None) for i in range(int(sqrt(dim)))] if p != None])
+        table.append(
+            [p.get_owner_id() for p in [env.get((i, i), None) for i in range(int(sqrt(dim)))] if p is not None]
+        )
         table.append(
             [
                 p.get_owner_id()
                 for p in [env.get((i, int(sqrt(dim)) - i - 1), None) for i in range(int(sqrt(dim)))]
-                if p != None
+                if p is not None
             ]
         )
         for line in table:
-            if len(set(line)) == 1 and len(line) == 3:
+            if len(set(line)) == 1 and len(line) == int(sqrt(dim)):
                 return True
         return False
 

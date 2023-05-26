@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, List
+from typing import Dict
 from coliseum.game.game_state import GameState
 from coliseum.game.representation import Representation
 from coliseum.player.player import Player

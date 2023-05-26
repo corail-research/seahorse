@@ -35,6 +35,7 @@ class MasterTictac(GameMaster):
             dict[int,float]: return a dictionnary with id_player: score
         """
         scores = {}
+        bound = 2.0
         for player in self.players:
             _, pieces = representation.get_pieces_player(player)
             # TODO print(pieces)
@@ -49,29 +50,29 @@ class MasterTictac(GameMaster):
                     for j in range(dim):
                         if env.get((i, j), None) and env.get((i, j), None).get_owner_id() == player.get_id():
                             counter += 1.0
-                    if counter > 2.0:
+                    if counter > bound:
                         scores[player.get_id()] = 1.0
                         success = True
-                if success == True:
+                if success:
                     continue
                 for i in range(dim):
                     counter = 0.0
                     for j in range(dim):
                         if env.get((j, i), None) and env.get((j, i), None).get_owner_id() == player.get_id():
                             counter += 1.0
-                    if counter > 2.0:
+                    if counter > bound:
                         scores[player.get_id()] = 1.0
                         success = True
-                if success == True:
+                if success:
                     continue
                 counter = 0.0
                 for i in range(dim):
                     if env.get((i, i), None) and env.get((i, i), None).get_owner_id() == player.get_id():
                         counter += 1.0
-                if counter > 2.0:
+                if counter > bound:
                     scores[player.get_id()] = 1.0
                     success = True
-                if success == True:
+                if success:
                     continue
                 counter = 0.0
                 for i in range(dim):
@@ -80,10 +81,10 @@ class MasterTictac(GameMaster):
                         and env.get((i, dim - 1 - i), None).get_owner_id() == player.get_id()
                     ):
                         counter += 1.0
-                if counter > 2.0:
+                if counter > bound:
                     scores[player.get_id()] = 1.0
                     success = True
-                if success == True:
+                if success:
                     continue
                 else:
                     scores[player.get_id()] = 0.0
@@ -104,5 +105,5 @@ class MasterTictac(GameMaster):
         """
         max_val = max(scores.values())
         players_id = list(filter(lambda key: scores[key] == max_val, scores))
-        iter = filter(lambda x: x.get_id() in players_id, self.players)
-        return iter
+        itera = filter(lambda x: x.get_id() in players_id, self.players)
+        return itera
