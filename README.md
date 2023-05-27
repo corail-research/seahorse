@@ -1,4 +1,5 @@
-# Coliseum
+<p align="center"><img width="70%" src="assets/logo_coliseum.png" /></p>
+
 
 [![PyPI - Version](https://img.shields.io/pypi/v/coliseum.svg)](https://pypi.org/project/coliseum)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/coliseum.svg)](https://pypi.org/project/coliseum)
