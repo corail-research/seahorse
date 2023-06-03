@@ -15,4 +15,4 @@ master = MasterTictac(
     name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt"
 )
 
-master.play_game()
+master.record_game()

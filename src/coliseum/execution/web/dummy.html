@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <p id="log">
+        </p>
+    </body>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        const logElement = document.getElementById("log");
+        const socket = io("ws://localhost:5000");
+        socket.on("play", (...args) => {
+            console.log(args);
+            logElement.textContent=logElement.textContent+"\n"+args
+        });
+    </script>
+</html>
