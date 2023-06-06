@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, FrozenSet, List, Set
+from typing import Dict, FrozenSet, List, Set, Any
 
 from coliseum.game.action import Action
 from coliseum.game.representation import Representation
@@ -16,7 +16,7 @@ class GameState:
         rep (Representation): representation of the game
     """
 
-    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: Representation) -> None:
+    def __init__(self, scores : Dict[int,Any], next_player: Player, players: List[Player], rep: Representation) -> None:
         self.scores = scores
         self.next_player = next_player
         self.players = players
@@ -106,6 +106,22 @@ class GameState:
 
         Returns:
             Set[Action]: a set of possible actions
+        """
+        raise MethodNotImplementedError()
+    
+    
+    @abstractmethod
+    def compute_scores(self, next_rep : Representation) -> Dict[int, Any]:
+        """Computes the scores of each player
+
+        Args:
+            representation (Representation): _description_
+
+        Raises:
+            MethodNotImplementedError: _description_
+
+        Returns:
+            List[float]: _description_
         """
         raise MethodNotImplementedError()
 

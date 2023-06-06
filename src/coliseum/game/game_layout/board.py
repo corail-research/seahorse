@@ -17,7 +17,10 @@ class Piece:
 
     def __init__(self, piece_type: str, owner: Player) -> None:
         self.piece_type = piece_type
-        self.owner_id = owner.get_id()
+        if owner is None:
+            self.owner_id = -1
+        else:
+            self.owner_id = owner.get_id()
 
     def get_type(self) -> str:
         """
@@ -38,6 +41,9 @@ class Piece:
 
     def __hash__(self) -> int:
         return hash((hash(self.get_type()),hash(self.owner_id)))
+    
+    def copy(self) -> Piece:
+        return Piece(self.piece_type, None)
 
 
 class Board(Representation):

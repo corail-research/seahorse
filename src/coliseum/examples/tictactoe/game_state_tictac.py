@@ -61,7 +61,7 @@ class GameStateTictac(GameState):
                     copy_rep.get_env()[(i, j)] = Piece(
                         piece_type=next_player.get_piece_type(), owner=next_player)
                     list_rep.append(copy.deepcopy(copy_rep))
-        poss_actions = {Action(current_rep, valid_next_rep)
+        poss_actions = {Action(self, valid_next_rep)
                            for valid_next_rep in list_rep}
 
         return poss_actions
