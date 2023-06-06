@@ -34,7 +34,7 @@ class GameMaster:
         next(self.players_iterator)
     
     @staticmethod
-    def get_next_player(player : Player, players_list : List[Player], current_rep : Representation, next_rep : Representation)->Player:
+    def get_next_player(player : Player, players_list : List[Player], current_rep : Representation = None, next_rep : Representation = None)->Player:
         """
         Function to get the next player
 
@@ -78,8 +78,12 @@ class GameMaster:
         Returns:
             Player: winner of the game
         """
+        
+        print(self.current_game_state.get_rep())
         while not self.current_game_state.is_done():
             self.current_game_state = self.step()
+            
+            print(self.current_game_state.get_rep())
             #TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         for _w in self.winner:

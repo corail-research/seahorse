@@ -4,6 +4,7 @@ from typing import Set
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.game.action import Action
 from coliseum.player.player import Player
+from coliseum.game.game_state import GameState
 
 
 class PlayerTictac(Player):
@@ -28,7 +29,7 @@ class PlayerTictac(Player):
         return self.piece_type
 
 
-    def solve(self, possible_actions: Set[Action], **kwargs) -> BoardTictac:
+    def solve(self, current_state : GameState, **kwargs) -> Action:
         """
         Function to implement the logic of the player (here random selection of a feasible solution)
 
@@ -39,10 +40,10 @@ class PlayerTictac(Player):
         Returns:
             BoardTictac: future representation
         """
+        possible_actions = current_state.generate_possible_actions()
         if kwargs:
             pass
-        list_possible_rep = [x.get_new_rep() for x in possible_actions]
-        return random.choice(list_possible_rep)
+        return random.choice(list(possible_actions))
 
     def __str__(self) -> str:
         return super().__str__()

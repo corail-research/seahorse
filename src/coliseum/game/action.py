@@ -1,4 +1,8 @@
-from coliseum.game.game_state import GameState
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from coliseum.game.game_state import GameState
 
 
 class Action:
@@ -33,4 +37,4 @@ class Action:
         return hash(self)==hash(__value)
 
     def __str__(self):
-        return "From:\n"+self.get_past_gs().__str__()+"\nto:\n"+self.get_new_gs().__str__()
+        return "From:\n"+self.get_past_gs().get_rep().__str__()+"\nto:\n"+self.get_new_gs().get_rep().__str__()

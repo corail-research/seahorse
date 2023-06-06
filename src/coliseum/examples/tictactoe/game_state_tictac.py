@@ -7,6 +7,7 @@ from coliseum.game.action import Action
 from coliseum.game.game_layout.board import Piece
 from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
+from coliseum.examples.tictactoe.master_tictac import MasterTictac
 
 
 class GameStateTictac(GameState):
@@ -61,10 +62,77 @@ class GameStateTictac(GameState):
                     copy_rep.get_env()[(i, j)] = Piece(
                         piece_type=next_player.get_piece_type(), owner=next_player)
                     list_rep.append(copy.deepcopy(copy_rep))
-        poss_actions = {Action(self, valid_next_rep)
+        poss_actions = {Action(self, GameStateTictac(self.compute_scores(valid_next_rep),MasterTictac.get_next_player(self.next_player,self.players),self.players,valid_next_rep))
                            for valid_next_rep in list_rep}
 
         return poss_actions
+    
+    def compute_scores(self, representation: BoardTictac) -> dict[int, float]:
+        """
+        Function to compute the score of each player in a list
+
+        Args:
+            representation (BoardTictac): current representation of the game state
+
+        Returns:
+            dict[int,float]: return a dictionnary with id_player: score
+        """
+        scores = {}
+        bound = 2.0
+        for player in self.players:
+            _, pieces = representation.get_pieces_player(player)
+            # TODO print(pieces)
+            if len(pieces) < representation.get_dimensions()[0]:
+                scores[player.get_id()] = 0.0
+            else:
+                success = False
+                env = representation.get_env()
+                dim = representation.get_dimensions()[0]
+                for i in range(dim):
+                    counter = 0.0
+                    for j in range(dim):
+                        if env.get((i, j), None) and env.get((i, j), None).get_owner_id() == player.get_id():
+                            counter += 1.0
+                    if counter > bound:
+                        scores[player.get_id()] = 1.0
+                        success = True
+                if success:
+                    continue
+                for i in range(dim):
+                    counter = 0.0
+                    for j in range(dim):
+                        if env.get((j, i), None) and env.get((j, i), None).get_owner_id() == player.get_id():
+                            counter += 1.0
+                    if counter > bound:
+                        scores[player.get_id()] = 1.0
+                        success = True
+                if success:
+                    continue
+                counter = 0.0
+                for i in range(dim):
+                    if env.get((i, i), None) and env.get((i, i), None).get_owner_id() == player.get_id():
+                        counter += 1.0
+                if counter > bound:
+                    scores[player.get_id()] = 1.0
+                    success = True
+                if success:
+                    continue
+                counter = 0.0
+                for i in range(dim):
+                    if (
+                        env.get((i, dim - 1 - i), None)
+                        and env.get((i, dim - 1 - i), None).get_owner_id() == player.get_id()
+                    ):
+                        counter += 1.0
+                if counter > bound:
+                    scores[player.get_id()] = 1.0
+                    success = True
+                if success:
+                    continue
+                else:
+                    scores[player.get_id()] = 0.0
+        # TODO print(scores)
+        return scores
 
     def has_won(self) -> bool:
         """

@@ -17,6 +17,7 @@ class GameState:
     """
 
     def __init__(self, scores : Dict[int,Any], next_player: Player, players: List[Player], rep: Representation) -> None:
+        
         self.scores = scores
         self.next_player = next_player
         self.players = players
@@ -65,6 +66,7 @@ class GameState:
         return self.rep
 
     def get_possible_actions(self) -> FrozenSet[Action]:
+        
         """
         Returns a copy of the possible actions from this state
         First call triggers `generate_possible_actions`
@@ -144,3 +146,7 @@ class GameState:
             f"Next person to play is player {self.get_next_player().get_id()} ({self.get_next_player().get_name()}).\n"
         )
         return to_print
+    
+    # TODO : check if this works
+    def __hash__(self) -> int:
+        return hash((hash(frozenset(self.scores.items())), self.next_player, hash(frozenset(self.players)), self.rep))
