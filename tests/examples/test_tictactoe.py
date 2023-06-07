@@ -3,7 +3,7 @@ import unittest
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.examples.tictactoe.game_state_tictac import GameStateTictac
 from coliseum.examples.tictactoe.master_tictac import MasterTictac
-from coliseum.examples.tictactoe.player_tictac import PlayerTictac
+from coliseum.examples.tictactoe.random_player_tictac import PlayerTictac
 from coliseum.game.action import Action
 from coliseum.game.game_layout.board import Piece
 
