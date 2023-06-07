@@ -1,6 +1,5 @@
 from typing import Dict, Iterable
 
-from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.game.game_state import GameState
 from coliseum.game.master import GameMaster
 from coliseum.player.player import Player
@@ -25,7 +24,7 @@ class MasterTictac(GameMaster):
     ) -> None:
         super().__init__(name, initial_game_state, players_iterator, log_file)
 
-    
+
 
     def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:
         """Computes the winners of the game based on the scores

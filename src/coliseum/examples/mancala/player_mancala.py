@@ -1,11 +1,11 @@
 import random
 
+from coliseum.examples.mancala.game_state_mancala import GameStateMancala
 from coliseum.game.action import Action
-from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
 
 
-class PlayerTictac(Player):
+class PlayerMancala(Player):
     """
     Attributes:
         id_player (int): id of the player
@@ -15,19 +15,11 @@ class PlayerTictac(Player):
         next_id (int): id to be assigned to the next player
     """
 
-    def __init__(self, piece_type: str, name: str = "bob") -> None:
+    def __init__(self, name: str = "bob") -> None:
         super().__init__(name)
-        self.piece_type = piece_type
-
-    def get_piece_type(self):
-        """
-        Returns:
-            piece_type: string to represent the type of the piece
-        """
-        return self.piece_type
 
 
-    def solve(self, current_state : GameState, **kwargs) -> Action:
+    def solve(self, current_state : GameStateMancala, **kwargs) -> Action:
         """
         Function to implement the logic of the player (here random selection of a feasible solution)
 

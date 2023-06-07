@@ -4,7 +4,6 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from coliseum.game.action import Action
-from coliseum.game.representation import Representation
 from coliseum.game.time_manager import TimeMixin
 from coliseum.utils.custom_exceptions import MethodNotImplementedError
 

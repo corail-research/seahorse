@@ -41,7 +41,7 @@ class Piece:
 
     def __hash__(self) -> int:
         return hash((hash(self.get_type()),hash(self.owner_id)))
-    
+
     def copy(self) -> Piece:
         return Piece(self.piece_type, None)
 

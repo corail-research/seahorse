@@ -3,11 +3,11 @@ from math import sqrt
 from typing import Dict, List, Set
 
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
+from coliseum.examples.tictactoe.master_tictac import MasterTictac
 from coliseum.game.action import Action
 from coliseum.game.game_layout.board import Piece
 from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
-from coliseum.examples.tictactoe.master_tictac import MasterTictac
 
 
 class GameStateTictac(GameState):
@@ -66,7 +66,7 @@ class GameStateTictac(GameState):
                            for valid_next_rep in list_rep}
 
         return poss_actions
-    
+
     def compute_scores(self, representation: BoardTictac) -> dict[int, float]:
         """
         Function to compute the score of each player in a list

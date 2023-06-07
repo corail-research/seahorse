@@ -1,3 +1,5 @@
+import copy
+
 from coliseum.game.game_layout.board import Piece
 from coliseum.game.representation import Representation
 
@@ -30,7 +32,10 @@ class BoardMancala(Representation):
             to_print += "  " + str(len(self.env[(1,i)])) + "   "
         to_print += "\n"
         return to_print
-    
+
     def __hash__(self) -> int:
         return hash(frozenset([(hash(pos),hash(piece)) for pos,piece in self.env.items()]))
+
+    def copy(self):
+        return BoardMancala(copy.deepcopy(self.env))
 

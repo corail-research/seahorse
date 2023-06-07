@@ -32,7 +32,7 @@ class GameMaster:
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         # TODO (to review) Pop the first (because already referenced at init)
         next(self.players_iterator)
-    
+
     @staticmethod
     def get_next_player(player : Player, players_list : List[Player], current_rep : Representation = None, next_rep : Representation = None)->Player:
         """
@@ -46,6 +46,8 @@ class GameMaster:
         Returns:
             Player: next player
         """
+        if current_rep is None or next_rep is None:
+            pass
         if player.get_id() == len(players_list)-1:
             for p in players_list:
                 if p.get_id() == 0:
@@ -62,9 +64,11 @@ class GameMaster:
         """
         next_player = self.current_game_state.get_next_player()
         possible_actions = self.current_game_state.generate_possible_actions()
+
         next_player.start_timer()
         action = next_player.play(self.current_game_state)
         next_player.stop_timer()
+
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
@@ -78,12 +82,8 @@ class GameMaster:
         Returns:
             Player: winner of the game
         """
-        
-        print(self.current_game_state.get_rep())
         while not self.current_game_state.is_done():
             self.current_game_state = self.step()
-            
-            print(self.current_game_state.get_rep())
             #TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         for _w in self.winner:
