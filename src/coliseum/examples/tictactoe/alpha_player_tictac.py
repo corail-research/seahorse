@@ -2,8 +2,8 @@ import math
 from math import sqrt
 
 from coliseum.game.action import Action
-from coliseum.player.player import Player
 from coliseum.game.game_state import GameState
+from coliseum.player.player import Player
 
 infinity = math.inf
 
@@ -27,7 +27,7 @@ class AlphaPlayerTictac(Player):
             piece_type: string to represent the type of the piece
         """
         return self.piece_type
-    
+
     def cutoff_depth(self, d, cutoff):
         return d > cutoff
 
@@ -59,7 +59,7 @@ class AlphaPlayerTictac(Player):
             if len(set(line)) == 1 and len(line) == int(sqrt(dim)) and line[0] == self.get_id():
                 return 1
             elif len(set(line)) == 1 and len(line) == int(sqrt(dim)) and line[0] != self.get_id():
-                return -1 
+                return -1
         return 0
 
     def max_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
@@ -93,7 +93,7 @@ class AlphaPlayerTictac(Player):
                 return v, move
         return v, move
 
-    def solve(self, current_state : GameState, **kwargs) -> Action:
+    def solve(self, current_state : GameState, **_) -> Action:
         """
         Function to implement the logic of the player (here alpha beta algorithm)
         """

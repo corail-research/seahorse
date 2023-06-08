@@ -1,8 +1,8 @@
 import random
 
 from coliseum.game.action import Action
-from coliseum.player.player import Player
 from coliseum.game.game_state import GameState
+from coliseum.player.player import Player
 
 
 class RandomPlayerTictac(Player):
