@@ -49,7 +49,7 @@ class GameStateMancala(GameState):
             for i in range(1,7):
                 if len(self.rep.env[(1,i-1)]) != 0:
                     actions.append(self.generate_action((1,i-1)))
-        return Set(actions)
+        return actions
 
     def generate_action(self, pool):
         """
@@ -81,12 +81,14 @@ class GameStateMancala(GameState):
                 front = (1,pool[1]-1)
                 if len(env[front]) > 0:
                     env[(0,0)] += env[front]
+                    env[(0,0)].append(single_piece.copy())
                     env[front] = []
                     env[pool] = []
             elif pool[0] == 1 and pool[1] < BOARD_SIZE and player == 1:
                 front = (0,pool[1]+1)
                 if len(env[front]) > 0:
                     env[(1,6)] += env[front]
+                    env[(1,6)].append(single_piece.copy())
                     env[front] = []
                     env[pool] = []
         # if one side is empty, win all the pieces in front

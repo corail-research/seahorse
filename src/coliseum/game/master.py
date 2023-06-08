@@ -82,8 +82,10 @@ class GameMaster:
         Returns:
             Player: winner of the game
         """
+        #print(self.current_game_state.get_rep())
         while not self.current_game_state.is_done():
             self.current_game_state = self.step()
+            #print(self.current_game_state.get_rep())
             #TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         for _w in self.winner:
