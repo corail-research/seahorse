@@ -1,4 +1,4 @@
-<p align="center"><img width="70%" src="assets/logo_coliseum.png" /></p>
+<p align="center"><img width="70%" src="assets/logo_seahorse.png" /></p>
 
 
 [![PyPI - Version](https://img.shields.io/pypi/v/coliseum.svg)](https://pypi.org/project/coliseum)
