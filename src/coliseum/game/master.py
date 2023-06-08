@@ -1,13 +1,15 @@
+import asyncio
 import json
 from abc import abstractmethod
 from itertools import cycle
+import time
 from typing import Dict, Iterable
 
 from coliseum.game.game_state import GameState
-from coliseum.game.io_stream import EventEmitter
 from coliseum.game.representation import Representation
 from coliseum.player.player import Player
 from coliseum.utils.custom_exceptions import ActionNotPermittedError, MethodNotImplementedError
+from coliseum.game.io_stream import EventMaster,EventSlave
 
 
 class GameMaster:
@@ -35,24 +37,50 @@ class GameMaster:
         # TODO (to review) Pop the first (because already referenced at init)
         next(self.players_iterator)
 
-        self.emitter = EventEmitter.get_instance()
+    @staticmethod
+    def get_next_player(player : Player, players_list : List[Player], current_rep : Representation = None, next_rep : Representation = None)->Player:
+        """
+        Function to get the next player
+
+        Args:
+            player (Player): current player
+            current_rep (Representation): current representation of the game
+            next_rep (Representation): next representation of the game
+
+        Returns:
+            Player: next player
+        """
+        if current_rep is None or next_rep is None:
+            pass
+        if player.get_id() == len(players_list)-1:
+            for p in players_list:
+                if p.get_id() == 0:
+                    return p
+        else:
+            for p in players_list:
+                if p.get_id() == player.get_id()+1:
+                    return p
+
+
+        self.emitter = EventMaster.get_instance(1)
 
     def step(self) -> GameState:
         """
         Calls the next player move
         """
         next_player = self.current_game_state.get_next_player()
+        possible_actions = self.current_game_state.generate_possible_actions()
+
         next_player.start_timer()
         action = next_player.play(self.current_game_state)
         next_player.stop_timer()
-        if not self.current_game_state.check_action(action):
+
+        if action not in possible_actions:
             raise ActionNotPermittedError()
 
         # TODO check against possible hacking
-        new_scores = self.compute_scores(action.get_new_rep())
-        return self.initial_game_state.__class__(
-            new_scores, next(self.players_iterator), self.players, action.get_new_rep()
-        )
+        #new_scores = self.compute_scores(action.get_new_rep())
+        return action.get_new_gs()
 
     async def play_game(self) -> Iterable[Player]:
         """Play the game
@@ -60,20 +88,22 @@ class GameMaster:
         Returns:
             Player: winner of the game
         """
+        #print(self.current_game_state.get_rep())
         while not self.current_game_state.is_done():
             self.current_game_state = self.step()
-            await self.emitter.sio.sleep(2)
-            await self.emitter.sio.emit("play",json.dumps(self.current_game_state.__dict__,default=lambda :"bob"))
-            #TODO - outputting module
-            print(self.current_game_state)
+            #print(self.current_game_state.get_rep())
+            #TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         for _w in self.winner:
             #TODO - outputting module print("Winner :", w)
             pass
         return self.winner
 
-    def record_game(self):
-        self.emitter.start(self.play_game)
+    def record_game(self) -> None:
+        """
+            Starts a game and broadcasts its successive states
+        """
+        self.emitter.start(self.play_game, [EventSlave()])
 
     def update_log(self):
         # TODO: Implement I/O utilities for logging
@@ -107,20 +137,6 @@ class GameMaster:
         """
         return self.winner
 
-    @abstractmethod
-    def compute_scores(self, representation: Representation) -> Dict[int, float]:
-        """Computes the scores of each player
-
-        Args:
-            representation (Representation): _description_
-
-        Raises:
-            MethodNotImplementedError: _description_
-
-        Returns:
-            List[float]: _description_
-        """
-        raise MethodNotImplementedError()
 
     @abstractmethod
     def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:

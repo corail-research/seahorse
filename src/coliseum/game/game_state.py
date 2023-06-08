@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Dict, FrozenSet, List, Set
+from typing import Any, Dict, FrozenSet, List, Set
 
 from coliseum.game.action import Action
 from coliseum.game.representation import Representation
@@ -16,7 +16,8 @@ class GameState:
         rep (Representation): representation of the game
     """
 
-    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: Representation) -> None:
+    def __init__(self, scores : Dict[int,Any], next_player: Player, players: List[Player], rep: Representation) -> None:
+
         self.scores = scores
         self.next_player = next_player
         self.players = players
@@ -65,6 +66,7 @@ class GameState:
         return self.rep
 
     def get_possible_actions(self) -> FrozenSet[Action]:
+
         """
         Returns a copy of the possible actions from this state
         First call triggers `generate_possible_actions`
@@ -73,6 +75,8 @@ class GameState:
             Set[Action]: the possible actions
         """
         # Lazy loading
+        if self.is_done():
+            return frozenset()
         if self._possible_actions is None:
             self._possible_actions = frozenset(self.generate_possible_actions())
         return self._possible_actions
@@ -109,6 +113,22 @@ class GameState:
         """
         raise MethodNotImplementedError()
 
+
+    @abstractmethod
+    def compute_scores(self, next_rep : Representation) -> Dict[int, Any]:
+        """Computes the scores of each player
+
+        Args:
+            representation (Representation): _description_
+
+        Raises:
+            MethodNotImplementedError: _description_
+
+        Returns:
+            List[float]: _description_
+        """
+        raise MethodNotImplementedError()
+
     @abstractmethod
     def is_done(self) -> bool:
         """
@@ -128,3 +148,7 @@ class GameState:
             f"Next person to play is player {self.get_next_player().get_id()} ({self.get_next_player().get_name()}).\n"
         )
         return to_print
+
+    # TODO : check if this works
+    def __hash__(self) -> int:
+        return hash((hash(frozenset(self.scores.items())), self.next_player, hash(frozenset(self.players)), self.rep))

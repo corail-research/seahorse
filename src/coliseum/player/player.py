@@ -4,7 +4,6 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from coliseum.game.action import Action
-from coliseum.game.representation import Representation
 from coliseum.game.time_manager import TimeMixin
 from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
@@ -27,7 +26,6 @@ class Player(TimeMixin):
     def __init__(self, name: str = "bob", time_limit=1e6) -> None:
         self.id_player = Player.next_id
         self.name = name
-        self.possible_actions: list[Representation] = []
         Player.next_id += 1
         self.init_timer(time_limit)
 
@@ -46,14 +44,11 @@ class Player(TimeMixin):
         Returns:
             Action: The action resulting
         """
-
-        return Action(
-            current_state.get_rep(), self.solve(possible_actions=current_state.get_possible_actions(),
-                                                scores=current_state.get_scores())
-        )
+        # TODO : check score ????
+        return self.solve(current_state=current_state)
 
     @abstractmethod
-    def solve(self, **kwargs) -> Representation:
+    def solve(self, **kwargs) -> Action:
         """
         Should be dedicated to adversarial search
 
@@ -61,7 +56,7 @@ class Player(TimeMixin):
             MethodNotImplementedError: _description_
 
         Returns:
-            Representation: the next state representation
+            Action: the action to play
         """
         raise MethodNotImplementedError()
 

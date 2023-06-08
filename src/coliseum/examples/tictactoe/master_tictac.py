@@ -1,6 +1,5 @@
 from typing import Dict, Iterable
 
-from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.game.game_state import GameState
 from coliseum.game.master import GameMaster
 from coliseum.player.player import Player
@@ -25,72 +24,7 @@ class MasterTictac(GameMaster):
     ) -> None:
         super().__init__(name, initial_game_state, players_iterator, log_file)
 
-    def compute_scores(self, representation: BoardTictac) -> dict[int, float]:
-        """
-        Function to compute the score of each player in a list
 
-        Args:
-            representation (BoardTictac): current representation of the game state
-
-        Returns:
-            dict[int,float]: return a dictionnary with id_player: score
-        """
-        scores = {}
-        bound = 2.0
-        for player in self.players:
-            _, pieces = representation.get_pieces_player(player)
-            # TODO print(pieces)
-            if len(pieces) < representation.get_dimensions()[0]:
-                scores[player.get_id()] = 0.0
-            else:
-                success = False
-                env = representation.get_env()
-                dim = representation.get_dimensions()[0]
-                for i in range(dim):
-                    counter = 0.0
-                    for j in range(dim):
-                        if env.get((i, j), None) and env.get((i, j), None).get_owner_id() == player.get_id():
-                            counter += 1.0
-                    if counter > bound:
-                        scores[player.get_id()] = 1.0
-                        success = True
-                if success:
-                    continue
-                for i in range(dim):
-                    counter = 0.0
-                    for j in range(dim):
-                        if env.get((j, i), None) and env.get((j, i), None).get_owner_id() == player.get_id():
-                            counter += 1.0
-                    if counter > bound:
-                        scores[player.get_id()] = 1.0
-                        success = True
-                if success:
-                    continue
-                counter = 0.0
-                for i in range(dim):
-                    if env.get((i, i), None) and env.get((i, i), None).get_owner_id() == player.get_id():
-                        counter += 1.0
-                if counter > bound:
-                    scores[player.get_id()] = 1.0
-                    success = True
-                if success:
-                    continue
-                counter = 0.0
-                for i in range(dim):
-                    if (
-                        env.get((i, dim - 1 - i), None)
-                        and env.get((i, dim - 1 - i), None).get_owner_id() == player.get_id()
-                    ):
-                        counter += 1.0
-                if counter > bound:
-                    scores[player.get_id()] = 1.0
-                    success = True
-                if success:
-                    continue
-                else:
-                    scores[player.get_id()] = 0.0
-        # TODO print(scores)
-        return scores
 
     def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:
         """Computes the winners of the game based on the scores

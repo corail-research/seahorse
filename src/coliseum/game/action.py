@@ -1,36 +1,41 @@
-from coliseum.game.representation import Representation
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from coliseum.game.game_state import GameState
 
 
 class Action:
     """
     Attributes:
-        past_rep (Representation): past representation of the game
-        new_rep (Representation): new representation of the game
+        past_gs (Representation): past gsresentation of the game
+        new_gs (Representation): new gsresentation of the game
     """
 
-    def __init__(self, past_rep: Representation, new_rep: Representation) -> None:
-        self.past_rep = past_rep
-        self.new_rep = new_rep
+    def __init__(self, past_gs: GameState, new_gs: GameState) -> None:
+        self.past_gs = past_gs
+        self.new_gs = new_gs
 
-    def get_past_rep(self) -> Representation:
+    def get_past_gs(self) -> GameState:
         """
         Returns:
-            Representation: past_rep
+            Representation: past_gs
         """
-        return self.past_rep
+        return self.past_gs
 
-    def get_new_rep(self) -> Representation:
+    def get_new_gs(self) -> GameState:
         """
         Returns:
-            Representation: new_rep
+            Representation: new_gs
         """
-        return self.new_rep
+        return self.new_gs
 
     def __hash__(self):
-        return hash((hash(self.get_new_rep()),hash(self.get_past_rep())))
+        return hash((hash(self.get_new_gs()),hash(self.get_past_gs())))
 
     def __eq__(self, __value: object) -> bool:
         return hash(self)==hash(__value)
 
     def __str__(self):
-        return "From:\n"+self.get_past_rep().__str__()+"\nto:\n"+self.get_new_rep().__str__()
+        return "From:\n"+self.get_past_gs().get_rep().__str__()+"\nto:\n"+self.get_new_gs().get_rep().__str__()
