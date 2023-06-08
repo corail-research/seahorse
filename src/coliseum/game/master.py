@@ -1,13 +1,15 @@
+import asyncio
 import json
 from abc import abstractmethod
 from itertools import cycle
+import time
 from typing import Dict, Iterable
 
 from coliseum.game.game_state import GameState
-from coliseum.game.io_stream import EventEmitter
 from coliseum.game.representation import Representation
 from coliseum.player.player import Player
 from coliseum.utils.custom_exceptions import ActionNotPermittedError, MethodNotImplementedError
+from coliseum.game.io_stream import EventMaster,EventSlave
 
 
 class GameMaster:
@@ -35,7 +37,7 @@ class GameMaster:
         # TODO (to review) Pop the first (because already referenced at init)
         next(self.players_iterator)
 
-        self.emitter = EventEmitter.get_instance()
+        self.emitter = EventMaster.get_instance(1)
 
     def step(self) -> GameState:
         """
@@ -62,8 +64,7 @@ class GameMaster:
         """
         while not self.current_game_state.is_done():
             self.current_game_state = self.step()
-            await self.emitter.sio.sleep(2)
-            await self.emitter.sio.emit("play",json.dumps(self.current_game_state.__dict__,default=lambda :"bob"))
+            await self.emitter.sio.emit("play",json.dumps(self.current_game_state.__dict__,default=lambda _:"bob"))
             #TODO - outputting module
             print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
@@ -72,8 +73,11 @@ class GameMaster:
             pass
         return self.winner
 
-    def record_game(self):
-        self.emitter.start(self.play_game)
+    def record_game(self) -> None:
+        """
+            Starts a game and broadcasts its successive states
+        """
+        self.emitter.start(self.play_game, [EventSlave()])
 
     def update_log(self):
         # TODO: Implement I/O utilities for logging
