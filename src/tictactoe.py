@@ -1,14 +1,15 @@
+from coliseum.examples.tictactoe.alpha_player_tictac import AlphaPlayerTictac
 import asyncio
 import time
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.examples.tictactoe.game_state_tictac import GameStateTictac
 from coliseum.examples.tictactoe.master_tictac import MasterTictac
-from coliseum.examples.tictactoe.player_tictac import PlayerTictac
+from coliseum.examples.tictactoe.random_player_tictac import RandomPlayerTictac
 
 def run_multiple_games():
     for _ in range(2):
-        player1 = PlayerTictac("X", name="louis")
-        player2 = PlayerTictac("O", name="loic")
+        player1 = AlphaPlayerTictac("X", name="louis")
+        player2 = RandomPlayerTictac("O", name="loic")
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
         init_rep = BoardTictac(env={}, dim=[3, 3])
