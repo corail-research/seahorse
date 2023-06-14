@@ -1,3 +1,4 @@
+import time
 import random
 
 from coliseum.game.action import Action
@@ -38,6 +39,7 @@ class RandomPlayerTictac(Player):
             BoardTictac: future representation
         """
         possible_actions = current_state.generate_possible_actions()
+
         if kwargs:
             pass
         return random.choice(list(possible_actions))

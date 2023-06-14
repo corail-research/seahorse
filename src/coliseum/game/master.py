@@ -36,6 +36,7 @@ class GameMaster:
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         # TODO (to review) Pop the first (because already referenced at init)
         next(self.players_iterator)
+        self.emitter = EventMaster.get_instance(3)
 
     @staticmethod
     def get_next_player(player : Player, players_list : List[Player], current_rep : Representation = None, next_rep : Representation = None)->Player:
@@ -62,9 +63,7 @@ class GameMaster:
                     return p
 
 
-        self.emitter = EventMaster.get_instance(1)
-
-    def step(self) -> GameState:
+    async def step(self) -> GameState:
         """
         Calls the next player move
         """
@@ -72,7 +71,7 @@ class GameMaster:
         possible_actions = self.current_game_state.generate_possible_actions()
 
         next_player.start_timer()
-        action = next_player.play(self.current_game_state)
+        action = await next_player.play(self.current_game_state)
         next_player.stop_timer()
 
         if action not in possible_actions:
@@ -88,10 +87,14 @@ class GameMaster:
         Returns:
             Player: winner of the game
         """
+        await self.emitter.sio.emit('play', json.dumps(self.current_game_state.__dict__,default = lambda o: o.toJSON()  if hasattr(o, 'toJSON') else "bob"))
         #print(self.current_game_state.get_rep())
+
         while not self.current_game_state.is_done():
             self.current_game_state = self.step()
-            #print(self.current_game_state.get_rep())
+            await self.emitter.sio.emit('play', json.dumps(self.current_game_state.__dict__,default = lambda o: o.toJSON()  if hasattr(o, 'toJSON') else "bob"))
+            print(self.current_game_state)
+            await self.emitter.sio.emit("state",json.dumps(self.current_game_state.__dict__,default=lambda _:"bob"))
             #TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         for _w in self.winner:
@@ -103,7 +106,7 @@ class GameMaster:
         """
             Starts a game and broadcasts its successive states
         """
-        self.emitter.start(self.play_game, [EventSlave()])
+        self.emitter.start(self.play_game, self.players)
 
     def update_log(self):
         # TODO: Implement I/O utilities for logging

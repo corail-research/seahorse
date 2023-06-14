@@ -21,7 +21,7 @@ class GameStateTictac(GameState):
 
     def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardTictac) -> None:
         super().__init__(scores, next_player, players, rep)
-        self.num_pieces = 9
+        self.num_pieces = self.get_rep().get_dimensions()[0] * self.get_rep().get_dimensions()[1]
 
     def get_num_pieces(self):
         """
@@ -62,8 +62,8 @@ class GameStateTictac(GameState):
                     copy_rep.get_env()[(i, j)] = Piece(
                         piece_type=next_player.get_piece_type(), owner=next_player)
                     list_rep.append(copy.deepcopy(copy_rep))
-        poss_actions = {Action(self, GameStateTictac(self.compute_scores(valid_next_rep),MasterTictac.get_next_player(self.next_player,self.players),self.players,valid_next_rep))
-                           for valid_next_rep in list_rep}
+        poss_actions = set(Action(self, GameStateTictac(self.compute_scores(valid_next_rep),MasterTictac.get_next_player(self.next_player,self.players),self.players,valid_next_rep))
+                           for valid_next_rep in list_rep)
 
         return poss_actions
 

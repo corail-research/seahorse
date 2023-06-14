@@ -1,5 +1,6 @@
 import math
 from math import sqrt
+import time
 
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
@@ -32,6 +33,11 @@ class AlphaPlayerTictac(Player):
         return d > cutoff
 
     def heuristic(self, current_state : GameState):
+        if current_state.get_scores().get(self.id_player) == 1:
+            return 1
+        elif current_state.get_scores().get(1-self.id_player) == 1:
+            return -1
+        return 0
         dim = current_state.get_num_pieces()
         env = current_state.rep.get_env()
         table = []
@@ -63,9 +69,7 @@ class AlphaPlayerTictac(Player):
         return 0
 
     def max_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
-        if current_state.is_done():
-            return current_state.get_scores().get(self.id_player), None
-        if self.cutoff_depth(depth, cutoff):
+        if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None
         v, move = -infinity, None
         for a in current_state.get_possible_actions():
@@ -79,9 +83,8 @@ class AlphaPlayerTictac(Player):
 
 
     def min_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
-        if current_state.is_done():
-            return current_state.get_scores().get(self.id_player), None
-        if self.cutoff_depth(depth, cutoff):
+
+        if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None
         v, move = +infinity, None
         for a in current_state.get_possible_actions():
@@ -97,10 +100,11 @@ class AlphaPlayerTictac(Player):
         """
         Function to implement the logic of the player (here alpha beta algorithm)
         """
-
+        time.sleep(0.5)
         depth = 0
-        cutoff = 25
+        cutoff = 2500
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)
+        print(self.get_id(), v)
         #v, move = self.min_value(current_state, -infinity, +infinity, depth, cutoff)
 
         return move
