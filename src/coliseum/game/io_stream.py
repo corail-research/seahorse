@@ -1,55 +1,60 @@
 from __future__ import annotations
+
 import asyncio
-from collections import deque
 import functools
 import json
-from coliseum.game.action import Action
+from collections import deque
+from typing import Callable
+
 import socketio
 from aiohttp import web
-from typing import TYPE_CHECKING, Callable, List
+
+from coliseum.game.action import Action
+
 
 class EventSlave:
 
     def activate(self,identifier:str=None) -> None:
         self.sio = socketio.AsyncClient()
-        self.connected = False 
+        self.connected = False
         self.identifier = identifier
         self.incoming_plays_queue = deque()
 
         @self.sio.event()
         async def connect():
             self.connected = True
-            if self.identifier != None:
+            if self.identifier is not None:
                 await self.sio.emit("identify",json.dumps(self.__dict__,default=lambda _:"bob"))
-        
+
         @self.sio.event()
         def disconnect():
             self.connected = False
 
         @self.sio.on("play")
         # TODO sid check
-        def handle_play(_,data):
-            self.incoming_plays_queue.appendleft(data)
+        def handle_play(*_):
+            self.incoming_plays_queue.appendleft(_)
 
         @self.sio.on("turn")
         def handle_turn(*_):
-            print("turn")
+            #print("turn")
+            pass
 
     async def wait_for_next_play(self) -> Action:
         while not len(self.incoming_plays_queue):
             await asyncio.sleep(1)
         return self.incoming_plays_queue.pop()
-    
-    async def listen(self,keep_alive=False) -> None:
+
+    async def listen(self,*,keep_alive:bool) -> None:
         if not self.connected:
-            await self.sio.connect('http://localhost:5000')
+            await self.sio.connect("http://localhost:5000")
         if keep_alive:
             while self.connected:
                 await asyncio.sleep(1)
 
 def event_emitting(label:str):
     def meta_wrapper(fun: Callable):
-        @functools.wraps(fun) 
+        @functools.wraps(fun)
         async def wrapper(self:EventSlave,*args,**kwargs):
             out = fun(self,*args, **kwargs)
             # TODO: fix bob
@@ -60,11 +65,11 @@ def event_emitting(label:str):
 
 def remote_action(label:str):
     def meta_wrapper(fun: Callable):
-        @functools.wraps(fun) 
-        async def wrapper(self:'EventSlave',*args,**kwargs):
+        @functools.wraps(fun)
+        async def wrapper(self:EventSlave,**_):
             # TODO: fix bob
             await EventMaster.get_instance().sio.emit(label,"prout",to=self.sid)
-            print("waiting for next play")
+            #print("waiting for next play")
             out = await self.wait_for_next_play()
             return out
         return wrapper
@@ -86,7 +91,7 @@ class EventMaster:
     __instance = None
 
     @staticmethod
-    def get_instance(n_clients:int=1) -> 'EventMaster':
+    def get_instance(n_clients:int=1) -> EventMaster:
         """Gets the instance object
 
         Args:
@@ -101,7 +106,8 @@ class EventMaster:
 
     def __init__(self,n_clients):
         if EventMaster.__instance is not None:
-            raise NotImplementedError("Trying to initalize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead.")
+            msg = "Trying to initalize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead."
+            raise NotImplementedError(msg)
         else:
 
             # Initializing attributes
@@ -113,14 +119,14 @@ class EventMaster:
             # Standard python-socketio server
             self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True, cors_allowed_origins="*")
             self.app = web.Application()
-            
+
             # Starting asyncio stuff
             self.event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.event_loop)
 
             # Attaching the app
             self.sio.attach(self.app)
-            
+
             self.runner = web.AppRunner(self.app)
 
             # Shutdown callback
@@ -133,23 +139,23 @@ class EventMaster:
             self.app.on_shutdown.append(on_shutdown)
 
             @self.sio.event()
-            def connect(sid,env,*_):
+            def connect(sid,*_):
                 """
                     Handling incoming connections
                 """
                 self.__open_sessions.add(sid)
                 self.__n_clients_connected += 1
-                print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
+                #print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
 
-            @self.sio.on('play')
-            async def handle_play(sid,data):
+            @self.sio.on("play")
+            async def handle_play(*_):
                 #await self.sio.emit('play',data)
                 return None
-            
-            @self.sio.on('identify')
+
+            @self.sio.on("identify")
             async def handle_identify(sid,data):
-                print("Identifying a listener")
-                print(json.loads(data).get("identifier",0))
+                #print("Identifying a listener")
+                #print(json.loads(data).get("identifier",0))
                 self.__identified_clients[json.loads(data).get("identifier",0)]=sid
 
             # Setting the singleton instance
@@ -168,7 +174,7 @@ class EventMaster:
         return self.__identified_clients.get(name)
 
     async def _wait_for_connexion(self) -> None:
-        """ 
+        """
             Coroutine that completes when the number of listening socketIO connexions
             is equal to `EventMaster.__instance.n_clients`
         """
@@ -176,14 +182,14 @@ class EventMaster:
         while not self.__n_clients_connected==self.n_clients:
             await asyncio.sleep(1)
 
-    def start(self,task:Callable[[None],None],listeners:List[EventSlave]) -> None:
+    def start(self,task:Callable[[None],None],listeners:list[EventSlave]) -> None:
         """
             Starts an emitting sequence and runs a tasks that embeds
-            calls to `EventMaster.__instance.sio.emit()` 
+            calls to `EventMaster.__instance.sio.emit()`
 
             The emitting sequence waits for a number of socketIO connections
-            specified in `EventMaster.__instance.n_clients`. 
-            
+            specified in `EventMaster.__instance.n_clients`.
+
             If `EventMaster.__instance.n_clients==0` emits events
             in the void.
 
@@ -193,13 +199,13 @@ class EventMaster:
 
         # Sets the runner up and starts the tcp server
         self.event_loop.run_until_complete(self.runner.setup())
-        site = web.TCPSite(self.runner, 'localhost', '5000')
+        site = web.TCPSite(self.runner, "localhost", "5000")
         self.event_loop.run_until_complete(site.start())
 
 
         async def stop():
             for x in listeners:
-                await x.listen()
+                await x.listen(keep_alive=False)
 
             # Waiting for all listeners
             await self._wait_for_connexion()

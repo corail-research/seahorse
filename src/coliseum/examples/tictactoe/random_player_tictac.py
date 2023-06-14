@@ -1,4 +1,3 @@
-import time
 import random
 
 from coliseum.game.action import Action

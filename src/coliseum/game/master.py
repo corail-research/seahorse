@@ -1,15 +1,12 @@
-import asyncio
 import json
 from abc import abstractmethod
 from itertools import cycle
-import time
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List
 
 from coliseum.game.game_state import GameState
-from coliseum.game.representation import Representation
+from coliseum.game.io_stream import EventMaster
 from coliseum.player.player import Player
 from coliseum.utils.custom_exceptions import ActionNotPermittedError, MethodNotImplementedError
-from coliseum.game.io_stream import EventMaster,EventSlave
 
 
 class GameMaster:
@@ -39,7 +36,7 @@ class GameMaster:
         self.emitter = EventMaster.get_instance(3)
 
     @staticmethod
-    def get_next_player(player : Player, players_list : List[Player], current_rep : Representation = None, next_rep : Representation = None)->Player:
+    def get_next_player(player : Player, players_list : List[Player], *_)->Player:
         """
         Function to get the next player
 
@@ -51,16 +48,8 @@ class GameMaster:
         Returns:
             Player: next player
         """
-        if current_rep is None or next_rep is None:
-            pass
-        if player.get_id() == len(players_list)-1:
-            for p in players_list:
-                if p.get_id() == 0:
-                    return p
-        else:
-            for p in players_list:
-                if p.get_id() == player.get_id()+1:
-                    return p
+        curr_id = players_list.index(player)
+        return next(cycle(players_list[curr_id+1:]+players_list[:curr_id]))
 
 
     async def step(self) -> GameState:
@@ -87,14 +76,12 @@ class GameMaster:
         Returns:
             Player: winner of the game
         """
-        await self.emitter.sio.emit('play', json.dumps(self.current_game_state.__dict__,default = lambda o: o.toJSON()  if hasattr(o, 'toJSON') else "bob"))
         #print(self.current_game_state.get_rep())
-
+        await self.emitter.sio.emit("play", json.dumps(self.current_game_state.__dict__,default = lambda o: o.to_json()  if hasattr(o, "to_json") else "bob"))
         while not self.current_game_state.is_done():
-            self.current_game_state = self.step()
-            await self.emitter.sio.emit('play', json.dumps(self.current_game_state.__dict__,default = lambda o: o.toJSON()  if hasattr(o, 'toJSON') else "bob"))
-            print(self.current_game_state)
-            await self.emitter.sio.emit("state",json.dumps(self.current_game_state.__dict__,default=lambda _:"bob"))
+            self.current_game_state = await self.step()
+            #print(self.current_game_state)
+            await self.emitter.sio.emit("play", json.dumps(self.current_game_state.__dict__,default = lambda o: o.to_json()  if hasattr(o, "to_json") else "bob"))
             #TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         for _w in self.winner:

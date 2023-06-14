@@ -1,11 +1,9 @@
-import asyncio
-import time
 from coliseum.examples.tictactoe.alpha_player_tictac import AlphaPlayerTictac
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
 from coliseum.examples.tictactoe.game_state_tictac import GameStateTictac
 from coliseum.examples.tictactoe.master_tictac import MasterTictac
-from coliseum.examples.tictactoe.random_player_tictac import RandomPlayerTictac
-from coliseum.player.player import LocalPlayerProxy, RemotePlayerProxy
+from coliseum.player.player import LocalPlayerProxy
+
 
 def run_multiple_games():
     for _ in range(2):

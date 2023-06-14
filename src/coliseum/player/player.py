@@ -8,7 +8,6 @@ from coliseum.game.io_stream import EventMaster, EventSlave, event_emitting, rem
 from coliseum.game.time_manager import TimeMixin
 from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
-
 if TYPE_CHECKING:
     from coliseum.game.game_state import GameState
 
@@ -81,22 +80,29 @@ class Player(TimeMixin):
 
 class RemotePlayerProxy(EventSlave):
 
-    def __init__(self,mimics:type[Player],name:str="RemotePlayer",*args,**kwargs) -> None:
-        self.mimics = mimics(name=name,*args,**kwargs)
+    def __init__(self,mimics:type[Player],*args,**kwargs) -> None:
+        self.mimics = mimics(*args,**kwargs)
         self.sid = None
 
     @remote_action("turn")
     def play(self, _: GameState) -> Action:
         pass
-    
+
     async def listen(self) -> Coroutine[Any, Any, None]:
         self.sid = await EventMaster.get_instance().wait_for_identified_client(self.name)
 
     def activate(self) -> None:
-        raise NotImplementedError("Trying to call activate on a remote EventSlave instance.")
+        msg = "Trying to call activate on a remote EventSlave instance."
+        raise NotImplementedError(msg)
 
     def __getattr__(self,attr):
         return getattr(self.mimics,attr)
+
+    def __hash__(self) -> int:
+        return self.sid
+
+    def __eq__(self, __value: object) -> bool:
+        return hash(self)==hash(__value)
 
 class LocalPlayerProxy(EventSlave):
 
@@ -107,6 +113,12 @@ class LocalPlayerProxy(EventSlave):
     @event_emitting("play")
     def play(self, current_state: GameState) -> Action:
         return self.solve(current_state=current_state)
-    
+
     def __getattr__(self,attr):
         return getattr(self.wrapped_player,attr)
+
+    def __hash__(self) -> int:
+        return hash(self.wrapped_player)
+
+    def __eq__(self, __value: object) -> bool:
+        return hash(self)==hash(__value)

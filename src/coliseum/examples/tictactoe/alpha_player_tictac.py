@@ -1,6 +1,6 @@
 import math
-from math import sqrt
 import time
+from itertools import cycle
 
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
@@ -33,39 +33,13 @@ class AlphaPlayerTictac(Player):
         return d > cutoff
 
     def heuristic(self, current_state : GameState):
-        if current_state.get_scores().get(self.id_player) == 1:
+        # TODO: review to make beautiful
+        players_list = current_state.get_players()
+        curr_pos_in_list = players_list.index(self)
+        if current_state.get_scores()[self.get_id()] == 1:
             return 1
-        elif current_state.get_scores().get(1-self.id_player) == 1:
+        elif current_state.get_scores()[next(cycle(players_list[curr_pos_in_list+1:]+players_list[:curr_pos_in_list])).get_id()] == 1:
             return -1
-        return 0
-        dim = current_state.get_num_pieces()
-        env = current_state.rep.get_env()
-        table = []
-        for k in range(dim):
-            table.append(
-                [p.get_owner_id() for p in [env.get((i, k), None)
-                                            for i in range(int(sqrt(dim)))] if p is not None]
-            )
-            table.append(
-                [p.get_owner_id() for p in [env.get((k, i), None)
-                                            for i in range(int(sqrt(dim)))] if p is not None]
-            )
-        table.append(
-            [p.get_owner_id() for p in [env.get((i, i), None)
-                                        for i in range(int(sqrt(dim)))] if p is not None]
-        )
-        table.append(
-            [
-                p.get_owner_id()
-                for p in [env.get((i, int(sqrt(dim)) - i - 1), None) for i in range(int(sqrt(dim)))]
-                if p is not None
-            ]
-        )
-        for line in table:
-            if len(set(line)) == 1 and len(line) == int(sqrt(dim)) and line[0] == self.get_id():
-                return 1
-            elif len(set(line)) == 1 and len(line) == int(sqrt(dim)) and line[0] != self.get_id():
-                return -1
         return 0
 
     def max_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
@@ -104,7 +78,7 @@ class AlphaPlayerTictac(Player):
         depth = 0
         cutoff = 2500
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)
-        print(self.get_id(), v)
+        #print(self.get_id(), v)
         #v, move = self.min_value(current_state, -infinity, +infinity, depth, cutoff)
 
         return move
