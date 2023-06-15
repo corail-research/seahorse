@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from typing import Tuple
-
 from typing import TYPE_CHECKING
 
 from coliseum.game.game_layout.board import Board, Piece
@@ -32,7 +30,7 @@ class BoardAvalam(Board):
         dimensions: dimensions of the board
     """
 
-    def __init__(self, env: dict[Tuple[int], PieceAvalam], dim: list[int]) -> None:
+    def __init__(self, env: dict[tuple[int], PieceAvalam], dim: list[int]) -> None:
         super().__init__(env, dim)
 
     def __str__(self) -> str:

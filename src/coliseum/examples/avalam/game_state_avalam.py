@@ -19,6 +19,7 @@ class GameStateAvalam(GameState):
 
     def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardAvalam) -> None:
         super().__init__(scores, next_player, players, rep)
+        self.max_tower = 5
 
     def is_done(self) -> bool:
         """
@@ -41,7 +42,7 @@ class GameStateAvalam(GameState):
                                 n = b.get((i + n_i, j + n_j), None)
                                 if n is not None:
                                     v_n = n.get_value()
-                                    if v + v_n <= 5:
+                                    if v + v_n <= self.max_tower:
                                         return False
         return True
 
@@ -72,7 +73,7 @@ class GameStateAvalam(GameState):
                                 n = b.get((i + n_i, j + n_j), None)
                                 if n is not None:
                                     v_n = n.get_value()
-                                    if v + v_n <= 5:
+                                    if v + v_n <= self.max_tower:
                                         copy_rep = copy.deepcopy(current_rep)
                                         piece_type = n.get_type()
                                         owner_id = n.get_owner_id()

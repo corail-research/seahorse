@@ -178,7 +178,7 @@ class EventMaster:
             Coroutine that completes when the number of listening socketIO connexions
             is equal to `EventMaster.__instance.n_clients`
         """
-        print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
+        #print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
         while not self.__n_clients_connected==self.n_clients:
             await asyncio.sleep(1)
 
