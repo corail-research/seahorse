@@ -33,10 +33,10 @@ class GameMaster:
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         # TODO (to review) Pop the first (because already referenced at init)
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(3)
+        self.emitter = EventMaster.get_instance(2)
 
     @staticmethod
-    def get_next_player(player : Player, players_list : List[Player], *_)->Player:
+    def get_next_player(player: Player, players_list: List[Player], *_) -> Player:
         """
         Function to get the next player
 
@@ -49,8 +49,7 @@ class GameMaster:
             Player: next player
         """
         curr_id = players_list.index(player)
-        return next(cycle(players_list[curr_id+1:]+players_list[:curr_id]))
-
+        return next(cycle(players_list[curr_id + 1 :] + players_list[:curr_id]))
 
     async def step(self) -> GameState:
         """
@@ -67,7 +66,7 @@ class GameMaster:
             raise ActionNotPermittedError()
 
         # TODO check against possible hacking
-        #new_scores = self.compute_scores(action.get_new_rep())
+        # new_scores = self.compute_scores(action.get_new_rep())
         return action.get_new_gs()
 
     async def play_game(self) -> Iterable[Player]:
@@ -76,22 +75,32 @@ class GameMaster:
         Returns:
             Player: winner of the game
         """
-        #print(self.current_game_state.get_rep())
-        await self.emitter.sio.emit("play", json.dumps(self.current_game_state.__dict__,default = lambda o: o.to_json()  if hasattr(o, "to_json") else "bob"))
+        await self.emitter.sio.emit(
+            "play",
+            json.dumps(
+                self.current_game_state.__dict__, default=lambda o: o.to_json() if hasattr(o, "to_json") else "bob"
+            ),
+        )
         while not self.current_game_state.is_done():
             self.current_game_state = await self.step()
-            #print(self.current_game_state)
-            await self.emitter.sio.emit("play", json.dumps(self.current_game_state.__dict__,default = lambda o: o.to_json()  if hasattr(o, "to_json") else "bob"))
-            #TODO - outputting module print(self.current_game_state)
+            # print(self.current_game_state.get_rep())
+            # print(self.current_game_state)
+            await self.emitter.sio.emit(
+                "play",
+                json.dumps(
+                    self.current_game_state.__dict__, default=lambda o: o.to_json() if hasattr(o, "to_json") else "bob"
+                ),
+            )
+            # TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         for _w in self.winner:
-            #TODO - outputting module print("Winner :", w)
+            # TODO - outputting module print("Winner :", w)
             pass
         return self.winner
 
     def record_game(self) -> None:
         """
-            Starts a game and broadcasts its successive states
+        Starts a game and broadcasts its successive states
         """
         self.emitter.start(self.play_game, self.players)
 
@@ -126,7 +135,6 @@ class GameMaster:
             Player: winner of the game
         """
         return self.winner
-
 
     @abstractmethod
     def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:
