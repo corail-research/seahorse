@@ -1,7 +1,6 @@
 from typing import Dict, List, Set
 
 from coliseum.examples.mancala.board_mancala import BoardMancala
-from coliseum.examples.mancala.master_mancala import MasterMancala
 from coliseum.game.action import Action
 from coliseum.game.game_layout.board import Piece
 from coliseum.game.game_state import GameState
