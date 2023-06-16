@@ -1,8 +1,7 @@
-from typing import Dict, Iterable, List
+from typing import Dict, Iterable
 
 from coliseum.game.game_state import GameState
 from coliseum.game.master import GameMaster
-from coliseum.game.representation import Representation
 from coliseum.player.player import Player
 
 

@@ -3,7 +3,6 @@ from math import sqrt
 from typing import Dict, List, Set
 
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
-from coliseum.examples.tictactoe.master_tictac import MasterTictac
 from coliseum.game.action import Action
 from coliseum.game.game_layout.board import Piece
 from coliseum.game.game_state import GameState

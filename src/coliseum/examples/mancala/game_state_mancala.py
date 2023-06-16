@@ -155,7 +155,7 @@ class GameStateMancala(GameState):
         """
         scores = {self.players[0].get_id():len(env[(0,0)]), self.players[1].get_id():len(env[(1,6)])}
         return scores
-    
+
     def replay(self, player: Player, current_rep: Representation, next_rep: Representation) -> bool:
         """Determine if the player can replay
 

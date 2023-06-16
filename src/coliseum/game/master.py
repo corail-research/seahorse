@@ -63,8 +63,8 @@ class GameMaster:
         await self.emitter.sio.emit("play", json.dumps(self.current_game_state.__dict__,default = lambda o: o.to_json()  if hasattr(o, "to_json") else "bob"))
         while not self.current_game_state.is_done():
             self.current_game_state = await self.step()
-            print(self.current_game_state)
-            print(self.current_game_state.get_rep())
+            #print(self.current_game_state)
+            #print(self.current_game_state.get_rep())
             await self.emitter.sio.emit("play", json.dumps(self.current_game_state.__dict__,default = lambda o: o.to_json()  if hasattr(o, "to_json") else "bob"))
             #TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
