@@ -33,7 +33,7 @@ class GameMaster:
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         # TODO (to review) Pop the first (because already referenced at init)
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(2)
+        self.emitter = EventMaster.get_instance(3)
 
     @staticmethod
     def get_next_player(player: Player, players_list: List[Player], *_) -> Player:
@@ -83,8 +83,8 @@ class GameMaster:
         )
         while not self.current_game_state.is_done():
             self.current_game_state = await self.step()
-            # print(self.current_game_state.get_rep())
-            # print(self.current_game_state)
+            #print(self.current_game_state.get_rep())
+            #print(self.current_game_state)
             await self.emitter.sio.emit(
                 "play",
                 json.dumps(

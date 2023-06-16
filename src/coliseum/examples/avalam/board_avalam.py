@@ -50,5 +50,5 @@ class BoardAvalam(Board):
     def to_json(self) -> dict:
         board = [[None for _ in range(self.dimensions[1])] for _ in range(self.dimensions[0])]
         for key, value in self.env.items():
-            board[key[0]][key[1]] = (value.owner_id, value.piece_type, value.value) if value is not None else None
+            board[key[0]][key[1]] = [value.owner_id, value.piece_type, value.value] if value is not None else None
         return {"board": board}

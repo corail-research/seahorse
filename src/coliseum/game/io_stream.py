@@ -47,7 +47,7 @@ class EventSlave:
 
     async def listen(self,*,keep_alive:bool) -> None:
         if not self.connected:
-            await self.sio.connect("http://localhost:5000")
+            await self.sio.connect("http://localhost:8080")
         if keep_alive:
             while self.connected:
                 await asyncio.sleep(1)
@@ -199,7 +199,7 @@ class EventMaster:
 
         # Sets the runner up and starts the tcp server
         self.event_loop.run_until_complete(self.runner.setup())
-        site = web.TCPSite(self.runner, "localhost", "5000")
+        site = web.TCPSite(self.runner, "localhost", "8080")
         self.event_loop.run_until_complete(site.start())
 
 
