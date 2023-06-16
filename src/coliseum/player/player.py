@@ -22,13 +22,10 @@ class Player(TimeMixin):
         next_id (int): id to be assigned to the next player
     """
 
-    next_id = 0
-
     def __init__(self, name: str = "bob", time_limit=1e6) -> None:
-        self.id_player = Player.next_id
         self.name = name
-        Player.next_id += 1
         self.init_timer(time_limit)
+        self.id = id(self)
 
     def play(self, current_state: GameState) -> Action:
         """
@@ -66,7 +63,7 @@ class Player(TimeMixin):
         Returns:
             int: id_player
         """
-        return self.id_player
+        return self.id
 
     def get_name(self):
         """
@@ -122,3 +119,6 @@ class LocalPlayerProxy(EventSlave):
 
     def __eq__(self, __value: object) -> bool:
         return hash(self)==hash(__value)
+
+    def __str__(self) -> str:
+        return f"Player {self.wrapped_player.get_name()} has ID {self.wrapped_player.get_id()}."

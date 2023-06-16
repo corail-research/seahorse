@@ -5,6 +5,7 @@ from coliseum.examples.mancala.master_mancala import MasterMancala
 from coliseum.game.action import Action
 from coliseum.game.game_layout.board import Piece
 from coliseum.game.game_state import GameState
+from coliseum.game.representation import Representation
 from coliseum.player.player import Player
 from coliseum.utils.custom_exceptions import ActionNotPermittedError
 
@@ -110,7 +111,7 @@ class GameStateMancala(GameState):
                     env[(0,0)] += env[(0,i)]
                     env[(0,i)] = []
 
-        new_gs = GameStateMancala(self.compute_scores(env),MasterMancala.get_next_player(self.get_next_player(),self.get_players(),self.rep.get_env(),env),self.players,BoardMancala(env))
+        new_gs = GameStateMancala(self.compute_scores(env),self.compute_next_player(self.get_next_player(),self.rep.get_env(),env),self.players,BoardMancala(env))
 
         return Action(self.copy(), new_gs)
 
@@ -152,8 +153,44 @@ class GameStateMancala(GameState):
         Returns:
             Dict: the scores of the game
         """
-        scores = {0:len(env[(0,0)]),1:len(env[(1,6)])}
+        scores = {self.players[0].get_id():len(env[(0,0)]), self.players[1].get_id():len(env[(1,6)])}
         return scores
+    
+    def replay(self, player: Player, current_rep: Representation, next_rep: Representation) -> bool:
+        """Determine if the player can replay
+
+        Args:
+            player (Player): _description_
+            current_rep (Representation): _description_
+            next_rep (Representation): _description_
+
+        Returns:
+            bool: True if the player can replay
+        """
+        if player.get_id() == 0:
+            for i in range(1,7):
+                if len(current_rep[(0,i)]) > len(next_rep[(0,i)]) and (len(current_rep[(0,i)]) - i)%13 == 0:
+                    return True
+        else:
+            for i in range(0,6):
+                if len(current_rep[(1,i)]) > len(next_rep[(1,i)]) and (len(current_rep[(1,i)]) - (6-i))%13 == 0:
+                    return True
+
+    def compute_next_player(self, player: Player, current_rep: Representation = None, next_rep: Representation = None) -> Player:
+        """Function to get the next player, by default it is the next player in the list but if the player can replay it is the same player
+
+        Args:
+            player (Player): current player
+            players_list (List[Player]): list of players
+            current_rep (Representation, optional): current representation of the game. Defaults to None.
+            next_rep (Representation, optional): next representation of the game. Defaults to None.
+
+        Returns:
+            Player: next player
+        """
+        if self.replay(player, current_rep, next_rep):
+            return player
+        return self.get_next_player()
 
     def __hash__(self) -> int:
         return hash(frozenset([(hash(pos),hash(len(piece))) for pos,piece in self.rep.get_env().items()]))

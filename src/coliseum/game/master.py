@@ -33,24 +33,7 @@ class GameMaster:
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         # TODO (to review) Pop the first (because already referenced at init)
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(3)
-
-    @staticmethod
-    def get_next_player(player : Player, players_list : List[Player], *_)->Player:
-        """
-        Function to get the next player
-
-        Args:
-            player (Player): current player
-            current_rep (Representation): current representation of the game
-            next_rep (Representation): next representation of the game
-
-        Returns:
-            Player: next player
-        """
-        curr_id = players_list.index(player)
-        return next(cycle(players_list[curr_id+1:]+players_list[:curr_id]))
-
+        self.emitter = EventMaster.get_instance(2)
 
     async def step(self) -> GameState:
         """
@@ -80,7 +63,8 @@ class GameMaster:
         await self.emitter.sio.emit("play", json.dumps(self.current_game_state.__dict__,default = lambda o: o.to_json()  if hasattr(o, "to_json") else "bob"))
         while not self.current_game_state.is_done():
             self.current_game_state = await self.step()
-            #print(self.current_game_state)
+            print(self.current_game_state)
+            print(self.current_game_state.get_rep())
             await self.emitter.sio.emit("play", json.dumps(self.current_game_state.__dict__,default = lambda o: o.to_json()  if hasattr(o, "to_json") else "bob"))
             #TODO - outputting module print(self.current_game_state)
         self.winner = self.compute_winner(self.current_game_state.get_scores())
