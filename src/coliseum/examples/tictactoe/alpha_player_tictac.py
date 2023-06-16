@@ -4,11 +4,11 @@ from itertools import cycle
 
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
-from coliseum.player.player import Player
+from coliseum.examples.tictactoe.player_tictac import PlayerTictac
 
 infinity = math.inf
 
-class AlphaPlayerTictac(Player):
+class AlphaPlayerTictac(PlayerTictac):
     """
     Attributes:
         id_player (int): id of the player
@@ -19,15 +19,7 @@ class AlphaPlayerTictac(Player):
     """
 
     def __init__(self, piece_type: str, name: str = "bob") -> None:
-        super().__init__(name)
-        self.piece_type = piece_type
-
-    def get_piece_type(self):
-        """
-        Returns:
-            piece_type: string to represent the type of the piece
-        """
-        return self.piece_type
+        super().__init__(piece_type, name)
 
     def cutoff_depth(self, d, cutoff):
         return d > cutoff
@@ -54,7 +46,6 @@ class AlphaPlayerTictac(Player):
             if v >= beta:
                 return v, move
         return v, move
-
 
     def min_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
 

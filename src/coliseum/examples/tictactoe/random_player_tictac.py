@@ -2,10 +2,10 @@ import random
 
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
-from coliseum.player.player import Player
+from coliseum.examples.tictactoe.player_tictac import PlayerTictac
 
 
-class RandomPlayerTictac(Player):
+class RandomPlayerTictac(PlayerTictac):
     """
     Attributes:
         id_player (int): id of the player
@@ -16,15 +16,7 @@ class RandomPlayerTictac(Player):
     """
 
     def __init__(self, piece_type: str, name: str = "bob") -> None:
-        super().__init__(name)
-        self.piece_type = piece_type
-
-    def get_piece_type(self):
-        """
-        Returns:
-            piece_type: string to represent the type of the piece
-        """
-        return self.piece_type
+        super().__init__(piece_type, name)
 
     def solve(self, current_state : GameState, **kwargs) -> Action:
         """
