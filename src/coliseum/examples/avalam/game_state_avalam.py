@@ -46,7 +46,7 @@ class GameStateAvalam(GameState):
                                         return False
         return True
 
-    def generate_possible_actions(self) -> Set[Action]:
+    def generator(self):
         """
         Function to generate possible actions
 
@@ -57,32 +57,40 @@ class GameStateAvalam(GameState):
             Set[Action]: list of the possible future representation
         """
 
-        list_next_rep = []
         current_rep = self.get_rep()
         b = current_rep.get_env()
         d = current_rep.get_dimensions()
-        for i in range(d[0]):
-            for j in range(d[1]):
+        for i,j in list(b.keys()) :
                 p = b.get((i, j), None)
-                if p is not None:
-                    v = p.get_value()
-                    n_index = [-1, 0, 1]
-                    for n_i in n_index:
-                        for n_j in n_index:
-                            if not (n_i == 0 and n_j == 0):
-                                n = b.get((i + n_i, j + n_j), None)
-                                if n is not None:
-                                    v_n = n.get_value()
-                                    if v + v_n <= self.max_tower:
-                                        copy_rep = copy.deepcopy(current_rep)
-                                        piece_type = n.get_type()
-                                        owner_id = n.get_owner_id()
-                                        owner = [player for player in self.players if player.get_id() == owner_id][0]
-                                        copy_rep.get_env()[(i, j)] = PieceAvalam(
-                                            piece_type=piece_type, owner=owner, value=v + v_n
-                                        )
-                                        copy_rep.get_env().pop((i + n_i, j + n_j))
-                                        list_next_rep.append(copy.deepcopy(copy_rep))
+                v = p.get_value()
+                n_index = [-1, 0, 1]
+                for n_i in n_index:
+                    for n_j in n_index:
+                        if not (n_i == 0 and n_j == 0):
+                            n = b.get((i + n_i, j + n_j), None)
+                            if n is not None:
+                                v_n = n.get_value()
+                                if v + v_n <= self.max_tower:
+                                    copy_rep = copy.copy(current_rep.get_env())
+                                    piece_type = n.get_type()
+                                    owner_id = n.get_owner_id()
+                                    #print(owner_id, piece_type, v + v_n)
+                                    owner = [player for player in self.players if player.get_id() == owner_id][0]
+                                    copy_rep[(i, j)] = PieceAvalam(
+                                        piece_type=piece_type, owner=owner, value=v + v_n
+                                    )
+                                    copy_rep.pop((i + n_i, j + n_j))
+                                    #print(1)
+                                    #print("Avant :",copy_rep)
+                                    yield BoardAvalam(env=copy_rep,dim=d)
+                                    #print(2)
+                                    #list_next_rep.append(copy.deepcopy(copy_rep))
+                                    #current_rep.get_env()[(i, j)] = p
+                                    #current_rep.get_env()[(i + n_i, j + n_j)] = n
+                                    #print("Après : ", current_rep)
+
+    def generate_possible_actions(self) -> Set[Action]:
+
         poss_actions = {
             Action(
                 self,
@@ -93,7 +101,7 @@ class GameStateAvalam(GameState):
                     valid_next_rep,
                 ),
             )
-            for valid_next_rep in list_next_rep
+            for valid_next_rep in self.generator()
         }
 
         return poss_actions
@@ -112,9 +120,7 @@ class GameStateAvalam(GameState):
         for player in self.players:
             scores[player.get_id()] = 0
         b = representation.get_env()
-        d = representation.get_dimensions()
-        for i in range(d[0]):
-            for j in range(d[1]):
+        for i,j in list(b.keys()) :
                 p = b.get((i, j), None)
                 if p is not None:
                     scores[p.get_owner_id()] += 1
