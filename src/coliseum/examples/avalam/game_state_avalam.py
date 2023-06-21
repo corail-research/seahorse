@@ -96,7 +96,7 @@ class GameStateAvalam(GameState):
                 self,
                 GameStateAvalam(
                     self.compute_scores(valid_next_rep),
-                    MasterAvalam.get_next_player(self.next_player, self.players),
+                    self.compute_next_player(),
                     self.players,
                     valid_next_rep,
                 ),

@@ -42,8 +42,7 @@ class GameState:
         Returns:
             Player: next_player
         """
-        if self.next_player is not None:
-            return self.next_player
+        return self.next_player
 
     def compute_next_player(self)->Player:
         current = self.next_player

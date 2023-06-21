@@ -35,22 +35,6 @@ class GameMaster:
         next(self.players_iterator)
         self.emitter = EventMaster.get_instance(3)
 
-    @staticmethod
-    def get_next_player(player: Player, players_list: List[Player], *_) -> Player:
-        """
-        Function to get the next player
-
-        Args:
-            player (Player): current player
-            current_rep (Representation): current representation of the game
-            next_rep (Representation): next representation of the game
-
-        Returns:
-            Player: next player
-        """
-        curr_id = players_list.index(player)
-        return next(cycle(players_list[curr_id + 1 :] + players_list[:curr_id]))
-
     async def step(self) -> GameState:
         """
         Calls the next player move
