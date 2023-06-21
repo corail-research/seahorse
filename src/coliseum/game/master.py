@@ -1,7 +1,7 @@
 import json
 from abc import abstractmethod
 from itertools import cycle
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List
 
 from coliseum.game.game_state import GameState
 from coliseum.game.io_stream import EventMaster

@@ -1,3 +1,4 @@
+from coliseum.examples.avalam.alpha_player_avalam import AlphaPlayerAvalam
 from coliseum.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
 from coliseum.examples.avalam.game_state_avalam import GameStateAvalam
 from coliseum.examples.avalam.master_avalam import MasterAvalam
@@ -8,7 +9,7 @@ from coliseum.player.player import LocalPlayerProxy
 def run_multiple_games():
     for _ in range(1):
         player1 = LocalPlayerProxy(RandomPlayerAvalam("R", name="louis"))
-        player2 = LocalPlayerProxy(RandomPlayerAvalam("Y", name="loic"))
+        player2 = LocalPlayerProxy(AlphaPlayerAvalam("Y", name="loic"))
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
