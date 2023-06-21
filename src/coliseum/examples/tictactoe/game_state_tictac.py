@@ -3,7 +3,6 @@ from math import sqrt
 from typing import Dict, List, Set
 
 from coliseum.examples.tictactoe.board_tictac import BoardTictac
-from coliseum.examples.tictactoe.master_tictac import MasterTictac
 from coliseum.game.action import Action
 from coliseum.game.game_layout.board import Piece
 from coliseum.game.game_state import GameState
@@ -62,7 +61,7 @@ class GameStateTictac(GameState):
                     copy_rep.get_env()[(i, j)] = Piece(
                         piece_type=next_player.get_piece_type(), owner=next_player)
                     list_rep.append(copy.deepcopy(copy_rep))
-        poss_actions = {Action(self, GameStateTictac(self.compute_scores(valid_next_rep),MasterTictac.get_next_player(self.next_player,self.players),self.players,valid_next_rep))
+        poss_actions = {Action(self, GameStateTictac(self.compute_scores(valid_next_rep),self.compute_next_player(),self.players,valid_next_rep))
                            for valid_next_rep in list_rep}
 
         return poss_actions

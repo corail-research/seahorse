@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from typing import Any, Dict, FrozenSet, List, Set
+from itertools import cycle
 
 from coliseum.game.action import Action
 from coliseum.game.representation import Representation
@@ -41,8 +42,13 @@ class GameState:
         Returns:
             Player: next_player
         """
-        if not self.is_done():
+        if self.next_player is not None:
             return self.next_player
+
+    def compute_next_player(self)->Player:
+        current = self.next_player
+        curr_id = self.players.index(current)
+        return next(cycle(self.players[curr_id+1:]+self.players[:curr_id]))
 
     def get_scores(self) -> Dict:
         """
@@ -81,7 +87,6 @@ class GameState:
             self._possible_actions = frozenset(self.generate_possible_actions())
         return self._possible_actions
 
-
     def check_action(self, action: Action) -> bool:
         """
         Function to know if an action is feasible
@@ -112,7 +117,6 @@ class GameState:
             Set[Action]: a set of possible actions
         """
         raise MethodNotImplementedError()
-
 
     @abstractmethod
     def compute_scores(self, next_rep : Representation) -> Dict[int, Any]:
