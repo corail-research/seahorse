@@ -1,6 +1,4 @@
 import math
-import time
-from itertools import cycle
 
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
@@ -21,7 +19,7 @@ class AlphaPlayerAvalam(Player):
     def __init__(self, piece_type: str, name: str = "bob") -> None:
         super().__init__(name)
         self.piece_type = piece_type
-        
+
     def get_piece_type(self):
         """
         Returns:
@@ -35,7 +33,7 @@ class AlphaPlayerAvalam(Player):
     def heuristic(self, current_state : GameState):
         # TODO: review to make beautiful
         players_list = current_state.get_players()
-        curr_pos_in_list = players_list.index(self)
+        players_list.index(self)
         return current_state.get_scores()[self.get_id()]
 
     def max_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):

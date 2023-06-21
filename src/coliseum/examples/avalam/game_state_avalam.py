@@ -2,7 +2,6 @@ import copy
 from typing import Dict, List, Set
 
 from coliseum.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
-from coliseum.examples.avalam.master_avalam import MasterAvalam
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
 from coliseum.player.player import Player

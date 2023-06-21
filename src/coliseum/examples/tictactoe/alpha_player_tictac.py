@@ -2,9 +2,9 @@ import math
 import time
 from itertools import cycle
 
+from coliseum.examples.tictactoe.player_tictac import PlayerTictac
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
-from coliseum.examples.tictactoe.player_tictac import PlayerTictac
 
 infinity = math.inf
 

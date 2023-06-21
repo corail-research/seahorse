@@ -1,6 +1,6 @@
 from abc import abstractmethod
-from typing import Any, Dict, FrozenSet, List, Set
 from itertools import cycle
+from typing import Any, Dict, FrozenSet, List, Set
 
 from coliseum.game.action import Action
 from coliseum.game.representation import Representation
