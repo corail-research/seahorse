@@ -6,7 +6,7 @@ from coliseum.player.player import Player
 
 infinity = math.inf
 
-class AlphaPlayerAvalam(Player):
+class AlphaPlayerAbalone(Player):
     """
     Attributes:
         id_player (int): id of the player

@@ -5,7 +5,7 @@ from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
 
 
-class RandomPlayerAvalam(Player):
+class RandomPlayerAbalone(Player):
     """
     Attributes:
         id_player (int): id of the player

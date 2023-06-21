@@ -5,7 +5,7 @@ from coliseum.game.master import GameMaster
 from coliseum.player.player import Player
 
 
-class MasterAvalam(GameMaster):
+class MasterAbalone(GameMaster):
     """
     Master to play the game Tic Tac Toe
 
