@@ -47,7 +47,7 @@ class EventSlave:
 
     async def listen(self,*,keep_alive:bool) -> None:
         if not self.connected:
-            await self.sio.connect("http://localhost:5000")
+            await self.sio.connect("http://localhost:8080")
         if keep_alive:
             while self.connected:
                 await asyncio.sleep(1)
@@ -178,7 +178,7 @@ class EventMaster:
             Coroutine that completes when the number of listening socketIO connexions
             is equal to `EventMaster.__instance.n_clients`
         """
-        print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
+        #print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
         while not self.__n_clients_connected==self.n_clients:
             await asyncio.sleep(1)
 
@@ -199,7 +199,7 @@ class EventMaster:
 
         # Sets the runner up and starts the tcp server
         self.event_loop.run_until_complete(self.runner.setup())
-        site = web.TCPSite(self.runner, "localhost", "5000")
+        site = web.TCPSite(self.runner, "localhost", "8080")
         self.event_loop.run_until_complete(site.start())
 
 
