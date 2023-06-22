@@ -5,8 +5,9 @@ $(document).ready(function () {
   const socket = io("ws://localhost:8080");
   socket.on("play", (...args) => {
     json = JSON.parse(args[0]);
+    //console.log(json);
     if (json.rep && json.rep.board) {
-      convertedGrid = convertToGridData(json.rep.board);
+      convertedGrid = convertToGridData({"board":json.rep.board, "scores":json.scores});
       steps.push(convertedGrid);
       index = steps.length - 1;
       drawGrid(convertedGrid);
@@ -18,9 +19,26 @@ $(document).ready(function () {
   // Get the canvas context
   const ctx = canvas.getContext("2d");
 
+  function get_id_color(color, grid){
+    for (i = 0; i < grid.length; i++) {
+      for (j = 0; j < grid[i].length; j++) {
+        if(grid[i][j] && grid[i][j][1] == color) {
+          return grid[i][j][0];
+        }
+      }
+    }
+    console.log("ERROR: No color found");
+  }
+
   
 
   function drawGrid(gridData) {
+
+    //console.log(gridData);
+
+    scores = gridData["scores"];
+    gridData = gridData["gridData"];
+
     // Clear the canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   
@@ -49,6 +67,11 @@ $(document).ready(function () {
   
     // Calculate the vertical offset to move the grid downwards
     const marginTop = hexagonRadius * 4;
+
+    ctx.fillStyle = 'black';
+    ctx.font = '20px Arial';
+    ctx.textAlign = 'center';
+    ctx.fillText(scores["W"], canvas.width / 2, marginTop / 2);
   
     for (let row = 0; row < gridData.length; row++) {
       for (let col = 0; col < gridData[row].length; col++) {
@@ -87,6 +110,8 @@ $(document).ready(function () {
         }
       }
     }
+    ctx.fillStyle = 'White';
+    ctx.fillText(scores["B"], canvas.width / 2, canvas.height - marginTop / 2);
   }
 
   $("#next").click(function () {
@@ -106,7 +131,14 @@ $(document).ready(function () {
   });
 
   function convertToGridData(board) {
-    console.log(board); 
+    //console.log(board); 
+    scores = board["scores"]
+    board = board["board"]
+    console.log(scores);
+    console.log(get_id_color("B",board));
+    real_scores = {"W":scores[get_id_color("W",board)], "B":scores[get_id_color("B",board)]}
+    console.log(real_scores);
+
     const gridData = [
       [0, 0, 1, 1, 1, 1, 1, 0, 0],
       [0, 1, 1, 1, 1, 1, 1, 0, 0],
@@ -118,7 +150,6 @@ $(document).ready(function () {
       [0, 2, 2, 2, 2, 2, 2, 0, 0],
       [0, 0, 2, 2, 2, 2, 2, 0, 0],
     ];
-    console.log(board);
     gridData[0][2] = board[0][4] ?  board[0][4][1]: 3;
     gridData[0][3] = board[1][3] ?  board[1][3][1]: 3;
     gridData[0][4] = board[2][2] ?  board[2][2][1]: 3;
@@ -198,14 +229,12 @@ $(document).ready(function () {
         }
       }
     }
-  
-    console.log(gridData);
-    return gridData;
+    return {"gridData":gridData, "scores":real_scores};
   }
   
   function resizeCanvas() {
 
-    defaultGridData = [
+    defaultGridData = {"gridData":[
       [0, 0, 1, 1, 1, 1, 1, 0, 0],
       [0, 1, 1, 1, 1, 1, 1, 0, 0],
       [0, 3, 3, 1, 1, 1, 3, 3, 0],
@@ -215,7 +244,7 @@ $(document).ready(function () {
       [0, 3, 3, 2, 2, 2, 3, 3, 0],
       [0, 2, 2, 2, 2, 2, 2, 0, 0],
       [0, 0, 2, 2, 2, 2, 2, 0, 0],
-    ];
+    ], "scores":{"W":0, "B":0}};
     
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
