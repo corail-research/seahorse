@@ -1,4 +1,5 @@
 import random
+import time
 
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
@@ -38,6 +39,7 @@ class RandomPlayerAbalone(Player):
             BoardTictac: future representation
         """
         possible_actions = current_state.get_possible_actions()
+        time.sleep(0.5)
         random.seed("seahorse")
         if kwargs:
             pass

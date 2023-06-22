@@ -1,4 +1,5 @@
 import math
+import time
 
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
@@ -32,7 +33,11 @@ class AlphaPlayerAbalone(Player):
 
     def heuristic(self, current_state : GameState):
         # TODO: review to make beautiful
-        return current_state.get_scores()[self.get_id()]
+        id_next_player = self.get_id()
+        for player in current_state.get_players() :
+            if player.get_id() != id_next_player :
+                id_player = player.get_id()
+        return current_state.get_scores()[self.get_id()] - current_state.get_scores()[id_player]
 
     def max_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
@@ -66,6 +71,7 @@ class AlphaPlayerAbalone(Player):
         """
         depth = 0
         cutoff = 2
+        time.sleep(0.5)
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)
         #print(self.get_id(), v)
         #v, move = self.min_value(current_state, -infinity, +infinity, depth, cutoff)

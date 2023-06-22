@@ -107,34 +107,32 @@ class GameStateAbalone(GameState):
                 if p.get_owner_id() == self.next_player.get_id() :
                     list_index = [(-1,-1),(1,-1),(-1,1),(1,1),(2,0),(-2,0)]
                     for n_i, n_j in list_index :
-                            new_index = (i+n_i,j+n_j)
-                            if new_index[0] >= 0 and new_index[0] < d[0] and new_index[1] >= 0 and new_index[1] < d[1] and self.in_hexa(new_index) :
-                                to_move_pieces = self.detect_conflict(i,j,n_i,n_j)
+                            to_move_pieces = self.detect_conflict(i,j,n_i,n_j)
+                            if to_move_pieces is not None :
                                 #print(to_move_pieces)
-                                if to_move_pieces is not None :
-                                    copy_b = copy.copy(b)
-                                    id_add = None
-                                    pop_piece = None
-                                    for k in range(len(to_move_pieces)) :
-                                        n_index = to_move_pieces[k]
-                                        if n_index[0]+n_i >= 0 and n_index[0]+n_i < d[0] and n_index[1]+n_j >= 0 and n_index[1]+n_j < d[1] and self.in_hexa((n_index[0]+n_i,n_index[1]+n_j)):
-                                            copy_b[(n_index[0]+n_i,n_index[1]+n_j,1)] = Piece(piece_type=copy_b[(n_index[0],n_index[1])].get_type(),owner=self.get_player_id(copy_b[(n_index[0],n_index[1])].get_owner_id()))
-                                            copy_b.pop((n_index[0],n_index[1]))
-                                        else :
-                                            id_add = copy_b[(n_index[0],n_index[1])].get_owner_id()
-                                            pop_piece = (n_index[0],n_index[1])
-                                            copy_b.pop((n_index[0],n_index[1]))
-                                    for k in range(len(to_move_pieces)) :
-                                        n_index = to_move_pieces[k]
-                                        if pop_piece != (n_index[0],n_index[1]) :
-                                            copy_b[(n_index[0]+n_i,n_index[1]+n_j)] = copy_b[(n_index[0]+n_i,n_index[1]+n_j,1)]
-                                            copy_b.pop((n_index[0]+n_i,n_index[1]+n_j,1))
-                                    #print("dict", len(copy_b))
-                                    yield BoardAbalone(env=copy_b, dim=d), id_add
+                                copy_b = copy.copy(b)
+                                id_add = None
+                                pop_piece = None
+                                for k in range(len(to_move_pieces)) :
+                                    n_index = to_move_pieces[k]
+                                    if n_index[0]+n_i >= 0 and n_index[0]+n_i < d[0] and n_index[1]+n_j >= 0 and n_index[1]+n_j < d[1] and self.in_hexa((n_index[0]+n_i,n_index[1]+n_j)):
+                                        copy_b[(n_index[0]+n_i,n_index[1]+n_j,1)] = Piece(piece_type=copy_b[(n_index[0],n_index[1])].get_type(),owner=self.get_player_id(copy_b[(n_index[0],n_index[1])].get_owner_id()))
+                                        copy_b.pop((n_index[0],n_index[1]))
+                                    else :
+                                        id_add = copy_b[(n_index[0],n_index[1])].get_owner_id()
+                                        pop_piece = (n_index[0],n_index[1])
+                                        copy_b.pop((n_index[0],n_index[1]))
+                                for k in range(len(to_move_pieces)) :
+                                    n_index = to_move_pieces[k]
+                                    if pop_piece != (n_index[0],n_index[1]) :
+                                        copy_b[(n_index[0]+n_i,n_index[1]+n_j)] = copy.copy(copy_b[(n_index[0]+n_i,n_index[1]+n_j,1)])
+                                        copy_b.pop((n_index[0]+n_i,n_index[1]+n_j,1))
+                                #print("dict", len(copy_b))
+                                yield BoardAbalone(env=copy_b, dim=d), id_add
 
-    def generate_possible_actions(self) -> Set[Action]:
+    def generate_possible_actions(self) -> List[Action]:
 
-        poss_actions = {
+        poss_actions = [
             Action(
                 self,
                 GameStateAbalone(
@@ -145,10 +143,11 @@ class GameStateAbalone(GameState):
                 ),
             )
             for valid_next_rep, id_add in self.generator()
-        }
+        ]
+        #print(len(poss_actions))
         return poss_actions
 
-    def compute_scores(self, representation:BoardAbalone, id_add: int) -> dict[int, float]:
+    def compute_scores(self, representation: BoardAbalone, id_add: int) -> dict[int, float]:
         """
         Function to compute the score of each player in a list
 
