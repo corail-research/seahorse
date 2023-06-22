@@ -40,7 +40,7 @@ class GameMaster:
         Calls the next player move
         """
         next_player = self.current_game_state.get_next_player()
-        possible_actions = self.current_game_state.generate_possible_actions()
+        possible_actions = self.current_game_state.get_possible_actions()
 
         next_player.start_timer()
         action = await next_player.play(self.current_game_state)

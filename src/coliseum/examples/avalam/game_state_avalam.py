@@ -102,7 +102,7 @@ class GameStateAvalam(GameState):
             )
             for valid_next_rep in self.generator()
         }
-
+        #print(len(poss_actions))
         return poss_actions
 
     def compute_scores(self, representation: BoardAvalam) -> dict[int, float]:

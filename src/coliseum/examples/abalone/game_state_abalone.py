@@ -43,6 +43,7 @@ class GameStateAbalone(GameState):
         my_count = 1
         other_count = 0
         switch = False
+        result.append((i,j))
         while b.get((i+tmp_n_i,j+tmp_n_j),False) :
             p = b[(i+tmp_n_i,j+tmp_n_j)]
             if p.get_owner_id() == self.next_player.get_id() and switch == False:
@@ -63,19 +64,19 @@ class GameStateAbalone(GameState):
     
     def in_hexa(self,index) :
         d = self.get_rep().get_dimensions()
-        for i in range(d[1]//2) :
-            for j in range(d[1]//2-i-1,0,1) :
+        for i in range(4) :
+            for j in range(4-i-1,-1,-1) :
                 if index == (i,j) :
                     return False
-            for j in range(ceil(d[1]/2)+i,d[1],1) :
+            for j in range(5+i,9,1) :
                 if index == (i,j) :
                     return False
         compteur = 0       
-        for i in range(d[0]-1,d[0]-d[1]//2,-1) :
-            for j in range(d[1]//2-1-compteur,0,-1) :
+        for i in range(16,12,-1) :
+            for j in range(4-1-compteur,-1,-1) :
                 if index == (i,j) :
                     return False
-            for j in range(d[1]-1,ceil(d[1]/2)+compteur-1,-1) :
+            for j in range(5+compteur,9,1) :
                 if index == (i,j) :
                     return False
             compteur += 1
@@ -110,6 +111,7 @@ class GameStateAbalone(GameState):
                             new_index = (i+n_i,j+n_j)
                             if new_index[0] >= 0 and new_index[0] < d[0] and new_index[1] >= 0 and new_index[1] < d[1] and self.in_hexa(new_index) :
                                 to_move_pieces = self.detect_conflict(i,j,n_i,n_j)
+                                #print(to_move_pieces)
                                 if to_move_pieces is not None :
                                     copy_b = copy.copy(b)
                                     id_add = None
@@ -126,7 +128,7 @@ class GameStateAbalone(GameState):
                                     for k in range(len(to_move_pieces)) :
                                         n_index = to_move_pieces[k]
                                         if pop_piece != (n_index[0],n_index[1]) :
-                                            copy_b[(n_index[0]+n_i,n_index[1]+n_j)] = copy.copy(copy_b[(n_index[0]+n_i,n_index[1]+n_j,1)])
+                                            copy_b[(n_index[0]+n_i,n_index[1]+n_j)] = copy_b[(n_index[0]+n_i,n_index[1]+n_j,1)]
                                             copy_b.pop((n_index[0]+n_i,n_index[1]+n_j,1))
                                     #print("dict", len(copy_b))
                                     yield BoardAbalone(env=copy_b, dim=d), id_add
@@ -145,7 +147,7 @@ class GameStateAbalone(GameState):
             )
             for valid_next_rep, id_add in self.generator()
         }
-        #print(len(poss_actions))
+        print(len(poss_actions))
         return poss_actions
 
     def compute_scores(self, id_add: int) -> dict[int, float]:
@@ -160,7 +162,9 @@ class GameStateAbalone(GameState):
         """
         scores = copy.copy(self.scores)
         if id_add is not None :
-            scores[id_add] += 1
+            for player in self.players :
+                if player.get_id() != id_add :
+                    scores[player.get_id()] += 1
 
         # TODO print(scores)
         return scores

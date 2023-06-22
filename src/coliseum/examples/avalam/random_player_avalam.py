@@ -37,7 +37,7 @@ class RandomPlayerAvalam(Player):
         Returns:
             BoardTictac: future representation
         """
-        possible_actions = current_state.generate_possible_actions()
+        possible_actions = current_state.get_possible_actions()
         random.seed("seahorse")
         if kwargs:
             pass

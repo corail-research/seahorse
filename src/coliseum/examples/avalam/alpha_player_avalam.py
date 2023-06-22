@@ -50,7 +50,6 @@ class AlphaPlayerAvalam(Player):
         return v, move
 
     def min_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
-
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None
         v, move = +infinity, None
