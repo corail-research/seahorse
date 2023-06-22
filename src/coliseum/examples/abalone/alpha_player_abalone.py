@@ -32,8 +32,6 @@ class AlphaPlayerAbalone(Player):
 
     def heuristic(self, current_state : GameState):
         # TODO: review to make beautiful
-        players_list = current_state.get_players()
-        players_list.index(self)
         return current_state.get_scores()[self.get_id()]
 
     def max_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
@@ -50,7 +48,6 @@ class AlphaPlayerAbalone(Player):
         return v, move
 
     def min_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
-
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None
         v, move = +infinity, None

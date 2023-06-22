@@ -20,7 +20,7 @@ class GameStateAbalone(GameState):
 
     def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardAbalone) -> None:
         super().__init__(scores, next_player, players, rep)
-        self.max_score = 6
+        self.max_score = -6
         
     def is_done(self) -> bool:
         """
@@ -105,9 +105,8 @@ class GameStateAbalone(GameState):
         for i,j in list(b.keys()) :
                 p = b.get((i, j), None)
                 if p.get_owner_id() == self.next_player.get_id() :
-                    list_index = [-1,1]
-                    for n_i in list_index :
-                        for n_j in list_index :
+                    list_index = [(-1,-1),(1,-1),(-1,1),(1,1),(2,0),(-2,0)]
+                    for n_i, n_j in list_index :
                             new_index = (i+n_i,j+n_j)
                             if new_index[0] >= 0 and new_index[0] < d[0] and new_index[1] >= 0 and new_index[1] < d[1] and self.in_hexa(new_index) :
                                 to_move_pieces = self.detect_conflict(i,j,n_i,n_j)
@@ -139,7 +138,7 @@ class GameStateAbalone(GameState):
             Action(
                 self,
                 GameStateAbalone(
-                    self.compute_scores(id_add=id_add),
+                    self.compute_scores(representation=valid_next_rep,id_add=id_add),
                     self.compute_next_player(),
                     self.players,
                     valid_next_rep,
@@ -147,10 +146,9 @@ class GameStateAbalone(GameState):
             )
             for valid_next_rep, id_add in self.generator()
         }
-        print(len(poss_actions))
         return poss_actions
 
-    def compute_scores(self, id_add: int) -> dict[int, float]:
+    def compute_scores(self, representation:BoardAbalone, id_add: int) -> dict[int, float]:
         """
         Function to compute the score of each player in a list
 
@@ -162,9 +160,16 @@ class GameStateAbalone(GameState):
         """
         scores = copy.copy(self.scores)
         if id_add is not None :
-            for player in self.players :
-                if player.get_id() != id_add :
-                    scores[player.get_id()] += 1
+            scores[id_add] -= 1
+                
+        # scores = {}
+        # for player in self.players:
+        #     scores[player.get_id()] = 0
+        # b = representation.get_env()
+        # for i,j in list(b.keys()) :
+        #         p = b.get((i, j), None)
+        #         if p is not None:
+        #             scores[p.get_owner_id()] += 1
 
         # TODO print(scores)
         return scores

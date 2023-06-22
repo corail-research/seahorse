@@ -1,3 +1,4 @@
+from coliseum.examples.abalone.alpha_player_abalone import AlphaPlayerAbalone
 from coliseum.examples.abalone.board_abalone import BoardAbalone
 from coliseum.examples.abalone.game_state_abalone import GameStateAbalone
 from coliseum.examples.abalone.master_abalone import MasterAbalone
@@ -9,7 +10,7 @@ from coliseum.player.player import LocalPlayerProxy
 def run_multiple_games():
     for _ in range(1):
         player1 = LocalPlayerProxy(RandomPlayerAbalone("W", name="louis"))
-        player2 = LocalPlayerProxy(RandomPlayerAbalone("B", name="loic"))
+        player2 = LocalPlayerProxy(AlphaPlayerAbalone("B", name="loic"))
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
