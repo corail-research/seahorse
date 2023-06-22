@@ -2,6 +2,7 @@ $(document).ready(function () {
   var steps = [];
   var index = -1;
   const logElement = document.getElementById("log");
+  var play = false;
   const socket = io("ws://localhost:8080");
   socket.on("play", (...args) => {
     json = JSON.parse(args[0]);
@@ -12,6 +13,33 @@ $(document).ready(function () {
       index = steps.length - 1;
       drawGrid(convertedGrid);
     }
+  });
+
+  $("#play").click(function () {
+    play = true;
+    var loop = setInterval(function () {
+      if (play) {
+        if (index < steps.length - 1) {
+          index++;
+          drawGrid(steps[index]);
+        } else {  
+          play = false;
+          clearInterval(loop);
+        }
+      }else{
+        clearInterval(loop);
+      }
+    }, $("#time").val());
+
+  });
+
+  $("#stop").click(function () {
+    play = false;
+  });
+
+  $("#reset").click(function () {
+    index = 0;
+    drawGrid(steps[index]);
   });
 
   const canvas = document.getElementById("canvas");
