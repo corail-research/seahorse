@@ -33,7 +33,7 @@ class GameMaster:
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         # TODO (to review) Pop the first (because already referenced at init)
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(2)
+        self.emitter = EventMaster.get_instance(3)
 
     async def step(self) -> GameState:
         """

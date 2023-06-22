@@ -11,6 +11,12 @@ button {
     border-radius: 4px;
     margin: 15px;
   }
+
+  #buttons{
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
   
 button:hover {
     background-color: #ddd;
@@ -27,4 +33,10 @@ html,body{
     width: 100%;
     margin: 0;
     padding: 0;
+}
+
+canvas{
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
