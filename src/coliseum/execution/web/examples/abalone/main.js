@@ -68,10 +68,7 @@ $(document).ready(function () {
     // Calculate the vertical offset to move the grid downwards
     const marginTop = hexagonRadius * 4;
 
-    ctx.fillStyle = 'black';
-    ctx.font = '20px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText(scores["W"], canvas.width / 2, marginTop / 2);
+
   
     for (let row = 0; row < gridData.length; row++) {
       for (let col = 0; col < gridData[row].length; col++) {
@@ -110,8 +107,33 @@ $(document).ready(function () {
         }
       }
     }
-    ctx.fillStyle = 'White';
-    ctx.fillText(scores["B"], canvas.width / 2, canvas.height - marginTop / 2);
+
+    const blackCircles = scores['B'] || 0;
+  for (let i = 0; i < blackCircles; i++) {
+    console.log("black");
+    const cx = hexagonRadius * (2*i + 2);
+    const cy = canvas.height - hexagonRadius*2;
+    ctx.fillStyle = 'black';
+    ctx.beginPath();
+    ctx.arc(cx, cy, hexagonRadius / 1.5, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Draw the bottom right white circles
+  const whiteCircles = scores['W'] || 0;
+  for (let i = 0; i < whiteCircles; i++) {
+    console.log("white");
+    const cx = canvas.width - hexagonRadius * (2*i + 2);
+    const cy = canvas.height - hexagonRadius*2;
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(cx, cy, hexagonRadius / 1.5, 0, 2 * Math.PI);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+
   }
 
   $("#next").click(function () {
@@ -136,89 +158,89 @@ $(document).ready(function () {
     board = board["board"]
     console.log(scores);
     console.log(get_id_color("B",board));
-    real_scores = {"W":scores[get_id_color("W",board)], "B":scores[get_id_color("B",board)]}
+    real_scores = {"W":scores[get_id_color("W",board)]*-1, "B":scores[get_id_color("B",board)]*-1}
     console.log(real_scores);
 
     const gridData = [
-      [0, 0, 1, 1, 1, 1, 1, 0, 0],
-      [0, 1, 1, 1, 1, 1, 1, 0, 0],
-      [0, 3, 3, 1, 1, 1, 3, 3, 0],
+      [0, 0, 2, 2, 2, 2, 2, 0, 0],
+      [0, 2, 2, 2, 2, 2, 2, 0, 0],
+      [0, 3, 3, 2, 2, 2, 3, 3, 0],
       [3, 3, 3, 3, 3, 3, 3, 3, 0],
       [3, 3, 3, 3, 3, 3, 3, 3, 3],
       [3, 3, 3, 3, 3, 3, 3, 3, 0],
-      [0, 3, 3, 2, 2, 2, 3, 3, 0],
-      [0, 2, 2, 2, 2, 2, 2, 0, 0],
-      [0, 0, 2, 2, 2, 2, 2, 0, 0],
+      [0, 3, 3, 1, 1, 1, 3, 3, 0],
+      [0, 1, 1, 1, 1, 1, 1, 0, 0],
+      [0, 0, 1, 1, 1, 1, 1, 0, 0],
     ];
-    gridData[0][2] = board[0][4] ?  board[0][4][1]: 3;
-    gridData[0][3] = board[1][3] ?  board[1][3][1]: 3;
+    gridData[0][6] = board[0][4] ?  board[0][4][1]: 3;
+    gridData[0][5] = board[1][3] ?  board[1][3][1]: 3;
     gridData[0][4] = board[2][2] ?  board[2][2][1]: 3;
-    gridData[0][5] = board[3][1] ?  board[3][1][1]: 3;
-    gridData[0][6] = board[4][0] ?  board[4][0][1]: 3;
+    gridData[0][3] = board[3][1] ?  board[3][1][1]: 3;
+    gridData[0][2] = board[4][0] ?  board[4][0][1]: 3;
 
-    gridData[1][1] = board[1][5] ?  board[1][5][1]: 3;
-    gridData[1][2] = board[2][4] ?  board[2][4][1]: 3;
-    gridData[1][3] = board[3][3] ?  board[3][3][1]: 3;
-    gridData[1][4] = board[4][2] ?  board[4][2][1]: 3;
-    gridData[1][5] = board[5][1] ?  board[5][1][1]: 3;
-    gridData[1][6] = board[6][0] ?  board[6][0][1]: 3;
+    gridData[1][6] = board[1][5] ?  board[1][5][1]: 3;
+    gridData[1][5] = board[2][4] ?  board[2][4][1]: 3;
+    gridData[1][4] = board[3][3] ?  board[3][3][1]: 3;
+    gridData[1][3] = board[4][2] ?  board[4][2][1]: 3;
+    gridData[1][2] = board[5][1] ?  board[5][1][1]: 3;
+    gridData[1][1] = board[6][0] ?  board[6][0][1]: 3;
 
-    gridData[2][1] = board[2][6] ?  board[2][6][1]: 3;
-    gridData[2][2] = board[3][5] ?  board[3][5][1]: 3;
-    gridData[2][3] = board[4][4] ?  board[4][4][1]: 3;
+    gridData[2][7] = board[2][6] ?  board[2][6][1]: 3;
+    gridData[2][6] = board[3][5] ?  board[3][5][1]: 3;
+    gridData[2][5] = board[4][4] ?  board[4][4][1]: 3;
     gridData[2][4] = board[5][3] ?  board[5][3][1]: 3;
-    gridData[2][5] = board[6][2] ?  board[6][2][1]: 3;
-    gridData[2][6] = board[7][1] ?  board[7][1][1]: 3;
-    gridData[2][7] = board[8][0] ?  board[8][0][1]: 3;
+    gridData[2][3] = board[6][2] ?  board[6][2][1]: 3;
+    gridData[2][2] = board[7][1] ?  board[7][1][1]: 3;
+    gridData[2][1] = board[8][0] ?  board[8][0][1]: 3;
 
-    gridData[3][0] = board[3][7] ?  board[3][7][1]: 3;
-    gridData[3][1] = board[4][6] ?  board[4][6][1]: 3;
-    gridData[3][2] = board[5][5] ?  board[5][5][1]: 3;
-    gridData[3][3] = board[6][4] ?  board[6][4][1]: 3;
-    gridData[3][4] = board[7][3] ?  board[7][3][1]: 3;
-    gridData[3][5] = board[8][2] ?  board[8][2][1]: 3;
-    gridData[3][6] = board[9][1] ?  board[9][1][1]: 3;
-    gridData[3][7] = board[10][0] ?  board[10][0][1]: 3;
+    gridData[3][7] = board[3][7] ?  board[3][7][1]: 3;
+    gridData[3][6] = board[4][6] ?  board[4][6][1]: 3;
+    gridData[3][5] = board[5][5] ?  board[5][5][1]: 3;
+    gridData[3][4] = board[6][4] ?  board[6][4][1]: 3;
+    gridData[3][3] = board[7][3] ?  board[7][3][1]: 3;
+    gridData[3][2] = board[8][2] ?  board[8][2][1]: 3;
+    gridData[3][1] = board[9][1] ?  board[9][1][1]: 3;
+    gridData[3][0] = board[10][0] ?  board[10][0][1]: 3;
 
-    gridData[4][0] = board[4][8] ?  board[4][8][1]: 3;
-    gridData[4][1] = board[5][7] ?  board[5][7][1]: 3;
-    gridData[4][2] = board[6][6] ?  board[6][6][1]: 3;
-    gridData[4][3] = board[7][5] ?  board[7][5][1]: 3;
+    gridData[4][8] = board[4][8] ?  board[4][8][1]: 3;
+    gridData[4][7] = board[5][7] ?  board[5][7][1]: 3;
+    gridData[4][6] = board[6][6] ?  board[6][6][1]: 3;
+    gridData[4][5] = board[7][5] ?  board[7][5][1]: 3;
     gridData[4][4] = board[8][4] ?  board[8][4][1]: 3;
-    gridData[4][5] = board[9][3] ?  board[9][3][1]: 3;
-    gridData[4][6] = board[10][2] ?  board[10][2][1]: 3;
-    gridData[4][7] = board[11][1] ?  board[11][1][1]: 3;
-    gridData[4][8] = board[12][0] ?  board[12][0][1]: 3;
+    gridData[4][3] = board[9][3] ?  board[9][3][1]: 3;
+    gridData[4][2] = board[10][2] ?  board[10][2][1]: 3;
+    gridData[4][1] = board[11][1] ?  board[11][1][1]: 3;
+    gridData[4][0] = board[12][0] ?  board[12][0][1]: 3;
 
-    gridData[5][0] = board[6][8] ?  board[6][8][1]: 3;
-    gridData[5][1] = board[7][7] ?  board[7][7][1]: 3;
-    gridData[5][2] = board[8][6] ?  board[8][6][1]: 3;
-    gridData[5][3] = board[9][5] ?  board[9][5][1]: 3;
-    gridData[5][4] = board[10][4] ?  board[10][4][1]: 3;
-    gridData[5][5] = board[11][3] ?  board[11][3][1]: 3;
-    gridData[5][6] = board[12][2] ?  board[12][2][1]: 3;
-    gridData[5][7] = board[13][1] ?  board[13][1][1]: 3;
+    gridData[5][7] = board[6][8] ?  board[6][8][1]: 3;
+    gridData[5][6] = board[7][7] ?  board[7][7][1]: 3;
+    gridData[5][5] = board[8][6] ?  board[8][6][1]: 3;
+    gridData[5][4] = board[9][5] ?  board[9][5][1]: 3;
+    gridData[5][3] = board[10][4] ?  board[10][4][1]: 3;
+    gridData[5][2] = board[11][3] ?  board[11][3][1]: 3;
+    gridData[5][1] = board[12][2] ?  board[12][2][1]: 3;
+    gridData[5][0] = board[13][1] ?  board[13][1][1]: 3;
 
-    gridData[6][1] = board[8][8] ?  board[8][8][1]: 3;
-    gridData[6][2] = board[9][7] ?  board[9][7][1]: 3;
-    gridData[6][3] = board[10][6] ?  board[10][6][1]: 3;
+    gridData[6][7] = board[8][8] ?  board[8][8][1]: 3;
+    gridData[6][6] = board[9][7] ?  board[9][7][1]: 3;
+    gridData[6][5] = board[10][6] ?  board[10][6][1]: 3;
     gridData[6][4] = board[11][5] ?  board[11][5][1]: 3;
-    gridData[6][5] = board[12][4] ?  board[12][4][1]: 3;
-    gridData[6][6] = board[13][3] ?  board[13][3][1]: 3;
-    gridData[6][7] = board[14][2] ?  board[14][2][1]: 3;
+    gridData[6][3] = board[12][4] ?  board[12][4][1]: 3;
+    gridData[6][2] = board[13][3] ?  board[13][3][1]: 3;
+    gridData[6][1] = board[14][2] ?  board[14][2][1]: 3;
 
-    gridData[7][1] = board[10][8] ?  board[10][8][1]: 3;
-    gridData[7][2] = board[11][7] ?  board[11][7][1]: 3;
-    gridData[7][3] = board[12][6] ?  board[12][6][1]: 3;
-    gridData[7][4] = board[13][5] ?  board[13][5][1]: 3;
-    gridData[7][5] = board[14][4] ?  board[14][4][1]: 3;
-    gridData[7][6] = board[15][3] ?  board[15][3][1]: 3;
+    gridData[7][6] = board[10][8] ?  board[10][8][1]: 3;
+    gridData[7][5] = board[11][7] ?  board[11][7][1]: 3;
+    gridData[7][4] = board[12][6] ?  board[12][6][1]: 3;
+    gridData[7][3] = board[13][5] ?  board[13][5][1]: 3;
+    gridData[7][2] = board[14][4] ?  board[14][4][1]: 3;
+    gridData[7][1] = board[15][3] ?  board[15][3][1]: 3;
 
-    gridData[8][2] = board[12][8] ?  board[12][8][1]: 3;
-    gridData[8][3] = board[13][7] ?  board[13][7][1]: 3;
+    gridData[8][6] = board[12][8] ?  board[12][8][1]: 3;
+    gridData[8][5] = board[13][7] ?  board[13][7][1]: 3;
     gridData[8][4] = board[14][6] ?  board[14][6][1]: 3;
-    gridData[8][5] = board[15][5] ?  board[15][5][1]: 3;
-    gridData[8][6] = board[16][4] ?  board[16][4][1]: 3;
+    gridData[8][3] = board[15][5] ?  board[15][5][1]: 3;
+    gridData[8][2] = board[16][4] ?  board[16][4][1]: 3;
 
     for(i = 0; i < 9; i++) {
       for(j = 0; j < 9; j++) {
@@ -235,15 +257,15 @@ $(document).ready(function () {
   function resizeCanvas() {
 
     defaultGridData = {"gridData":[
-      [0, 0, 1, 1, 1, 1, 1, 0, 0],
-      [0, 1, 1, 1, 1, 1, 1, 0, 0],
-      [0, 3, 3, 1, 1, 1, 3, 3, 0],
+      [0, 0, 2, 2, 2, 2, 2, 0, 0],
+      [0, 2, 2, 2, 2, 2, 2, 0, 0],
+      [0, 3, 3, 2, 2, 2, 3, 3, 0],
       [3, 3, 3, 3, 3, 3, 3, 3, 0],
       [3, 3, 3, 3, 3, 3, 3, 3, 3],
       [3, 3, 3, 3, 3, 3, 3, 3, 0],
-      [0, 3, 3, 2, 2, 2, 3, 3, 0],
-      [0, 2, 2, 2, 2, 2, 2, 0, 0],
-      [0, 0, 2, 2, 2, 2, 2, 0, 0],
+      [0, 3, 3, 1, 1, 1, 3, 3, 0],
+      [0, 1, 1, 1, 1, 1, 1, 0, 0],
+      [0, 0, 1, 1, 1, 1, 1, 0, 0],
     ], "scores":{"W":0, "B":0}};
     
     canvas.width = window.innerWidth;
