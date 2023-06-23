@@ -18,7 +18,7 @@ $(document).ready(function () {
   socket.on("disconnect", (...args) => {
     // set display block to img of id #img
 
-    $("#img").css("display", "block");
+    //$("#img").css("display", "block");
   });
 
   $("#play").click(function () {

@@ -72,10 +72,8 @@ class AlphaPlayerAbalone(Player):
         Function to implement the logic of the player (here alpha beta algorithm)
         """
         depth = 0
-
         cutoff = 2
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)
-
         return move
 
     def __str__(self) -> str:

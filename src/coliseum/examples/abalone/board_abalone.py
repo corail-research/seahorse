@@ -1,11 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
 from coliseum.game.game_layout.board import Board, Piece
-
-if TYPE_CHECKING:
-    from coliseum.player.player import Player
 
 
 class BoardAbalone(Board):
@@ -106,13 +101,14 @@ class BoardAbalone(Board):
         grid_data[8][2] = self.get_env().get((16,4)).get_type() if  self.get_env().get((16,4)) else 3
         grid_data[3][0] = self.get_env().get((10,0)).get_type() if  self.get_env().get((10,0)) else 3
         string = ""
+        none_value = 3
         for i in range(9):
             if i % 2 == 1:
                 string += " "
             for j in range(9):
                 if grid_data[i][j] == 0:
                     string += "  "
-                elif grid_data[i][j] == 3:
+                elif grid_data[i][j] == none_value:
                     string += "_ "
                 else:
                     string += str(grid_data[i][j]) + " "

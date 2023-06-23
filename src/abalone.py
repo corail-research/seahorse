@@ -11,7 +11,7 @@ B = 2
 
 def run_multiple_games():
     for _ in range(1):
-        player1 = LocalPlayerProxy(RandomPlayerAbalone("W", name="louis"))
+        player1 = LocalPlayerProxy(AlphaPlayerAbalone("W", name="louis"))
         player2 = LocalPlayerProxy(RandomPlayerAbalone("B", name="loic"))
 
         list_players = [player1, player2]
@@ -107,7 +107,7 @@ def run_multiple_games():
                     env[(i, j)] = Piece(piece_type=player2.get_piece_type(), owner=player2)
         init_rep = BoardAbalone(env=env, dim=dim)
         initial_game_state = GameStateAbalone(
-            scores=init_scores, next_player=player1, players=list_players, rep=init_rep
+            scores=init_scores, next_player=player1, players=list_players, rep=init_rep, step=0
         )
 
         master = MasterAbalone(

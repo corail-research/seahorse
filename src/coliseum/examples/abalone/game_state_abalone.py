@@ -1,6 +1,5 @@
 import copy
-from math import ceil
-from typing import Dict, List, Set
+from typing import Dict, List
 
 from coliseum.examples.abalone.board_abalone import BoardAbalone
 from coliseum.game.action import Action
@@ -18,9 +17,14 @@ class GameStateAbalone(GameState):
         rep (Representation): representation of the game
     """
 
-    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardAbalone) -> None:
+    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardAbalone, step: int) -> None:
         super().__init__(scores, next_player, players, rep)
         self.max_score = -6
+        self.max_step = 50
+        self.step = step
+
+    def get_step(self) :
+        return self.step
 
     def is_done(self) -> bool:
         """
@@ -29,7 +33,11 @@ class GameStateAbalone(GameState):
         Returns:
             bool: -
         """
-        if self.max_score in self.get_scores().values() :
+        # if self.max_score in self.get_scores().values() :
+        #     return True
+        # else :
+        #     return False
+        if self.step == self.max_step or self.max_score in self.scores.values():
             return True
         else :
             return False
@@ -43,12 +51,13 @@ class GameStateAbalone(GameState):
         my_count = 1
         other_count = 0
         switch = False
+        max_deplacement = 3
         result.append((i,j))
         while b.get((i+tmp_n_i,j+tmp_n_j),False) :
             p = b[(i+tmp_n_i,j+tmp_n_j)]
             if p.get_owner_id() == self.next_player.get_id() and switch is False:
                 my_count += 1
-                if my_count > 3 :
+                if my_count > max_deplacement :
                     return None
             elif p.get_owner_id() == self.next_player.get_id() and switch is True :
                 return None
@@ -136,10 +145,11 @@ class GameStateAbalone(GameState):
             Action(
                 self,
                 GameStateAbalone(
-                    self.compute_scores(representation=valid_next_rep,id_add=id_add),
+                    self.compute_scores(id_add=id_add),
                     self.compute_next_player(),
                     self.players,
                     valid_next_rep,
+                    step=self.step + 1
                 ),
             )
             for valid_next_rep, id_add in self.generator()
@@ -147,7 +157,7 @@ class GameStateAbalone(GameState):
         #print(len(poss_actions))
         return poss_actions
 
-    def compute_scores(self, representation: BoardAbalone, id_add: int) -> dict[int, float]:
+    def compute_scores(self, id_add: int) -> dict[int, float]:
         """
         Function to compute the score of each player in a list
 
