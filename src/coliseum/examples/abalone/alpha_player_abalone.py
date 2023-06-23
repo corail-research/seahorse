@@ -1,12 +1,10 @@
 import math
-import time
 
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
 
 infinity = math.inf
-
 class AlphaPlayerAbalone(Player):
     """
     Attributes:
@@ -37,7 +35,11 @@ class AlphaPlayerAbalone(Player):
         for player in current_state.get_players() :
             if player.get_id() != id_next_player :
                 id_player = player.get_id()
-        return current_state.get_scores()[self.get_id()] - current_state.get_scores()[id_player]
+        return 2 * current_state.get_scores()[self.get_id()] - current_state.get_scores()[id_player]
+        """if self.get_id() == current_state.get_players()[0].get_id():
+            return current_state.get_scores()[self.get_id()]
+        else :
+            return -current_state.get_scores()[id_player]"""
 
     def max_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
@@ -70,11 +72,9 @@ class AlphaPlayerAbalone(Player):
         Function to implement the logic of the player (here alpha beta algorithm)
         """
         depth = 0
+
         cutoff = 2
-        time.sleep(0.5)
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)
-        #print(self.get_id(), v)
-        #v, move = self.min_value(current_state, -infinity, +infinity, depth, cutoff)
 
         return move
 

@@ -67,8 +67,6 @@ class GameMaster:
         )
         while not self.current_game_state.is_done():
             self.current_game_state = await self.step()
-            print(self.current_game_state.get_rep())
-            print(self.current_game_state)
             await self.emitter.sio.emit(
                 "play",
                 json.dumps(

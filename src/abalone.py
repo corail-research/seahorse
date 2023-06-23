@@ -6,11 +6,13 @@ from coliseum.examples.abalone.random_player_abalone import RandomPlayerAbalone
 from coliseum.game.game_layout.board import Piece
 from coliseum.player.player import LocalPlayerProxy
 
+W = 1
+B = 2
 
 def run_multiple_games():
     for _ in range(1):
-        player1 = LocalPlayerProxy(AlphaPlayerAbalone("W", name="louis"))
-        player2 = LocalPlayerProxy(AlphaPlayerAbalone("B", name="loic"))
+        player1 = LocalPlayerProxy(RandomPlayerAbalone("W", name="louis"))
+        player2 = LocalPlayerProxy(RandomPlayerAbalone("B", name="loic"))
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
@@ -59,58 +61,62 @@ def run_multiple_games():
         #     [0, 0, 0, 0, 1, 0, 0, 0, 0],
         # ]
         initial_board = [
-            [0, 0, 0, 0, 2, 0, 0, 0, 0],
-            [0, 0, 0, 3, 0, 3, 0, 0, 0],
-            [0, 0, 2, 0, 2, 0, 3, 0, 0],
-            [0, 3, 0, 1, 0, 2, 0, 3, 0],
-            [2, 0, 1, 0, 1, 0, 3, 0, 3],
-            [0, 2, 0, 2, 0, 3, 0, 3, 0],
-            [3, 0, 1, 0, 2, 0, 3, 0, 3],
-            [0, 2, 0, 2, 0, 3, 0, 3, 0],
-            [3, 0, 3, 0, 3, 0, 3, 0, 3],
-            [0, 3, 0, 3, 0, 1, 0, 1, 0],
-            [3, 0, 3, 0, 1, 0, 2, 0, 3],
-            [0, 3, 0, 3, 0, 1, 0, 1, 0],
-            [3, 0, 3, 0, 2, 0, 2, 0, 1],
-            [0, 3, 0, 1, 0, 2, 0, 3, 0],
-            [0, 0, 3, 0, 1, 0, 1, 0, 0],
-            [0, 0, 0, 3, 0, 3, 0, 0, 0],
+             [0, 0, 0, 0, 2, 0, 0, 0, 0],
+             [0, 0, 0, 3, 0, 3, 0, 0, 0],
+             [0, 0, 2, 0, 2, 0, 3, 0, 0],
+             [0, 3, 0, 1, 0, 2, 0, 3, 0],
+             [2, 0, 1, 0, 1, 0, 3, 0, 3],
+             [0, 2, 0, 2, 0, 3, 0, 3, 0],
+             [3, 0, 1, 0, 2, 0, 3, 0, 3],
+             [0, 2, 0, 2, 0, 3, 0, 3, 0],
+             [3, 0, 3, 0, 3, 0, 3, 0, 3],
+             [0, 3, 0, 3, 0, 1, 0, 1, 0],
+             [3, 0, 3, 0, 1, 0, 2, 0, 3],
+             [0, 3, 0, 3, 0, 1, 0, 1, 0],
+             [3, 0, 3, 0, 2, 0, 2, 0, 1],
+             [0, 3, 0, 1, 0, 2, 0, 3, 0],
+             [0, 0, 3, 0, 1, 0, 1, 0, 0],
+             [0, 0, 0, 3, 0, 3, 0, 0, 0],
+             [0, 0, 0, 0, 1, 0, 0, 0, 0],
+         ]
+        """initial_board = [
             [0, 0, 0, 0, 1, 0, 0, 0, 0],
-        ]
+            [0, 0, 0, 3, 0, 3, 0, 0, 0],
+            [0, 0, 3, 0, 1, 0, 3, 0, 0],
+            [0, 3, 0, 3, 0, 3, 0, 3, 0],
+            [1, 0, 3, 0, 1, 0, 3, 0, 1],
+            [0, 1, 0, 3, 0, 1, 0, 1, 0],
+            [3, 0, 1, 0, 1, 0, 1, 0, 3],
+            [0, 3, 0, 1, 0, 1, 0, 3, 0],
+            [3, 0, 1, 0, 3, 0, 2, 0, 3],
+            [0, 3, 0, 2, 0, 2, 0, 3, 0],
+            [3, 0, 2, 0, 2, 0, 2, 0, 3],
+            [0, 2, 0, 2, 0, 3, 0, 2, 0],
+            [2, 0, 3, 0, 2, 0, 3, 0, 2],
+            [0, 3, 0, 3, 0, 3, 0, 3, 0],
+            [0, 0, 3, 0, 2, 0, 3, 0, 0],
+            [0, 0, 0, 3, 0, 3, 0, 0, 0],
+            [0, 0, 0, 0, 2, 0, 0, 0, 0],
+        ]"""
+
         for i in range(dim[0]):
             for j in range(dim[1]):
-                if initial_board[i][j] == 1:
+                if initial_board[i][j] == W:
                     env[(i, j)] = Piece(piece_type=player1.get_piece_type(), owner=player1)
-                elif initial_board[i][j] == 2:
+                elif initial_board[i][j] == B:
                     env[(i, j)] = Piece(piece_type=player2.get_piece_type(), owner=player2)
         init_rep = BoardAbalone(env=env, dim=dim)
         initial_game_state = GameStateAbalone(
             scores=init_scores, next_player=player1, players=list_players, rep=init_rep
         )
- 
 
-        list_result = []
-        
-        def explore(state,depth):
-            print("=======================")
-            print(state.get_rep())
-            explore_2(state=list(state.get_possible_actions())[0].get_new_gs(),state_2=list(state.get_possible_actions())[1].get_new_gs(),depth=depth)
-        
-        def explore_2(state,state_2,depth) :
-            list_result.append(state.get_rep())
-            list_result.append(state_2.get_rep())
-            if depth > 0 :
-                explore_2(state=list(state.get_possible_actions())[0].get_new_gs(),state_2=list(state_2.get_possible_actions())[0].get_new_gs(),depth=depth-1)
-        
-        explore(state=initial_game_state, depth=5)
-        for i in range(len(list_result)) :
-            if i %2 == 0 :
-                print("-------------------")
-            print(list_result[i])
-#         master = MasterAbalone(
-#             name="Abalone", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt"
-#         )
-#         master.record_game()
+        master = MasterAbalone(
+             name="Abalone", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt"
+         )
+        master.record_game()
+
+
+
 
 
 run_multiple_games()

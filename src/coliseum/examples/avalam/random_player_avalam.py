@@ -1,5 +1,4 @@
 import random
-import time
 
 from coliseum.game.action import Action
 from coliseum.game.game_state import GameState

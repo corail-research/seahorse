@@ -1,8 +1,8 @@
 import copy
 from math import ceil
 from typing import Dict, List, Set
-from coliseum.examples.abalone.board_abalone import BoardAbalone
 
+from coliseum.examples.abalone.board_abalone import BoardAbalone
 from coliseum.game.action import Action
 from coliseum.game.game_layout.board import Piece
 from coliseum.game.game_state import GameState
@@ -21,7 +21,7 @@ class GameStateAbalone(GameState):
     def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardAbalone) -> None:
         super().__init__(scores, next_player, players, rep)
         self.max_score = -6
-        
+
     def is_done(self) -> bool:
         """
         Function to know if the game is finished
@@ -46,11 +46,11 @@ class GameStateAbalone(GameState):
         result.append((i,j))
         while b.get((i+tmp_n_i,j+tmp_n_j),False) :
             p = b[(i+tmp_n_i,j+tmp_n_j)]
-            if p.get_owner_id() == self.next_player.get_id() and switch == False:
+            if p.get_owner_id() == self.next_player.get_id() and switch is False:
                 my_count += 1
                 if my_count > 3 :
                     return None
-            elif p.get_owner_id() == self.next_player.get_id() and switch == True :
+            elif p.get_owner_id() == self.next_player.get_id() and switch is True :
                 return None
             else :
                 other_count += 1
@@ -58,12 +58,12 @@ class GameStateAbalone(GameState):
             if other_count >= my_count :
                 return None
             result.append((i+tmp_n_i,j+tmp_n_j))
-            tmp_n_i += n_i 
+            tmp_n_i += n_i
             tmp_n_j += n_j
         return result
-    
+
     def in_hexa(self,index) :
-        d = self.get_rep().get_dimensions()
+        self.get_rep().get_dimensions()
         for i in range(4) :
             for j in range(4-i-1,-1,-1) :
                 if index == (i,j) :
@@ -71,7 +71,7 @@ class GameStateAbalone(GameState):
             for j in range(5+i,9,1) :
                 if index == (i,j) :
                     return False
-        compteur = 0       
+        compteur = 0
         for i in range(16,12,-1) :
             for j in range(4-1-compteur,-1,-1) :
                 if index == (i,j) :
@@ -80,7 +80,7 @@ class GameStateAbalone(GameState):
                 if index == (i,j) :
                     return False
             compteur += 1
-            
+
         return True
 
     def get_player_id(self,pid) :
@@ -160,7 +160,7 @@ class GameStateAbalone(GameState):
         scores = copy.copy(self.scores)
         if id_add is not None :
             scores[id_add] -= 1
-                
+
         # scores = {}
         # for player in self.players:
         #     scores[player.get_id()] = 0
