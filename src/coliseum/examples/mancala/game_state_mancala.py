@@ -2,7 +2,6 @@ from typing import Dict, List, Set
 
 from coliseum.examples.mancala.board_mancala import BoardMancala
 from coliseum.game.action import Action
-from coliseum.game.game_layout.board import Piece
 from coliseum.game.game_state import GameState
 from coliseum.game.representation import Representation
 from coliseum.player.player import Player
@@ -61,7 +60,6 @@ class GameStateMancala(GameState):
         """
         next_player = self.get_next_player().get_id()
         actions = []
-        print(next_player)
         if next_player == self.players[0].get_id():
             for i in range(1,7):
                 if self.rep.env[(0,i)].get_value() != 0:
@@ -207,6 +205,6 @@ class GameStateMancala(GameState):
 
     def copy(self):
         return GameStateMancala(self.scores, self.next_player, self.players, self.rep.copy())
-      
+
     def __hash__(self) -> int:
         return hash(frozenset([(hash(pos),hash(piece.get_value())) for pos,piece in self.rep.get_env().items()]))
