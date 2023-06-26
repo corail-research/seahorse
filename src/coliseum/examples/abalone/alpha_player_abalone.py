@@ -5,48 +5,87 @@ from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
 
 infinity = math.inf
+
 class AlphaPlayerAbalone(Player):
     """
-    Attributes:
-        id_player (int): id of the player
-        name (str): name of the player
+    A player class implementing the Alpha-Beta algorithm for the Abalone game.
 
-    Class attributes:
-        next_id (int): id to be assigned to the next player
+    Attributes:
+        id_player (int): The ID of the player.
+        name (str): The name of the player.
+
+    Class Attributes:
+        next_id (int): The ID to be assigned to the next player.
     """
 
     def __init__(self, piece_type: str, name: str = "bob") -> None:
+        """
+        Initializes a new instance of the AlphaPlayerAbalone class.
+
+        Args:
+            piece_type (str): The type of the player's game piece.
+            name (str, optional): The name of the player. Defaults to "bob".
+        """
         super().__init__(name)
         self.piece_type = piece_type
 
-    def get_piece_type(self):
+    def get_piece_type(self) -> str:
         """
+        Gets the type of the player's game piece.
+
         Returns:
-            piece_type: string to represent the type of the piece
+            str: The type of the player's game piece.
         """
         return self.piece_type
 
-    def cutoff_depth(self, d, cutoff):
+    def cutoff_depth(self, d: int, cutoff: int) -> bool:
+        """
+        Checks if the given depth exceeds the cutoff.
+
+        Args:
+            d (int): The current depth.
+            cutoff (int): The cutoff depth.
+
+        Returns:
+            bool: True if the cutoff depth is exceeded, False otherwise.
+        """
         return d > cutoff
 
-    def heuristic(self, current_state : GameState):
-        # TODO: review to make beautiful
+    def heuristic(self, current_state: GameState) -> int:
+        """
+        Computes the heuristic value for the given game state.
+
+        Args:
+            current_state (GameState): The current game state.
+
+        Returns:
+            int: The heuristic value.
+        """
         id_next_player = self.get_id()
-        for player in current_state.get_players() :
-            if player.get_id() != id_next_player :
+        for player in current_state.get_players():
+            if player.get_id() != id_next_player:
                 id_player = player.get_id()
         return 2 * current_state.get_scores()[self.get_id()] - current_state.get_scores()[id_player]
-        """if self.get_id() == current_state.get_players()[0].get_id():
-            return current_state.get_scores()[self.get_id()]
-        else :
-            return -current_state.get_scores()[id_player]"""
 
-    def max_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
+    def max_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> tuple[int, Action]:
+        """
+        Computes the maximum value for the current player in the Alpha-Beta algorithm.
+
+        Args:
+            current_state (GameState): The current game state.
+            alpha (int): The alpha value.
+            beta (int): The beta value.
+            depth (int): The current depth.
+            cutoff (int): The cutoff depth.
+
+        Returns:
+            tuple[int, Action]: The maximum value and the corresponding action.
+        """
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None
         v, move = -infinity, None
         for a in current_state.get_possible_actions():
-            v2, _ = self.min_value(a.get_new_gs(), alpha, beta, depth+1, cutoff)
+            v2, _ = self.min_value(a.get_new_gs(), alpha, beta, depth + 1, cutoff)
             if v2 > v:
                 v, move = v2, a
                 alpha = max(alpha, v)
@@ -54,12 +93,25 @@ class AlphaPlayerAbalone(Player):
                 return v, move
         return v, move
 
-    def min_value(self, current_state : GameState, alpha : int, beta : int, depth : int, cutoff : int):
+    def min_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> tuple[int, Action]:
+        """
+        Computes the minimum value for the opponent player in the Alpha-Beta algorithm.
+
+        Args:
+            current_state (GameState): The current game state.
+            alpha (int): The alpha value.
+            beta (int): The beta value.
+            depth (int): The current depth.
+            cutoff (int): The cutoff depth.
+
+        Returns:
+            tuple[int, Action]: The minimum value and the corresponding action.
+        """
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None
         v, move = +infinity, None
         for a in current_state.get_possible_actions():
-            v2, _ = self.max_value(a.get_new_gs(), alpha, beta, depth+1, cutoff)
+            v2, _ = self.max_value(a.get_new_gs(), alpha, beta, depth + 1, cutoff)
             if v2 < v:
                 v, move = v2, a
                 beta = min(beta, v)
@@ -67,14 +119,17 @@ class AlphaPlayerAbalone(Player):
                 return v, move
         return v, move
 
-    def solve(self, current_state : GameState, **_) -> Action:
+    def solve(self, current_state: GameState, **_) -> Action:
         """
-        Function to implement the logic of the player (here alpha beta algorithm)
+        Solves the game by implementing the logic of the player using the Alpha-Beta algorithm.
+
+        Args:
+            current_state (GameState): The current game state.
+        
+        Returns:
+            Action: The selected action.
         """
         depth = 0
         cutoff = 2
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)
         return move
-
-    def __str__(self) -> str:
-        return super().__str__()

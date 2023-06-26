@@ -4,44 +4,51 @@ from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
 
-
 class RandomPlayerAbalone(Player):
     """
-    Attributes:
-        id_player (int): id of the player
-        name (str): name of the player
+    Player class for Abalone game that makes random moves.
 
-    Class attributes:
-        next_id (int): id to be assigned to the next player
+    Attributes:
+        id_player (int): ID of the player
+        name (str): Name of the player
+
+    Class Attributes:
+        next_id (int): ID to be assigned to the next player
     """
 
     def __init__(self, piece_type: str, name: str = "bob") -> None:
+        """
+        Initialize the RandomPlayerAbalone instance.
+
+        Args:
+            piece_type (str): Type of the player's game piece
+            name (str, optional): Name of the player (default is "bob")
+        """
         super().__init__(name)
         self.piece_type = piece_type
 
     def get_piece_type(self):
         """
+        Get the type of the player's game piece.
+
         Returns:
-            piece_type: string to represent the type of the piece
+            str: Piece type string representing the type of the piece
         """
         return self.piece_type
 
     def solve(self, current_state: GameState, **kwargs) -> Action:
         """
-        Function to implement the logic of the player (here random selection of a feasible solution)
+        Function to implement the logic of the player (here random selection of a feasible solution).
 
         Args:
-            current_rep (BoardTictac): current representation of the game state
-            scores (dict[int, float]): _description_
+            current_state (GameState): Current game state representation
+            **kwargs: Additional keyword arguments
 
         Returns:
-            BoardTictac: future representation
+            Action: Randomly selected feasible action
         """
         possible_actions = current_state.get_possible_actions()
         random.seed("seahorse")
         if kwargs:
             pass
         return random.choice(list(possible_actions))
-
-    def __str__(self) -> str:
-        return super().__str__()

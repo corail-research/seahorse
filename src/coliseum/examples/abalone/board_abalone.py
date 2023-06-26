@@ -5,15 +5,23 @@ from coliseum.game.game_layout.board import Board, Piece
 
 class BoardAbalone(Board):
     """
+    A class representing an Abalone board.
+
     Attributes:
-        env: environnement dictionnary (composed of pieces)
-        dimensions: dimensions of the board
+        env (dict[tuple[int], Piece]): The environment dictionary composed of pieces.
+        dimensions (list[int]): The dimensions of the board.
     """
 
     def __init__(self, env: dict[tuple[int], Piece], dim: list[int]) -> None:
         super().__init__(env, dim)
 
     def __str__(self) -> str:
+        """
+        Return a string representation of the board.
+
+        Returns:
+            str: The string representation of the board.
+        """
         dim = self.get_dimensions()
         to_print = ""
         for i in range(dim[0]):
@@ -28,17 +36,23 @@ class BoardAbalone(Board):
         return to_print
 
     def nice_repr(self) -> str:
+        """
+        Return a nice representation of the board.
+
+        Returns:
+            str: The nice representation of the board.
+        """
         grid_data = [
-      [0, 0, 2, 2, 2, 2, 2, 0, 0],
-      [0, 2, 2, 2, 2, 2, 2, 0, 0],
-      [0, 3, 3, 2, 2, 2, 3, 3, 0],
-      [3, 3, 3, 3, 3, 3, 3, 3, 0],
-      [3, 3, 3, 3, 3, 3, 3, 3, 3],
-      [3, 3, 3, 3, 3, 3, 3, 3, 0],
-      [0, 3, 3, 1, 1, 1, 3, 3, 0],
-      [0, 1, 1, 1, 1, 1, 1, 0, 0],
-      [0, 0, 1, 1, 1, 1, 1, 0, 0],
-    ]
+            [0, 0, 2, 2, 2, 2, 2, 0, 0],
+            [0, 2, 2, 2, 2, 2, 2, 0, 0],
+            [0, 3, 3, 2, 2, 2, 3, 3, 0],
+            [3, 3, 3, 3, 3, 3, 3, 3, 0],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 3, 3, 3, 3, 0],
+            [0, 3, 3, 1, 1, 1, 3, 3, 0],
+            [0, 1, 1, 1, 1, 1, 1, 0, 0],
+            [0, 0, 1, 1, 1, 1, 1, 0, 0],
+        ]
         grid_data[0][6] = self.get_env().get((0,4)).get_type() if  self.get_env().get((0,4)) else 3
         grid_data[0][5] = self.get_env().get((1,3)).get_type() if  self.get_env().get((1,3)) else 3
         grid_data[0][4] = self.get_env().get((2,2)).get_type() if  self.get_env().get((2,2)) else 3
@@ -116,6 +130,12 @@ class BoardAbalone(Board):
         return string
 
     def to_json(self) -> dict:
+        """
+        Convert the board to a JSON-compatible dictionary.
+
+        Returns:
+            dict: The JSON representation of the board.
+        """
         board = [[None for _ in range(self.dimensions[1])] for _ in range(self.dimensions[0])]
         for key, value in self.env.items():
             board[key[0]][key[1]] = [value.owner_id, value.piece_type] if value is not None else None
