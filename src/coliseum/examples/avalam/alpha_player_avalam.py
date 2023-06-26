@@ -131,7 +131,5 @@ class AlphaPlayerAvalam(Player):
         depth = 0
         cutoff = 2
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)
-        # print(self.get_id(), v)
-        # v, move = self.min_value(current_state, -infinity, +infinity, depth, cutoff)
 
         return move
