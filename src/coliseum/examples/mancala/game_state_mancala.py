@@ -42,10 +42,10 @@ class GameStateMancala(GameState):
         """
         player1_done = True
         player2_done = True
-        for i in range(1, 7):
-            if len(self.rep.env[(0, i)]) != 0:
+        for i in range(1,7):
+            if self.rep.env[(0,i)].get_value() != 0:
                 player1_done = False
-            if len(self.rep.env[(1, i - 1)]) != 0:
+            if self.rep.env[(1,i-1)].get_value() != 0:
                 player2_done = False
         return player1_done or player2_done
 
@@ -61,14 +61,15 @@ class GameStateMancala(GameState):
         """
         next_player = self.get_next_player().get_id()
         actions = []
-        if next_player == 0:
-            for i in range(1, 7):
-                if len(self.rep.env[(0, i)]) != 0:
-                    actions.append(self.generate_action((0, i)))
+        print(next_player)
+        if next_player == self.players[0].get_id():
+            for i in range(1,7):
+                if self.rep.env[(0,i)].get_value() != 0:
+                    actions.append(self.generate_action((0,i)))
         else:
-            for i in range(1, 7):
-                if len(self.rep.env[(1, i - 1)]) != 0:
-                    actions.append(self.generate_action((1, i - 1)))
+            for i in range(1,7):
+                if self.rep.env[(1,i-1)].get_value() != 0:
+                    actions.append(self.generate_action((1,i-1)))
         return actions
 
     def generate_action(self, pool):
@@ -84,51 +85,43 @@ class GameStateMancala(GameState):
         Returns:
             Action: Generated action.
         """
-        if len(self.rep.env[pool]) == 0:
-            raise ActionNotPermittedError("Pool " + str(pool) + " is empty")
+        if self.rep.env[pool].get_value() == 0:
+            raise ActionNotPermittedError("Pool "+str(pool)+" is empty")
         env = self.rep.copy().get_env()
         player = self.get_next_player().get_id()
-        pieces = len(env[pool])
-        env[pool] = []
-        single_piece = Piece("rock", None)
+        pieces = env[pool].remove()
         while pieces > 0:
-            pool = self.get_next_pool(pool, player)
-            env[pool].append(single_piece.copy())
+            pool = self.get_next_pool(pool,player)
+            env[pool].increment()
             pieces -= 1
         # if stop on empty, win all the pieces in front
-        if len(env[pool]) == 1:
+        if env[pool].get_value() == 1:
             if pool[0] == 0 and pool[1] > 0 and player == 0:
                 front = (1, pool[1] - 1)
                 if len(env[front]) > 0:
-                    env[(0, 0)] += env[front]
-                    env[(0, 0)].append(single_piece.copy())
-                    env[front] = []
-                    env[pool] = []
+                    env[(0,0)].increment(env[front].remove())
+                    env[(0,0)].increment(env[pool].remove())
             elif pool[0] == 1 and pool[1] < BOARD_SIZE and player == 1:
-                front = (0, pool[1] + 1)
-                if len(env[front]) > 0:
-                    env[(1, 6)] += env[front]
-                    env[(1, 6)].append(single_piece.copy())
-                    env[front] = []
-                    env[pool] = []
+                front = (0,pool[1]+1)
+                if env[front].get_value() > 0:
+                    env[(1,6)].increment(env[front].remove())
+                    env[(1,6)].increment(env[pool].remove())
         # if one side is empty, win all the pieces in front
         player0_done = True
         player1_done = True
-        for i in range(1, 7):
-            if len(env[(0, i)]) != 0:
+        for i in range(1,7):
+            if env[(0,i)].get_value() != 0:
                 player0_done = False
-            if len(env[(1, i - 1)]) != 0:
+            if env[(1,i-1)].get_value() != 0:
                 player1_done = False
         if player0_done:
-            for i in range(1, 7):
-                if len(env[(1, i - 1)]) > 0:
-                    env[(1, 6)] += env[(1, i - 1)]
-                    env[(1, i - 1)] = []
+            for i in range(1,7):
+                if env[(1,i-1)].get_value() > 0:
+                    env[(1,6)].increment(env[(1,i-1)].remove())
         if player1_done:
-            for i in range(1, 7):
-                if len(env[(0, i)]) > 0:
-                    env[(0, 0)] += env[(0, i)]
-                    env[(0, i)] = []
+            for i in range(1,7):
+                if env[(0,i)].get_value() > 0:
+                    env[(0,0)].increment(env[(0,i)].remove())
 
         new_gs = GameStateMancala(self.compute_scores(env), self.compute_next_player(self.get_next_player(), self.rep.get_env(), env), self.players, BoardMancala(env))
 
@@ -172,7 +165,7 @@ class GameStateMancala(GameState):
         Returns:
             Dict: The scores of the game.
         """
-        scores = {self.players[0].get_id(): len(env[(0, 0)]), self.players[1].get_id(): len(env[(1, 6)])}
+        scores = {self.players[0].get_id():env[(0,0)].get_value(), self.players[1].get_id():env[(1,6)].get_value()}
         return scores
 
     def replay(self, player: Player, current_rep: Representation, next_rep: Representation) -> bool:
@@ -187,13 +180,13 @@ class GameStateMancala(GameState):
         Returns:
             bool: True if the player can replay.
         """
-        if player.get_id() == 0:
-            for i in range(1, 7):
-                if len(current_rep[(0, i)]) > len(next_rep[(0, i)]) and (len(current_rep[(0, i)]) - i) % 13 == 0:
+        if player.get_id() == self.players[0].get_id():
+            for i in range(1,7):
+                if current_rep[(0,i)].get_value() > next_rep[(0,i)].get_value() and (current_rep[(0,i)].get_value() - i)%13 == 0:
                     return True
         else:
-            for i in range(0, 6):
-                if len(current_rep[(1, i)]) > len(next_rep[(1, i)]) and (len(current_rep[(1, i)]) - (6 - i)) % 13 == 0:
+            for i in range(0,6):
+                if current_rep[(1,i)].get_value() > next_rep[(1,i)].get_value() and (current_rep[(1,i)].get_value() - (6-i))%13 == 0:
                     return True
 
     def compute_next_player(self, player: Player, current_rep: Representation = None, next_rep: Representation = None) -> Player:
@@ -210,10 +203,10 @@ class GameStateMancala(GameState):
         """
         if self.replay(player, current_rep, next_rep):
             return player
-        return self.get_next_player()
+        return super().compute_next_player()
 
     def copy(self):
         return GameStateMancala(self.scores, self.next_player, self.players, self.rep.copy())
-
+      
     def __hash__(self) -> int:
-        return hash(frozenset([(hash(pos), hash(len(piece))) for pos, piece in self.rep.get_env().items()]))
+        return hash(frozenset([(hash(pos),hash(piece.get_value())) for pos,piece in self.rep.get_env().items()]))

@@ -3,6 +3,29 @@ import copy
 from coliseum.game.game_layout.board import Piece
 from coliseum.game.representation import Representation
 
+class PieceMancala(Piece):
+
+    def __init__(self, value) -> None:
+        super().__init__(None, None)
+        self.value = value
+
+    def __str__(self) -> str:
+        return str(self.value)
+    
+    def remove(self) -> int:
+        val = self.value
+        self.value = 0
+        return val
+    
+    def increment(self,val = 1) -> None:
+        self.value += val
+    
+    def get_value(self) -> int:
+        return self.value
+    
+    def __hash__(self) -> int:
+        return hash(self.value)
+
 
 class BoardMancala(Representation):
     """
@@ -21,11 +44,10 @@ class BoardMancala(Representation):
             env (dict, optional): Environment dictionary representing the board. Defaults to None.
         """
         if env is None:
-            single_piece = Piece("rock", None)
-            env = {(0, 0): [], (1, 6): []}
-            for i in range(1, 7):
-                env[(0, i)] = [single_piece.copy() for _ in range(4)]
-                env[(1, i - 1)] = [single_piece.copy() for _ in range(4)]
+            env = {(0,0):PieceMancala(0),(1,6):PieceMancala(0)}
+            for i in range(1,7):
+                env[(0,i)] = PieceMancala(4)
+                env[(1,i-1)] = PieceMancala(4)
         super().__init__(env)
 
     def copy(self):
@@ -38,15 +60,15 @@ class BoardMancala(Representation):
         return BoardMancala(copy.deepcopy(self.env))
 
     def __str__(self) -> str:
-        to_print = " " * 8
-        for i in range(1, 7):
-            to_print += "  " + str(len(self.env[(0, i)])) + "   "
+        to_print = " "*8
+        for i in range(1,7):
+            to_print += "  " + str(self.env[(0,i)]) + "   "
         to_print += "\n"
-        length = len(to_print) - 8
-        to_print += "  (" + str(len(self.env[(0, 0)])) + ")  " + "-" * length + "  (" + str(len(self.env[(1, 6)])) + ")  \n"
-        to_print += " " * 8
+        length = len(to_print)-8
+        to_print+= "  ("+str(self.env[(0,0)])+")  "+"-"*length+"  ("+str(self.env[(1,6)])+")  \n"
+        to_print+=" "*8
         for i in range(6):
-            to_print += "  " + str(len(self.env[(1, i)])) + "   "
+            to_print += "  " + str(self.env[(1,i)]) + "   "
         to_print += "\n"
         return to_print
 
