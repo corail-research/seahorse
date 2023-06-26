@@ -42,7 +42,7 @@ class GameMaster:
         self.log_file = log_file
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(3)
+        self.emitter = EventMaster.get_instance(2)
 
     async def step(self) -> GameState:
         """
