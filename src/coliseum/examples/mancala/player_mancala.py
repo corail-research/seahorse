@@ -4,6 +4,7 @@ from coliseum.examples.mancala.game_state_mancala import GameStateMancala
 from coliseum.game.action import Action
 from coliseum.player.player import Player
 
+
 class PlayerMancala(Player):
     """
     A class representing a Mancala player.

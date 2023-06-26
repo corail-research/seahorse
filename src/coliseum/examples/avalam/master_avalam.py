@@ -13,7 +13,7 @@ class MasterAvalam(GameMaster):
         name (str): Name of the game.
         initial_game_state (GameState): Initial state of the game.
         current_game_state (GameState): Current state of the game.
-        players_iterator (Iterable): An iterable for the players_iterator, ordered according to the playing order. 
+        players_iterator (Iterable): An iterable for the players_iterator, ordered according to the playing order.
                                      If a list is provided, a cyclic iterator is automatically built.
         log_file (str): Name of the log file.
     """
@@ -27,7 +27,7 @@ class MasterAvalam(GameMaster):
         Args:
             name (str): Name of the game.
             initial_game_state (GameState): Initial state of the game.
-            players_iterator (Iterable[Player]): An iterable for the players_iterator, ordered according to the playing order. 
+            players_iterator (Iterable[Player]): An iterable for the players_iterator, ordered according to the playing order.
                                                  If a list is provided, a cyclic iterator is automatically built.
             log_file (str): Name of the log file.
         """

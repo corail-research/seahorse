@@ -4,6 +4,7 @@ from coliseum.game.game_state import GameState
 from coliseum.game.master import GameMaster
 from coliseum.player.player import Player
 
+
 class MasterTictac(GameMaster):
     """
     A game master for playing Tic Tac Toe.

@@ -1,7 +1,9 @@
 from typing import Dict, Iterable
+
 from coliseum.game.game_state import GameState
 from coliseum.game.master import GameMaster
 from coliseum.player.player import Player
+
 
 class MasterAbalone(GameMaster):
     """

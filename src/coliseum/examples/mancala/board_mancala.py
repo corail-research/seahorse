@@ -27,7 +27,7 @@ class BoardMancala(Representation):
                 env[(0, i)] = [single_piece.copy() for _ in range(4)]
                 env[(1, i - 1)] = [single_piece.copy() for _ in range(4)]
         super().__init__(env)
-        
+
     def copy(self):
         """
         Creates a copy of the board.

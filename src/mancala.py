@@ -4,11 +4,12 @@ from coliseum.examples.mancala.master_mancala import MasterMancala
 from coliseum.examples.mancala.player_mancala import PlayerMancala
 from coliseum.player.player import LocalPlayerProxy
 
+
 def run_multiple_games():
     for _ in range(1):
         player1 = LocalPlayerProxy(PlayerMancala(name="louis"))
         player2 = LocalPlayerProxy(PlayerMancala(name="loic"))
-        
+
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
         init_rep = BoardMancala()

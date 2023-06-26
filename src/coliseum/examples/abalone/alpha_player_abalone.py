@@ -11,7 +11,7 @@ class AlphaPlayerAbalone(Player):
     A player class implementing the Alpha-Beta algorithm for the Abalone game.
 
     Attributes:
-        piece_type (str): piece type of the player 
+        piece_type (str): piece type of the player
     """
 
     def __init__(self, piece_type: str, name: str = "bob") -> None:
@@ -121,7 +121,7 @@ class AlphaPlayerAbalone(Player):
 
         Args:
             current_state (GameState): The current game state.
-        
+
         Returns:
             Action: The selected action.
         """

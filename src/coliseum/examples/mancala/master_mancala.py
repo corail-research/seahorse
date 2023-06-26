@@ -4,6 +4,7 @@ from coliseum.game.game_state import GameState
 from coliseum.game.master import GameMaster
 from coliseum.player.player import Player
 
+
 class MasterMancala(GameMaster):
     """
     A class representing the game master for Mancala.
