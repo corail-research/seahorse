@@ -8,8 +8,9 @@ from coliseum.player.player import LocalPlayerProxy
 
 def run_multiple_games():
     for _ in range(1):
-        player1 = LocalPlayerProxy(RandomPlayerAvalam("R", name="louis"))
-        player2 = LocalPlayerProxy(AlphaPlayerAvalam("Y", name="loic"))
+        player1 = LocalPlayerProxy(AlphaPlayerAvalam("R", name="louis"))
+        player2 = LocalPlayerProxy(RandomPlayerAvalam("Y", name="loic"))
+        
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
         dim = [9, 9]
@@ -42,6 +43,5 @@ def run_multiple_games():
             name="Avalam", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt"
         )
         master.record_game()
-
 
 run_multiple_games()
