@@ -11,14 +11,34 @@ from coliseum.utils.custom_exceptions import ActionNotPermittedError
 BOARD_SIZE = 6
 
 class GameStateMancala(GameState):
+    """
+    Represents the game state of Mancala.
+
+    Attributes:
+        scores (Dict): Dictionary containing the scores of the game for each player.
+        next_player (Player): Player object representing the next player.
+        players (List[Player]): List of Player objects representing the players.
+        rep (BoardMancala): BoardMancala object representing the game board.
+    """
 
     def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardMancala) -> None:
+        """
+        Initializes the GameStateMancala object.
+
+        Args:
+            scores (Dict): Dictionary containing the scores of the game for each player.
+            next_player (Player): Player object representing the next player.
+            players (List[Player]): List of Player objects representing the players.
+            rep (BoardMancala): BoardMancala object representing the game board.
+        """
         super().__init__(scores, next_player, players, rep)
 
     def is_done(self) -> bool:
         """
+        Checks if the game is done.
+
         Returns:
-            bool: True if the game is done
+            bool: True if the game is done, False otherwise.
         """
         player1_done = True
         player2_done = True
@@ -31,13 +51,13 @@ class GameStateMancala(GameState):
 
     def generate_possible_actions(self) -> Set[Action]:
         """
-        Returns a set of all possible actions from this game state
+        Generates all possible actions from the current game state.
 
         Raises:
-            ActionNotPermittedError: if the action is not permitted
+            ActionNotPermittedError: If the action is not permitted.
 
         Returns:
-            Set[Action]: a set of possible actions
+            Set[Action]: Set of possible actions.
         """
         next_player = self.get_next_player().get_id()
         actions = []
@@ -54,16 +74,16 @@ class GameStateMancala(GameState):
 
     def generate_action(self, pool):
         """
-        Generate an action (next_gs) from a pool
+        Generates an action from a pool.
 
         Args:
-            pool (Tuple): the pool to play
+            pool (Tuple): The pool to play.
 
         Raises:
-            ActionNotPermittedError: _description_
+            ActionNotPermittedError: If the action is not permitted.
 
         Returns:
-            Action: _description_
+            Action: Generated action.
         """
         if self.rep.env[pool].get_value() == 0:
             raise ActionNotPermittedError("Pool "+str(pool)+" is empty")
@@ -77,7 +97,7 @@ class GameStateMancala(GameState):
         # if stop on empty, win all the pieces in front
         if env[pool].get_value() == 1:
             if pool[0] == 0 and pool[1] > 0 and player == 0:
-                front = (1,pool[1]-1)
+                front = (1, pool[1] - 1)
                 if len(env[front]) > 0:
                     env[(0,0)].increment(env[front].remove())
                     env[(0,0)].increment(env[pool].remove())
@@ -103,61 +123,62 @@ class GameStateMancala(GameState):
                 if env[(0,i)].get_value() > 0:
                     env[(0,0)].increment(env[(0,i)].remove())
 
-        new_gs = GameStateMancala(self.compute_scores(env),self.compute_next_player(self.get_next_player(),self.rep.get_env(),env),self.players,BoardMancala(env))
+        new_gs = GameStateMancala(self.compute_scores(env), self.compute_next_player(self.get_next_player(), self.rep.get_env(), env), self.players, BoardMancala(env))
 
         return Action(self.copy(), new_gs)
 
     def get_next_pool(self, pool, player):
         """
-        Get the next pool to play
+        Gets the next pool to play.
 
         Args:
-            pool (Tuple): the pool to play
-            player (int): the player to play
+            pool (Tuple): The current pool being played.
+            player (int): The player to play.
 
         Raises:
-            Exception: _description_
+            Exception: If the pool is not valid.
 
         Returns:
-            Tuple: the next pool to play
+            Tuple: The next pool to play.
         """
         if pool[0] == 0 and pool[1] > 0:
-            next_pool = (0,pool[1]-1)
+            next_pool = (0, pool[1] - 1)
         elif pool[0] == 0 and pool[1] == 0:
-            next_pool = (1,0)
+            next_pool = (1, 0)
         elif pool[0] == 1 and pool[1] < BOARD_SIZE:
-            next_pool = (1,pool[1]+1)
+            next_pool = (1, pool[1] + 1)
         elif pool[0] == 1 and pool[1] == BOARD_SIZE:
-            next_pool = (0,6)
+            next_pool = (0, 6)
         else:
-            raise Exception("Pool"+str(pool)+"is not valid")
-        if (player == 0 and next_pool == (1,6)) or (player == 1 and next_pool == (0,0)):
-            next_pool = self.get_next_pool(next_pool,player)
+            raise Exception("Pool " + str(pool) + " is not valid")
+        if (player == 0 and next_pool == (1, 6)) or (player == 1 and next_pool == (0, 0)):
+            next_pool = self.get_next_pool(next_pool, player)
         return next_pool
 
     def compute_scores(self, env):
         """
-        Compute the scores of the game
+        Computes the scores of the game.
 
         Args:
-            env (Dict): the next environment
+            env (Dict): The next environment.
 
         Returns:
-            Dict: the scores of the game
+            Dict: The scores of the game.
         """
         scores = {self.players[0].get_id():env[(0,0)].get_value(), self.players[1].get_id():env[(1,6)].get_value()}
         return scores
 
     def replay(self, player: Player, current_rep: Representation, next_rep: Representation) -> bool:
-        """Determine if the player can replay
+        """
+        Determines if the player can replay.
 
         Args:
-            player (Player): _description_
-            current_rep (Representation): _description_
-            next_rep (Representation): _description_
+            player (Player): The player.
+            current_rep (Representation): The current representation of the game.
+            next_rep (Representation): The next representation of the game.
 
         Returns:
-            bool: True if the player can replay
+            bool: True if the player can replay.
         """
         if player.get_id() == self.players[0].get_id():
             for i in range(1,7):
@@ -169,23 +190,23 @@ class GameStateMancala(GameState):
                     return True
 
     def compute_next_player(self, player: Player, current_rep: Representation = None, next_rep: Representation = None) -> Player:
-        """Function to get the next player, by default it is the next player in the list but if the player can replay it is the same player
+        """
+        Gets the next player. If the player can replay, returns the same player. Otherwise, returns the next player in the list.
 
         Args:
-            player (Player): current player
-            players_list (List[Player]): list of players
-            current_rep (Representation, optional): current representation of the game. Defaults to None.
-            next_rep (Representation, optional): next representation of the game. Defaults to None.
+            player (Player): The current player.
+            current_rep (Representation, optional): The current representation of the game. Defaults to None.
+            next_rep (Representation, optional): The next representation of the game. Defaults to None.
 
         Returns:
-            Player: next player
+            Player: The next player.
         """
         if self.replay(player, current_rep, next_rep):
             return player
         return super().compute_next_player()
 
+    def copy(self):
+        return GameStateMancala(self.scores, self.next_player, self.players, self.rep.copy())
+      
     def __hash__(self) -> int:
         return hash(frozenset([(hash(pos),hash(piece.get_value())) for pos,piece in self.rep.get_env().items()]))
-
-    def copy(self):
-        return GameStateMancala(self.scores,self.next_player,self.players,self.rep.copy())

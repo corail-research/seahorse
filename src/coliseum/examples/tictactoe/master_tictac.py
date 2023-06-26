@@ -7,38 +7,44 @@ from coliseum.player.player import Player
 
 class MasterTictac(GameMaster):
     """
-    Master to play the game Tic Tac Toe
+    A game master for playing Tic Tac Toe.
 
     Attributes:
-        name (str): name of the game
-        initial_game_state (GameState): initial state of the game
-        current_game_state (GameState): initial state of the game
-        players_iterator (Iterable): an iterable for the players_iterator, ordered according
-                            to the playing order. If a list is provided,
-                            a cyclic iterator is automatically built
-        log_file (str): name of the log file
+        name (str): The name of the game.
+        initial_game_state (GameState): The initial state of the game.
+        current_game_state (GameState): The current state of the game.
+        players_iterator (Iterable): An iterable for the players_iterator, ordered according
+                                    to the playing order. If a list is provided,
+                                    a cyclic iterator is automatically built.
+        log_file (str): The name of the log file.
     """
 
     def __init__(
         self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str
     ) -> None:
-        super().__init__(name, initial_game_state, players_iterator, log_file)
-
-
-
-    def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:
-        """Computes the winners of the game based on the scores
+        """
+        Initializes a new instance of the MasterTictac class.
 
         Args:
-            scores (Dict[int, float]): score for each player
+            name (str): The name of the game.
+            initial_game_state (GameState): The initial state of the game.
+            players_iterator (Iterable[Player]): An iterable for the players_iterator, ordered according
+                                                 to the playing order.
+            log_file (str): The name of the log file.
+        """
+        super().__init__(name, initial_game_state, players_iterator, log_file)
 
-        Raises:
-            MethodNotImplementedError: _description_
+    def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:
+        """
+        Computes the winners of the game based on the scores.
+
+        Args:
+            scores (Dict[int, float]): The score for each player.
 
         Returns:
-            Iterable[Player]: list of the player who won the game
+            Iterable[Player]: A list of the players who won the game.
         """
         max_val = max(scores.values())
-        players_id = list(filter(lambda key: scores[key] == max_val, scores))
-        itera = filter(lambda x: x.get_id() in players_id, self.players)
-        return itera
+        players_id = [key for key in scores if scores[key] == max_val]
+        winners = [player for player in self.players if player.get_id() in players_id]
+        return winners

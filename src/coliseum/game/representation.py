@@ -6,29 +6,39 @@ from coliseum.utils.custom_exceptions import MethodNotImplementedError
 
 class Representation:
     """
+    A class representing a game representation.
+
     Attributes:
-        env: dict of the current state
+        env (dict): The dictionary of the current state.
     """
 
     def __init__(self, env: dict) -> None:
+        """
+        Initializes a new instance of the Representation class.
+
+        Args:
+            env (dict): The dictionary of the current state.
+        """
         self.env = env
 
     def get_env(self) -> dict:
         """
+        Gets the dictionary of the environment.
+
         Returns:
-            dict: dictionnary of the environnement
+            dict: The dictionary of the environment.
         """
         return self.env
 
     def find(self, to_find: Any) -> Any:
         """
-        Function to fin a key directly in the environnement
+        Finds a key directly in the environment.
 
         Args:
-            to_find (Any): key to find
+            to_find (Any): The key to find.
 
         Returns:
-            Any: return the cell
+            Any: The value of the cell.
         """
         if to_find not in self.env.keys():
             return -1
@@ -37,4 +47,12 @@ class Representation:
 
     @abstractmethod
     def __hash__(self) -> int:
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def __eq__(self, __value: object) -> bool:
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def __str__(self) -> str:
         raise MethodNotImplementedError()

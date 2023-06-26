@@ -29,18 +29,35 @@ class PieceMancala(Piece):
 
 class BoardMancala(Representation):
     """
+    Represents the Mancala board.
+
     Attributes:
-        env: environnement dictionnary (composed of pieces)
-        dimensions: dimensions of the board
+        env (dict): Environment dictionary composed of pieces.
+        dimensions (tuple): Dimensions of the board.
     """
 
-    def __init__(self,env = None) -> None:
+    def __init__(self, env=None) -> None:
+        """
+        Initializes the BoardMancala object.
+
+        Args:
+            env (dict, optional): Environment dictionary representing the board. Defaults to None.
+        """
         if env is None:
             env = {(0,0):PieceMancala(0),(1,6):PieceMancala(0)}
             for i in range(1,7):
                 env[(0,i)] = PieceMancala(4)
                 env[(1,i-1)] = PieceMancala(4)
         super().__init__(env)
+
+    def copy(self):
+        """
+        Creates a copy of the board.
+
+        Returns:
+            BoardMancala: Copied BoardMancala object.
+        """
+        return BoardMancala(copy.deepcopy(self.env))
 
     def __str__(self) -> str:
         to_print = " "*8
@@ -56,8 +73,4 @@ class BoardMancala(Representation):
         return to_print
 
     def __hash__(self) -> int:
-        return hash(frozenset([(hash(pos),hash(piece)) for pos,piece in self.env.items()]))
-
-    def copy(self):
-        return BoardMancala(copy.deepcopy(self.env))
-
+        return hash(frozenset([(hash(pos), hash(piece)) for pos, piece in self.env.items()]))

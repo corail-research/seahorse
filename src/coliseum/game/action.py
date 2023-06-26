@@ -8,34 +8,47 @@ if TYPE_CHECKING:
 
 class Action:
     """
+    A class representing an action in the game.
+
     Attributes:
-        past_gs (Representation): past gsresentation of the game
-        new_gs (Representation): new gsresentation of the game
+        past_gs (GameState): The past game state.
+        new_gs (GameState): The new game state.
     """
 
     def __init__(self, past_gs: GameState, new_gs: GameState) -> None:
+        """
+        Initializes a new instance of the Action class.
+
+        Args:
+            past_gs (GameState): The past game state.
+            new_gs (GameState): The new game state.
+        """
         self.past_gs = past_gs
         self.new_gs = new_gs
 
     def get_past_gs(self) -> GameState:
         """
+        Returns the past game state.
+
         Returns:
-            Representation: past_gs
+            GameState: The past game state.
         """
         return self.past_gs
 
     def get_new_gs(self) -> GameState:
         """
+        Returns the new game state.
+
         Returns:
-            Representation: new_gs
+            GameState: The new game state.
         """
         return self.new_gs
 
-    def __hash__(self):
-        return hash((hash(self.get_new_gs()),hash(self.get_past_gs())))
+    def __hash__(self) -> int:
+        return hash((hash(self.get_new_gs()), hash(self.get_past_gs())))
 
-    def __eq__(self, __value: object) -> bool:
-        return hash(self)==hash(__value)
+    def __eq__(self, value: object) -> bool:
+        return hash(self) == hash(value)
 
-    def __str__(self):
-        return "From:\n"+self.get_past_gs().get_rep().__str__()+"\nto:\n"+self.get_new_gs().get_rep().__str__()
+    def __str__(self) -> str:
+        return "From:\n" + self.get_past_gs().get_rep().__str__() + "\nto:\n" + self.get_new_gs().get_rep().__str__()
