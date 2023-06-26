@@ -11,30 +11,43 @@ from coliseum.player.player import Player
 
 class GameStateTictac(GameState):
     """
+    A class representing the game state for Tic-Tac-Toe.
+
     Attributes:
-        score (list[float]): scores of the state for each players
-        next_player (Player): next player to play
-        players (list[Player]): list of players
-        rep (Representation): representation of the game
+        score (List[float]): The scores of the state for each player.
+        next_player (Player): The next player to play.
+        players (List[Player]): The list of players.
+        rep (BoardTictac): The representation of the game.
     """
 
     def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardTictac) -> None:
+        """
+        Initializes a new instance of the GameStateTictac class.
+
+        Args:
+            scores (Dict): The scores of the state for each player.
+            next_player (Player): The next player to play.
+            players (List[Player]): The list of players.
+            rep (BoardTictac): The representation of the game.
+        """
         super().__init__(scores, next_player, players, rep)
         self.num_pieces = self.get_rep().get_dimensions()[0] * self.get_rep().get_dimensions()[1]
 
     def get_num_pieces(self):
         """
+        Returns the number of pieces implied in the game.
+
         Returns:
-            num_pieces: number of pieces implied in the game
+            num_pieces (int): The number of pieces implied in the game.
         """
         return self.num_pieces
 
     def is_done(self) -> bool:
         """
-        Function to know if the game is finished
+        Checks if the game is finished.
 
         Returns:
-            bool: -
+            bool: True if the game is finished, False otherwise.
         """
         if len(self.rep.get_env().keys()) == self.num_pieces or self.has_won():
             return True
@@ -42,15 +55,11 @@ class GameStateTictac(GameState):
 
     def generate_possible_actions(self) -> Set[Action]:
         """
-        Function to generate possible actions
-
-        Args:
-            current_rep (BoardTictac): current game state representation
+        Generates possible actions.
 
         Returns:
-            Set[Action]: list of the possible future representation
+            Set[Action]: A set of possible future representations.
         """
-
         list_rep = []
         current_rep = self.get_rep()
         next_player = self.get_next_player()
@@ -58,29 +67,36 @@ class GameStateTictac(GameState):
             for j in range(current_rep.get_dimensions()[1]):
                 if not current_rep.get_env().get((i, j)):
                     copy_rep = copy.deepcopy(current_rep)
-                    copy_rep.get_env()[(i, j)] = Piece(
-                        piece_type=next_player.get_piece_type(), owner=next_player)
+                    copy_rep.get_env()[(i, j)] = Piece(piece_type=next_player.get_piece_type(), owner=next_player)
                     list_rep.append(copy.deepcopy(copy_rep))
-        poss_actions = {Action(self, GameStateTictac(self.compute_scores(valid_next_rep),self.compute_next_player(),self.players,valid_next_rep))
-                           for valid_next_rep in list_rep}
-
+        poss_actions = {
+            Action(
+                self,
+                GameStateTictac(
+                    self.compute_scores(valid_next_rep),
+                    self.compute_next_player(),
+                    self.players,
+                    valid_next_rep,
+                ),
+            )
+            for valid_next_rep in list_rep
+        }
         return poss_actions
 
-    def compute_scores(self, representation: BoardTictac) -> dict[int, float]:
+    def compute_scores(self, representation: BoardTictac) -> Dict[int, float]:
         """
-        Function to compute the score of each player in a list
+        Computes the score of each player in a list.
 
         Args:
-            representation (BoardTictac): current representation of the game state
+            representation (BoardTictac): The current representation of the game state.
 
         Returns:
-            dict[int,float]: return a dictionnary with id_player: score
+            Dict[int, float]: A dictionary with player ID as keys and scores as values.
         """
         scores = {}
         bound = 2.0
         for player in self.players:
             _, pieces = representation.get_pieces_player(player)
-            # TODO print(pieces)
             if len(pieces) < representation.get_dimensions()[0]:
                 scores[player.get_id()] = 0.0
             else:
@@ -130,31 +146,27 @@ class GameStateTictac(GameState):
                     continue
                 else:
                     scores[player.get_id()] = 0.0
-        # TODO print(scores)
         return scores
 
     def has_won(self) -> bool:
         """
-        Function to know if the game is finished
+        Checks if a player has won the game.
 
         Returns:
-            bool: finish or not
+            bool: True if a player has won, False otherwise.
         """
         dim = self.get_num_pieces()
         env = self.rep.get_env()
         table = []
         for k in range(dim):
             table.append(
-                [p.get_owner_id() for p in [env.get((i, k), None)
-                                            for i in range(int(sqrt(dim)))] if p is not None]
+                [p.get_owner_id() for p in [env.get((i, k), None) for i in range(int(sqrt(dim)))] if p is not None]
             )
             table.append(
-                [p.get_owner_id() for p in [env.get((k, i), None)
-                                            for i in range(int(sqrt(dim)))] if p is not None]
+                [p.get_owner_id() for p in [env.get((k, i), None) for i in range(int(sqrt(dim)))] if p is not None]
             )
         table.append(
-            [p.get_owner_id() for p in [env.get((i, i), None)
-                                        for i in range(int(sqrt(dim)))] if p is not None]
+            [p.get_owner_id() for p in [env.get((i, i), None) for i in range(int(sqrt(dim)))] if p is not None]
         )
         table.append(
             [

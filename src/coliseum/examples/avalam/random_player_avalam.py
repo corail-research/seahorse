@@ -10,11 +10,7 @@ class RandomPlayerAvalam(Player):
     A player class that makes random moves in the game Avalam.
 
     Attributes:
-        id_player (int): The ID of the player.
-        name (str): The name of the player.
-
-    Class attributes:
-        next_id (int): The ID to be assigned to the next player.
+        piece_type (str): piece type of the player
     """
 
     def __init__(self, piece_type: str, name: str = "bob") -> None:

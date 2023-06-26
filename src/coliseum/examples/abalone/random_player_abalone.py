@@ -9,11 +9,7 @@ class RandomPlayerAbalone(Player):
     Player class for Abalone game that makes random moves.
 
     Attributes:
-        id_player (int): ID of the player
-        name (str): Name of the player
-
-    Class Attributes:
-        next_id (int): ID to be assigned to the next player
+        piece_type (str): piece type of the player
     """
 
     def __init__(self, piece_type: str, name: str = "bob") -> None:

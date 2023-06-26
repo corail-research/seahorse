@@ -11,11 +11,7 @@ class AlphaPlayerAbalone(Player):
     A player class implementing the Alpha-Beta algorithm for the Abalone game.
 
     Attributes:
-        id_player (int): The ID of the player.
-        name (str): The name of the player.
-
-    Class Attributes:
-        next_id (int): The ID to be assigned to the next player.
+        piece_type (str): piece type of the player 
     """
 
     def __init__(self, piece_type: str, name: str = "bob") -> None:

@@ -11,11 +11,7 @@ class AlphaPlayerAvalam(Player):
     Player class for Avalam game that uses the alpha-beta algorithm for move selection.
 
     Attributes:
-        id_player (int): ID of the player
-        name (str): Name of the player
-
-    Class Attributes:
-        next_id (int): ID to be assigned to the next player
+        piece_type (str): piece type of the player
     """
 
     def __init__(self, piece_type: str, name: str = "bob") -> None:
