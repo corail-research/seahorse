@@ -50,3 +50,21 @@ class ActionNotPermittedError(Exception):
     def __init__(self,  message: str = "Action not permitted"):
         self.message = message
         super().__init__(message)
+
+
+class ConnectionProblemError(Exception):
+    """Thrown when trying to generate an action that's not permitted
+    """
+
+    def __init__(self,  message: str = "Connection problem"):
+        self.message = message
+        super().__init__(message)
+
+
+class NoTournamentFailError(Exception):
+    """Thrown when trying to generate an action that's not permitted
+    """
+
+    def __init__(self,  message: str = "Tournament problem : tournament is none, please connect to an existing tournament or create a tournament"):
+        self.message = message
+        super().__init__(message)

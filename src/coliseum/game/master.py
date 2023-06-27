@@ -78,8 +78,8 @@ class GameMaster:
         )
         while not self.current_game_state.is_done():
             self.current_game_state = await self.step()
-            #print(self.current_game_state.get_rep())
-            #print(self.current_game_state)
+            print(self.current_game_state.get_rep())
+            print(self.current_game_state)
             await self.emitter.sio.emit(
                 "play",
                 json.dumps(
@@ -127,12 +127,19 @@ class GameMaster:
         """
         return self.log_file
 
-    def get_winner(self) -> Player:
+    def get_winner(self) -> Iterable[Player]:
         """
         Returns:
             Player: The winner(s) of the game.
         """
         return self.winner
+
+    def get_scores(self) -> Dict:
+        """
+        Returns:
+            Dict: The scores of the current state.
+        """
+        return self.current_game_state.get_scores()
 
     @abstractmethod
     def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:
