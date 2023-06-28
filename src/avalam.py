@@ -1,8 +1,8 @@
-from coliseum.examples.avalam.alpha_player_avalam import AlphaPlayerAvalam
+from coliseum.examples.avalam.alpha_player_avalam import MyPlayer as AlphaPlayerAvalam
 from coliseum.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
 from coliseum.examples.avalam.game_state_avalam import GameStateAvalam
 from coliseum.examples.avalam.master_avalam import MasterAvalam
-from coliseum.examples.avalam.random_player_avalam import RandomPlayerAvalam
+from coliseum.examples.avalam.random_player_avalam import MyPlayer as RandomPlayerAvalam
 from coliseum.player.player import LocalPlayerProxy
 
 

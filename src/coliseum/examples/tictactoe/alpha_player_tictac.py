@@ -8,7 +8,7 @@ from coliseum.game.game_state import GameState
 
 infinity = math.inf
 
-class AlphaPlayerTictac(PlayerTictac):
+class MyPlayer(PlayerTictac):
     """
     A class representing an Alpha Player for the Tic-Tac-Toe game.
     """

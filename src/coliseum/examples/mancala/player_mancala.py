@@ -5,7 +5,7 @@ from coliseum.game.action import Action
 from coliseum.player.player import Player
 
 
-class PlayerMancala(Player):
+class MyPlayer(Player):
     """
     A class representing a Mancala player.
 

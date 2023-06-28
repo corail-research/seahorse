@@ -25,4 +25,4 @@ class ChallongeTournamentTictac(ChallongeTournament) :
     def build_players(self, p1, p2, folder_player) :
         player1_class = __import__(str(folder_player+p1.name+"_tictac"), fromlist=[None])
         player2_class = __import__(str(folder_player+p2.name+"_tictac"), fromlist=[None])
-        return LocalPlayerProxy(player1_class.AlphaPlayerTictac("X", name="louis")), LocalPlayerProxy(player2_class.RandomPlayerTictac("O", name="loic"))
+        return LocalPlayerProxy(player1_class.MyPlayer("X", name="louis")), LocalPlayerProxy(player2_class.MyPlayer("O", name="loic"))

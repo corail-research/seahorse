@@ -5,7 +5,7 @@ from coliseum.game.action import Action
 from coliseum.game.game_state import GameState
 
 
-class RandomPlayerTictac(PlayerTictac):
+class MyPlayer(PlayerTictac):
     """
     A player class for Tic Tac Toe that selects moves randomly.
     """

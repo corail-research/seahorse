@@ -5,7 +5,7 @@ from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
 
 
-class RandomPlayerAvalam(Player):
+class MyPlayer(Player):
     """
     A player class that makes random moves in the game Avalam.
 

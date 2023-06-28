@@ -6,7 +6,7 @@ from coliseum.player.player import Player
 
 infinity = math.inf
 
-class AlphaPlayerAbalone(Player):
+class MyPlayer(Player):
     """
     A player class implementing the Alpha-Beta algorithm for the Abalone game.
 

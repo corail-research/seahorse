@@ -5,7 +5,7 @@ from coliseum.game.game_state import GameState
 from coliseum.player.player import Player
 
 
-class RandomPlayerAbalone(Player):
+class MyPlayer(Player):
     """
     Player class for Abalone game that makes random moves.
 

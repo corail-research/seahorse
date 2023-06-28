@@ -1,8 +1,8 @@
-from coliseum.examples.abalone.alpha_player_abalone import AlphaPlayerAbalone
+from coliseum.examples.abalone.alpha_player_abalone import MyPlayer as AlphaPlayerAbalone
 from coliseum.examples.abalone.board_abalone import BoardAbalone
 from coliseum.examples.abalone.game_state_abalone import GameStateAbalone
 from coliseum.examples.abalone.master_abalone import MasterAbalone
-from coliseum.examples.abalone.random_player_abalone import RandomPlayerAbalone
+from coliseum.examples.abalone.random_player_abalone import MyPlayer as RandomPlayerAbalone
 from coliseum.game.game_layout.board import Piece
 from coliseum.player.player import LocalPlayerProxy
 

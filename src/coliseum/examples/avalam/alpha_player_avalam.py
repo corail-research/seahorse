@@ -6,7 +6,7 @@ from coliseum.player.player import Player
 
 infinity = math.inf
 
-class AlphaPlayerAvalam(Player):
+class MyPlayer(Player):
     """
     Player class for Avalam game that uses the alpha-beta algorithm for move selection.
 
