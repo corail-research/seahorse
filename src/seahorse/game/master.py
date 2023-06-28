@@ -61,7 +61,7 @@ class GameMaster:
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
-        return action.get_new_gs()
+        return action.get_next_game_state()
 
     async def play_game(self) -> Iterable[Player]:
         """

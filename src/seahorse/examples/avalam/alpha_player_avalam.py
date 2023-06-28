@@ -79,7 +79,7 @@ class MyPlayer(Player):
             return self.heuristic(current_state), None
         v, move = -infinity, None
         for a in current_state.get_possible_actions():
-            v2, _ = self.min_value(a.get_new_gs(), alpha, beta, depth + 1, cutoff)
+            v2, _ = self.min_value(a.get_next_game_state(), alpha, beta, depth + 1, cutoff)
             if v2 > v:
                 v, move = v2, a
                 alpha = max(alpha, v)
@@ -105,7 +105,7 @@ class MyPlayer(Player):
             return self.heuristic(current_state), None
         v, move = +infinity, None
         for a in current_state.get_possible_actions():
-            v2, _ = self.max_value(a.get_new_gs(), alpha, beta, depth + 1, cutoff)
+            v2, _ = self.max_value(a.get_next_game_state(), alpha, beta, depth + 1, cutoff)
             if v2 < v:
                 v, move = v2, a
                 beta = min(beta, v)

@@ -26,7 +26,7 @@ class Action:
         self.past_gs = past_gs
         self.new_gs = new_gs
 
-    def get_past_gs(self) -> GameState:
+    def get_current_game_state(self) -> GameState:
         """
         Returns the past game state.
 
@@ -35,7 +35,7 @@ class Action:
         """
         return self.past_gs
 
-    def get_new_gs(self) -> GameState:
+    def get_next_game_state(self) -> GameState:
         """
         Returns the new game state.
 
@@ -45,10 +45,10 @@ class Action:
         return self.new_gs
 
     def __hash__(self) -> int:
-        return hash((hash(self.get_new_gs()), hash(self.get_past_gs())))
+        return hash((hash(self.get_next_game_state()), hash(self.get_current_game_state())))
 
     def __eq__(self, value: object) -> bool:
         return hash(self) == hash(value)
 
     def __str__(self) -> str:
-        return "From:\n" + self.get_past_gs().get_rep().__str__() + "\nto:\n" + self.get_new_gs().get_rep().__str__()
+        return "From:\n" + self.get_current_game_state().get_rep().__str__() + "\nto:\n" + self.get_next_game_state().get_rep().__str__()
