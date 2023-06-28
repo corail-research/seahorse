@@ -1,10 +1,10 @@
-from coliseum.examples.abalone.alpha_player_abalone import MyPlayer as AlphaPlayerAbalone
-from coliseum.examples.abalone.board_abalone import BoardAbalone
-from coliseum.examples.abalone.game_state_abalone import GameStateAbalone
-from coliseum.examples.abalone.master_abalone import MasterAbalone
-from coliseum.examples.abalone.random_player_abalone import MyPlayer as RandomPlayerAbalone
-from coliseum.game.game_layout.board import Piece
-from coliseum.player.player import LocalPlayerProxy
+from seahorse.examples.abalone.alpha_player_abalone import MyPlayer as AlphaPlayerAbalone
+from seahorse.examples.abalone.board_abalone import BoardAbalone
+from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
+from seahorse.examples.abalone.master_abalone import MasterAbalone
+from seahorse.examples.abalone.random_player_abalone import MyPlayer as RandomPlayerAbalone
+from seahorse.game.game_layout.board import Piece
+from seahorse.player.player import LocalPlayerProxy
 
 W = 1
 B = 2

@@ -1,8 +1,8 @@
-<p align="center"><img width="70%" src="assets/logo_coliseum.png" /></p>
+<p align="center"><img width="70%" src="assets/logo_seahorse.png" /></p>
 
 
-[![PyPI - Version](https://img.shields.io/pypi/v/coliseum.svg)](https://pypi.org/project/coliseum)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/coliseum.svg)](https://pypi.org/project/coliseum)
+[![PyPI - Version](https://img.shields.io/pypi/v/seahorse.svg)](https://pypi.org/project/seahorse)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/seahorse.svg)](https://pypi.org/project/seahorse)
 
 -----
 
@@ -34,9 +34,9 @@
 ## Installation
 
 ```console
-pip install coliseum
+pip install seahorse
 ```
 
 ## License
 
-`coliseum` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+`seahorse` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.

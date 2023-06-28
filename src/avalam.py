@@ -1,9 +1,9 @@
-from coliseum.examples.avalam.alpha_player_avalam import MyPlayer as AlphaPlayerAvalam
-from coliseum.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
-from coliseum.examples.avalam.game_state_avalam import GameStateAvalam
-from coliseum.examples.avalam.master_avalam import MasterAvalam
-from coliseum.examples.avalam.random_player_avalam import MyPlayer as RandomPlayerAvalam
-from coliseum.player.player import LocalPlayerProxy
+from seahorse.examples.avalam.alpha_player_avalam import MyPlayer as AlphaPlayerAvalam
+from seahorse.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
+from seahorse.examples.avalam.game_state_avalam import GameStateAvalam
+from seahorse.examples.avalam.master_avalam import MasterAvalam
+from seahorse.examples.avalam.random_player_avalam import MyPlayer as RandomPlayerAvalam
+from seahorse.player.player import LocalPlayerProxy
 
 
 def run_multiple_games():
