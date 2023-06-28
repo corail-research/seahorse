@@ -1,9 +1,9 @@
-from coliseum.examples.tictactoe.alpha_player_tictac import AlphaPlayerTictac
-from coliseum.examples.tictactoe.board_tictac import BoardTictac
-from coliseum.examples.tictactoe.game_state_tictac import GameStateTictac
-from coliseum.examples.tictactoe.master_tictac import MasterTictac
-from coliseum.examples.tictactoe.random_player_tictac import RandomPlayerTictac
-from coliseum.player.player import LocalPlayerProxy
+from seahorse.examples.tictactoe.alpha_player_tictac import MyPlayer as AlphaPlayerTictac
+from seahorse.examples.tictactoe.board_tictac import BoardTictac
+from seahorse.examples.tictactoe.game_state_tictac import GameStateTictac
+from seahorse.examples.tictactoe.master_tictac import MasterTictac
+from seahorse.examples.tictactoe.random_player_tictac import MyPlayer as RandomPlayerTictac
+from seahorse.player.player import LocalPlayerProxy
 
 
 def run_multiple_games():
