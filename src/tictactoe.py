@@ -7,7 +7,7 @@ from seahorse.player.player import LocalPlayerProxy
 
 
 def run_multiple_games():
-    for _ in range(2):
+    for _ in range(5):
         player1 = LocalPlayerProxy(AlphaPlayerTictac("X", name="louis"))
         player2 = LocalPlayerProxy(RandomPlayerTictac("O", name="loic"))
 

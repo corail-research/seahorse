@@ -222,4 +222,5 @@ class EventMaster:
 
         # Blocking call to the procedure
         self.event_loop.run_until_complete(stop())
+        self.event_loop.run_until_complete(site.stop())
 
