@@ -23,7 +23,7 @@ class GameMaster:
     """
 
     def __init__(
-        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str
+        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str, port: int =8080
     ) -> None:
         """
         Initializes a new instance of the GameMaster class.
@@ -42,7 +42,7 @@ class GameMaster:
         self.log_file = log_file
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(2)
+        self.emitter = EventMaster.get_instance(2,port=port)
 
     async def step(self) -> GameState:
         """
