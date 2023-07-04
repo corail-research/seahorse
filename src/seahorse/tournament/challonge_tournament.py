@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import csv
 import math
+from sys import platform
 
 import challonge
 from split import chop
@@ -82,7 +83,10 @@ class ChallongeTournament:
             return p2
 
     async def play_round(self,name1,name2,port,folder_player) :
-        cmd = "python3 " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
+        if platform == "win32" :
+            cmd = "py " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
+        else :
+            cmd = "python3 " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
         process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
         list_score_winner = stdout.decode("utf-8").split("\n")[-2].split(",")
