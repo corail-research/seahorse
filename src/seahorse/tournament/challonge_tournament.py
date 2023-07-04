@@ -2,52 +2,22 @@ from __future__ import annotations
 
 import asyncio
 import csv
-from abc import abstractmethod
-from concurrent.futures import ALL_COMPLETED, wait
-from concurrent.futures.process import ProcessPoolExecutor
+import math
 
 import challonge
+from split import chop
 
-from seahorse.utils.custom_exceptions import ConnectionProblemError, MethodNotImplementedError, NoTournamentFailError
+from seahorse.utils.custom_exceptions import ConnectionProblemError, NoTournamentFailError
 
 
 class ChallongeTournament:
-    def __init__(self, id_challonge, keypass_challonge, folder_player, log_file=None) -> None:
-        self.user = None
+    def __init__(self, id_challonge, keypass_challonge, game_name, log_file=None) -> None:
         self.id_challonge = id_challonge
         self.keypass_challonge = keypass_challonge
-        self.folder_player = folder_player
+        self.game_name = game_name
         self.log_file = log_file
+        self.user = None
         self.tournament = None
-
-    @abstractmethod
-    def build_initial_rep(self):
-        raise MethodNotImplementedError()
-
-    @abstractmethod
-    def build_initial_scores(self, p1, p2):
-        raise MethodNotImplementedError()
-
-    @abstractmethod
-    def build_initial_game_state(self, p1, p2, scores, rep):
-        raise MethodNotImplementedError()
-
-    @abstractmethod
-    def build_initial_master(self, p1, p2, game_state, port):
-        raise MethodNotImplementedError()
-
-    @abstractmethod
-    def build_players(self, p1, p2, folder_player) :
-        raise MethodNotImplementedError()
-
-    async def connect_tournament(self, tournament_name) :
-        self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
-        my_tournaments = await self.user.get_tournaments()
-        for t in my_tournaments:
-            if t.name == tournament_name :
-                self.tournament = t
-                return
-        raise ConnectionProblemError()
 
     async def create_tournament(self, tournament_name, tournament_url, csv_file, sep=",") :
         self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
@@ -57,6 +27,15 @@ class ChallongeTournament:
             for line in spamreader :
                 for name in line :
                     await self.tournament.add_participant(str(name))
+
+    async def connect_tournament(self, tournament_name) :
+        self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
+        my_tournaments = await self.user.get_tournaments()
+        for t in my_tournaments:
+            if t.name == tournament_name :
+                self.tournament = t
+                return
+        raise ConnectionProblemError()
 
     def format_scores(self, scores, player_1) :
         sub_str_1 = None
@@ -75,10 +54,14 @@ class ChallongeTournament:
             return p2
 
     def retrieve_scores(self, match) :
+        if not match.scores_csv :
+            return match.scores_csv
         return match.scores_csv + ","
 
     def retrieve_winners(self, scores, p1, p2) :
         result = []
+        if not scores :
+            return result
         list_scores = scores[:-1].split(",")
         for score in list_scores:
             s1, s2 = score.split("-")
@@ -88,17 +71,29 @@ class ChallongeTournament:
                 result.append(p2)
         return result
 
-    def play_match_local(self, master) :
-        master.record_game()
-        return master
+    def invert_score(self, score) :
+        list_score = score[:-1].split("-")
+        return list_score[1] + "-" + list_score[0] + ","
 
-    async def play_match(self, match, rounds, port) :
+    def get_participant_winner(self, winner, p1, p2):
+        if winner == p1.name :
+            return p1
+        else :
+            return p2
+
+    async def play_round(self,name1,name2,port,folder_player) :
+        cmd = "python3 " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
+        process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        stdout, stderr = await process.communicate()
+        list_score_winner = stdout.decode("utf-8").split("\n")[-2].split(",")
+        score = str(math.floor(float(list_score_winner[0]))) + "-" + str(math.floor(float(list_score_winner[1]))) + ","
+        winner = str(list_score_winner[2])
+        return score, winner
+
+    async def play_match(self, match, port, rounds, folder_player) :
         if match.completed_at is None :
-            #print(match.round)
             p1 = await self.tournament.get_participant(match.player1_id)
-            p1 = p1.name
             p2 = await self.tournament.get_participant(match.player2_id)
-            p2 = p2.name
             already_played = 0
             if match.underway_at is None :
                 await match.mark_as_underway()
@@ -108,78 +103,20 @@ class ChallongeTournament:
                 scores = self.retrieve_scores(match)
                 winners = self.retrieve_winners(scores, p1, p2)
                 already_played = len(winners)
-            #print("=========NEW MATCH=========")
             for r in range(already_played, rounds) :
-                player_1, player_2 = self.build_players(p1, p2, self.folder_player)
-                init_rep = self.build_initial_rep()
                 if r % 2 == 0 :
-                    init_scores = self.build_initial_scores(player_1,player_2)
-                    init_game_state = self.build_initial_game_state(player_1, player_2, init_scores, init_rep)
-                    master = self.build_initial_master(player_1,player_2,init_game_state, port)
+                    score, winner = await self.play_round(p1.name, p2.name, port, folder_player)
+                    scores += score
+                    winners.append(self.get_participant_winner(winner, p1, p2))
                 else :
-                    init_scores = self.build_initial_scores(player_2,player_1)
-                    init_game_state = self.build_initial_game_state(player_2, player_1, init_scores, init_rep)
-                    master = self.build_initial_master(player_2,player_1,init_game_state, port)
-                with ProcessPoolExecutor() as executor :
-                    future = [executor.submit(self.play_match_local,p1, p2, port)]
-                    done, not_done = wait(future, return_when=ALL_COMPLETED)
-                    master = future[0].result()
-                    score = self.format_scores(master.get_scores(), player_1) + ","
-                    winner = self.format_winner(master.get_winner()[0], player_1, p1, p2)
-                scores += score
-                winners.append(winner)
-                #print(match.player1_id, match.player2_id, scores)
+                    score, winner = await self.play_round(p2.name, p1.name, port, folder_player)
+                    scores += self.invert_score(score)
+                    winners.append(self.get_participant_winner(winner, p1, p2))
                 await match.report_live_scores(scores[:-1])
             await match.report_winner(max(winners,key=winners.count),scores[:-1])
             await match.unmark_as_underway()
 
-    # async def play_match_2(self, match, rounds, port) :
-    #     if match.completed_at is None :
-    #         print(match.round)
-    #         p1 = await self.tournament.get_participant(match.player1_id)
-    #         p2 = await self.tournament.get_participant(match.player2_id)
-    #         already_played = 0
-    #         if match.underway_at is None :
-    #             await match.mark_as_underway()
-    #             scores = ""
-    #             winners = []
-    #         else :
-    #             scores = self.retrieve_scores(match)
-    #             winners = self.retrieve_winners(scores, p1, p2)
-    #             already_played = len(winners)
-    #         print("=========NEW MATCH=========")
-    #         for r in range(already_played, rounds) :
-    #             player_1, player_2 = self.build_players(p1, p2, self.folder_player)
-    #             init_rep = self.build_initial_rep()
-    #             if r % 2 == 0 :
-    #                 init_scores = self.build_initial_scores(player_1,player_2)
-    #                 init_game_state = self.build_initial_game_state(player_1, player_2, init_scores, init_rep)
-    #                 master = self.build_initial_master(player_1,player_2,init_game_state, port)
-    #             else :
-    #                 init_scores = self.build_initial_scores(player_2,player_1)
-    #                 init_game_state = self.build_initial_game_state(player_2, player_1, init_scores, init_rep)
-    #                 master = self.build_initial_master(player_2,player_1,init_game_state, port)
-    #             master.record_game()
-    #             print(match.player1_id, match.player2_id, self.format_scores(master.get_scores(), player_1))
-    #             scores += self.format_scores(master.get_scores(), player_1) + ","
-    #             await match.report_live_scores(scores[:-1])
-    #             winners.append(self.format_winner(master.get_winner()[0], player_1, p1, p2))
-    #         await match.report_winner(max(winners,key=winners.count),scores[:-1])
-    #         await match.unmark_as_underway()
-
-
-    # async def run(self, rounds=1):
-    #     if self.tournament is not None :
-    #         await self.tournament.start()
-    #         matches = await self.tournament.get_matches()
-    #         for match in matches:
-    #             await self.play_match(match,rounds)
-    #         await self.tournament.finalize()
-    #     else :
-    #         raise NoTournamentFailError()
-
-    async def run(self,rounds=1) :
-        max_thread = 2
+    async def run(self, folder_player, rounds=1, nb_process=2) :
         if self.tournament is not None :
             await self.tournament.start()
             matches = await self.tournament.get_matches()
@@ -190,98 +127,10 @@ class ChallongeTournament:
                 else :
                     dict_round[match.round] = [match]
             for key in sorted(dict_round.keys()) :
-                counter = 0
-                list_jobs = []
                 port = 16000
-                while dict_round[key] :
-                    if counter < max_thread :
-                        list_jobs.append(asyncio.create_task(self.play_match(dict_round[key].pop(),rounds,port+counter)))
-                    else :
-                        await asyncio.gather(*list_jobs)
-                        list_jobs = []
-                        counter = 0
-                if list_jobs :
-                    await asyncio.gather(*list_jobs)
+                for matches in list(chop(nb_process, dict_round[key])) :
+                    list_jobs_routines = [asyncio.create_task(self.play_match(match, port+i, rounds, folder_player)) for i, match in enumerate(matches)]
+                    await asyncio.gather(*list_jobs_routines)
             await self.tournament.finalize()
         else :
             raise NoTournamentFailError()
-
-    # async def loop_matches(self, matches, rounds) :
-    #     for match in matches :
-    #         print(match)
-    #         await self.play_match(match,rounds)
-
-    # def async_wrapper(self, matches, rounds):
-    #     loop = asyncio.new_event_loop()
-    #     asyncio.set_event_loop(loop)
-    #     result = loop.run_until_complete(self.loop_matches(matches, rounds))
-    #     loop.close()
-    #     return result
-
-    # async def async_task(self, matches, rounds) :
-    #     print(matches)
-    #     loop = asyncio.get_event_loop()
-    #     print(matches)
-    #     await loop.run_in_executor(None,self.async_wrapper, matches, rounds)
-
-    # async def run(self, rounds=1) :
-    #     loop = asyncio.get_event_loop()
-    #     max_threads = 2
-    #     if self.tournament is not None :
-    #         await self.tournament.start()
-    #         matches = await self.tournament.get_matches()
-    #         dict_round = {}
-    #         for match in matches :
-    #             if dict_round.get(match.round,False) :
-    #                 dict_round[match.round] += [match]
-    #             else :
-    #                 dict_round[match.round] = [match]
-    #         for key in sorted(dict_round.keys()) :
-    #             #print(key)
-    #             tasks = []
-    #             for batch in list(chop(math.ceil(len(dict_round[key])/max_threads), dict_round[key])):
-    #                 #print(batch)
-    #                 tasks.append(asyncio.create_task(self.async_task(batch,rounds)))
-    #             loop.run_until_complete(asyncio.gather(*tasks))
-    #         await self.tournament.finalize()
-    #         loop.close()
-    #     else :
-    #         raise NoTournamentFailError()
-
-    # async def play_matches(self, matches, rounds, port) :
-    #     print("port :",port)
-    #     for match in matches :
-    #         await self.play_match(match, rounds, port)
-
-    # def run_async_method(self, matches, rounds, port):
-    #     print("ok2")
-    #     loop = asyncio.new_event_loop()
-    #     asyncio.set_event_loop(loop)
-    #     nest_asyncio.apply(loop)
-    #     loop.run_until_complete(self.play_matches(matches, rounds, port))
-    #     loop.close()
-
-    # async def run(self,rounds=1) :
-    #     max_threads = 2
-    #     if self.tournament is not None :
-    #         await self.tournament.start()
-    #         matches = await self.tournament.get_matches()
-    #         dict_round = {}
-    #         for match in matches :
-    #             if dict_round.get(match.round,False) :
-    #                 dict_round[match.round] += [match]
-    #             else :
-    #                 dict_round[match.round] = [match]
-    #         with ProcessPoolExecutor() as executor:
-    #             for key in sorted(dict_round.keys()) :
-    #                 port = 16000
-    #                 futures = [executor.submit(self.run_async_method,matches,rounds,port+i) for i, matches  in enumerate(list(chop(math.ceil(len(dict_round[key])/max_threads), dict_round[key])))]
-    #                 print("ok")
-    #                 done, not_done = wait(futures, return_when=ALL_COMPLETED)
-    #                 print(done)
-    #             executor.shutdown()
-    #         await self.tournament.finalize()
-    #     else :
-    #         raise NoTournamentFailError()
-
-#enumerate(list(chop(math.ceil(len(dict_round[key])/max_threads), dict_round[key])))

@@ -7,7 +7,6 @@ from seahorse.player.player import LocalPlayerProxy
 
 if __name__ == "__main__":
     args = sys.argv
-    #print(args)
     folder_player = str(args[1])
     p1 = str(args[2])
     p2 = str(args[3])

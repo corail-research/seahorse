@@ -48,5 +48,5 @@ class MasterAvalam(GameMaster):
         """
         max_val = max(scores.values())
         players_id = list(filter(lambda key: scores[key] == max_val, scores))
-        winners = filter(lambda x: x.get_id() in players_id, self.players)
+        winners = list(filter(lambda x: x.get_id() in players_id, self.players))
         return winners

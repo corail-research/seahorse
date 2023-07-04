@@ -45,5 +45,5 @@ class MasterAbalone(GameMaster):
         """
         max_val = max(scores.values())
         players_id = list(filter(lambda key: scores[key] == max_val, scores))
-        itera = filter(lambda x: x.get_id() in players_id, self.players)
+        itera = list(filter(lambda x: x.get_id() in players_id, self.players))
         return itera
