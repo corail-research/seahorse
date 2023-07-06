@@ -115,7 +115,7 @@ class MyPlayer(Player):
                 return v, move
         return v, move
 
-    def solve(self, current_state: GameState, **_) -> Action:
+    def compute_action(self, current_state: GameState, **_) -> Action:
         """
         Solves the game by implementing the logic of the player using the Alpha-Beta algorithm.
 

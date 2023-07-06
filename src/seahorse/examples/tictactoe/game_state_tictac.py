@@ -6,6 +6,7 @@ from seahorse.examples.tictactoe.board_tictac import BoardTictac
 from seahorse.game.action import Action
 from seahorse.game.game_layout.board import Piece
 from seahorse.game.game_state import GameState
+from seahorse.game.representation import Representation
 from seahorse.player.player import Player
 
 
@@ -33,7 +34,7 @@ class GameStateTictac(GameState):
         super().__init__(scores, next_player, players, rep)
         self.num_pieces = self.get_rep().get_dimensions()[0] * self.get_rep().get_dimensions()[1]
 
-    def get_num_pieces(self):
+    def get_num_pieces(self) -> int:
         """
         Returns the number of pieces implied in the game.
 
@@ -83,7 +84,7 @@ class GameStateTictac(GameState):
         }
         return poss_actions
 
-    def compute_scores(self, representation: BoardTictac) -> Dict[int, float]:
+    def compute_scores(self, representation: Representation) -> Dict[int, float]:
         """
         Computes the score of each player in a list.
 

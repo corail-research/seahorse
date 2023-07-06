@@ -1,7 +1,7 @@
 import json
 from abc import abstractmethod
 from itertools import cycle
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List
 
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster
@@ -63,7 +63,7 @@ class GameMaster:
 
         return action.get_next_game_state()
 
-    async def play_game(self) -> Iterable[Player]:
+    async def play_game(self) -> List[Player]:
         """
         Play the game.
 
@@ -97,7 +97,7 @@ class GameMaster:
         """
         self.emitter.start(self.play_game, self.players)
 
-    def update_log(self):
+    def update_log(self) -> None:
         """
         Updates the log file.
 
@@ -127,14 +127,14 @@ class GameMaster:
         """
         return self.log_file
 
-    def get_winner(self) -> Iterable[Player]:
+    def get_winner(self) -> List[Player]:
         """
         Returns:
             Player: The winner(s) of the game.
         """
         return self.winner
 
-    def get_scores(self) -> Dict:
+    def get_scores(self) -> Dict[int, float]:
         """
         Returns:
             Dict: The scores of the current state.
@@ -142,7 +142,7 @@ class GameMaster:
         return self.current_game_state.get_scores()
 
     @abstractmethod
-    def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:
+    def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
         """
         Computes the winner(s) of the game based on the scores.
 

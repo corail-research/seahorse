@@ -35,7 +35,7 @@ class Player(TimeMixin):
 
     def play(self, current_state: GameState) -> Action:
         """
-        Implements the player's logic and calls solve with minimal information.
+        Implements the player's logic and calls compute_action with minimal information.
 
         Args:
             current_state (GameState): The current game state.
@@ -47,10 +47,10 @@ class Player(TimeMixin):
             Action: The resulting action.
         """
         # TODO: check score ????
-        return self.solve(current_state=current_state)
+        return self.compute_action(current_state=current_state)
 
     @abstractmethod
-    def solve(self, **kwargs) -> Action:
+    def compute_action(self, **kwargs) -> Action:
         """
         Should be dedicated to adversarial search.
 
@@ -65,14 +65,14 @@ class Player(TimeMixin):
         """
         raise MethodNotImplementedError()
 
-    def get_id(self):
+    def get_id(self) -> int:
         """
         Returns:
             int: The ID of the player.
         """
         return self.id
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
         Returns:
             str: The name of the player.
@@ -184,7 +184,7 @@ class LocalPlayerProxy(EventSlave):
         Returns:
             Action: The action resulting from the move.
         """
-        return self.solve(current_state=current_state)
+        return self.compute_action(current_state=current_state)
 
     def __getattr__(self, attr):
         return getattr(self.wrapped_player, attr)

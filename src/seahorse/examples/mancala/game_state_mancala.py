@@ -1,9 +1,8 @@
-from typing import Dict, List, Set
+from __future__ import annotations
 
 from seahorse.examples.mancala.board_mancala import BoardMancala
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
-from seahorse.game.representation import Representation
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import ActionNotPermittedError
 
@@ -20,7 +19,7 @@ class GameStateMancala(GameState):
         rep (BoardMancala): BoardMancala object representing the game board.
     """
 
-    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardMancala) -> None:
+    def __init__(self, scores: dict, next_player: Player, players: list[Player], rep: BoardMancala) -> None:
         """
         Initializes the GameStateMancala object.
 
@@ -48,7 +47,7 @@ class GameStateMancala(GameState):
                 player2_done = False
         return player1_done or player2_done
 
-    def generate_possible_actions(self) -> Set[Action]:
+    def generate_possible_actions(self) -> set[Action]:
         """
         Generates all possible actions from the current game state.
 
@@ -59,18 +58,18 @@ class GameStateMancala(GameState):
             Set[Action]: Set of possible actions.
         """
         next_player = self.get_next_player().get_id()
-        actions = []
+        actions = set()
         if next_player == self.players[0].get_id():
             for i in range(1,7):
                 if self.rep.env[(0,i)].get_value() != 0:
-                    actions.append(self.generate_action((0,i)))
+                    actions.add(self.generate_action((0,i)))
         else:
             for i in range(1,7):
                 if self.rep.env[(1,i-1)].get_value() != 0:
-                    actions.append(self.generate_action((1,i-1)))
+                    actions.add(self.generate_action((1,i-1)))
         return actions
 
-    def generate_action(self, pool):
+    def generate_action(self, pool) -> Action:
         """
         Generates an action from a pool.
 
@@ -125,7 +124,7 @@ class GameStateMancala(GameState):
 
         return Action(self.copy(), new_gs)
 
-    def get_next_pool(self, pool, player):
+    def get_next_pool(self, pool, player) -> tuple[int, int]:
         """
         Gets the next pool to play.
 
@@ -153,7 +152,7 @@ class GameStateMancala(GameState):
             next_pool = self.get_next_pool(next_pool, player)
         return next_pool
 
-    def compute_scores(self, env):
+    def compute_scores(self, env) -> dict[int, float]:
         """
         Computes the scores of the game.
 
@@ -166,7 +165,7 @@ class GameStateMancala(GameState):
         scores = {self.players[0].get_id():env[(0,0)].get_value(), self.players[1].get_id():env[(1,6)].get_value()}
         return scores
 
-    def replay(self, player: Player, current_rep: Representation, next_rep: Representation) -> bool:
+    def replay(self, player: Player, current_rep: dict, next_rep: dict) -> bool:
         """
         Determines if the player can replay.
 
@@ -186,8 +185,9 @@ class GameStateMancala(GameState):
             for i in range(0,6):
                 if current_rep[(1,i)].get_value() > next_rep[(1,i)].get_value() and (current_rep[(1,i)].get_value() - (6-i))%13 == 0:
                     return True
+        return False
 
-    def compute_next_player(self, player: Player, current_rep: Representation = None, next_rep: Representation = None) -> Player:
+    def compute_next_player(self, player: Player, current_rep: dict = None, next_rep: dict = None) -> Player:
         """
         Gets the next player. If the player can replay, returns the same player. Otherwise, returns the next player in the list.
 
@@ -203,7 +203,7 @@ class GameStateMancala(GameState):
             return player
         return super().compute_next_player()
 
-    def copy(self):
+    def copy(self) -> GameStateMancala:
         return GameStateMancala(self.scores, self.next_player, self.players, self.rep.copy())
 
     def __hash__(self) -> int:

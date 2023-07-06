@@ -12,7 +12,7 @@ from seahorse.utils.custom_exceptions import ConnectionProblemError, NoTournamen
 
 
 class ChallongeTournament:
-    def __init__(self, id_challonge, keypass_challonge, game_name, log_file=None) -> None:
+    def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_file: str = None) -> None:
         self.id_challonge = id_challonge
         self.keypass_challonge = keypass_challonge
         self.game_name = game_name
@@ -20,7 +20,7 @@ class ChallongeTournament:
         self.user = None
         self.tournament = None
 
-    async def create_tournament(self, tournament_name, tournament_url, csv_file, sep=",") :
+    async def create_tournament(self, tournament_name: str, tournament_url: str, csv_file: str, sep: str = ",") -> None:
         self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
         self.tournament = await self.user.create_tournament(name=tournament_name, url=tournament_url)
         with open(csv_file) as csvfile :
@@ -29,7 +29,7 @@ class ChallongeTournament:
                 for name in line :
                     await self.tournament.add_participant(str(name))
 
-    async def connect_tournament(self, tournament_name) :
+    async def connect_tournament(self, tournament_name: str) -> None:
         self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
         my_tournaments = await self.user.get_tournaments()
         for t in my_tournaments:
@@ -38,28 +38,12 @@ class ChallongeTournament:
                 return
         raise ConnectionProblemError()
 
-    def format_scores(self, scores, player_1) :
-        sub_str_1 = None
-        sub_str_2 = None
-        for key in scores.keys() :
-            if key == player_1.get_id() :
-                sub_str_1 = str(int(scores[key]))
-            else :
-                sub_str_2 = str(int(scores[key]))
-        return sub_str_1 + "-" + sub_str_2
-
-    def format_winner(self, winner, player_1, p1, p2) :
-        if winner.get_id() == player_1.get_id() :
-            return p1
-        else :
-            return p2
-
-    def retrieve_scores(self, match) :
+    def retrieve_scores(self, match) -> str:
         if not match.scores_csv :
             return match.scores_csv
         return match.scores_csv + ","
 
-    def retrieve_winners(self, scores, p1, p2) :
+    def retrieve_winners(self, scores: str, p1, p2) -> list :
         result = []
         if not scores :
             return result
@@ -72,17 +56,17 @@ class ChallongeTournament:
                 result.append(p2)
         return result
 
-    def invert_score(self, score) :
+    def invert_score(self, score: str) -> str:
         list_score = score[:-1].split("-")
         return list_score[1] + "-" + list_score[0] + ","
 
-    def get_participant_winner(self, winner, p1, p2):
+    def get_participant_winner(self, winner: str, p1, p2):
         if winner == p1.name :
             return p1
         else :
             return p2
 
-    async def play_round(self,name1,name2,port,folder_player) :
+    async def play_round(self,name1: str, name2: str, port: int, folder_player: str) -> tuple[str, str]:
         if platform == "win32" :
             cmd = "py " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
         else :
@@ -94,7 +78,7 @@ class ChallongeTournament:
         winner = str(list_score_winner[2])
         return score, winner
 
-    async def play_match(self, match, port, rounds, folder_player) :
+    async def play_match(self, match, port: int, rounds: int, folder_player: str) -> None:
         if match.completed_at is None :
             p1 = await self.tournament.get_participant(match.player1_id)
             p2 = await self.tournament.get_participant(match.player2_id)
@@ -120,7 +104,7 @@ class ChallongeTournament:
             await match.report_winner(max(winners,key=winners.count),scores[:-1])
             await match.unmark_as_underway()
 
-    async def run(self, folder_player, rounds=1, nb_process=2) :
+    async def run(self, folder_player: str, rounds: int = 1, nb_process: int = 2) -> None:
         if self.tournament is not None :
             await self.tournament.start()
             matches = await self.tournament.get_matches()

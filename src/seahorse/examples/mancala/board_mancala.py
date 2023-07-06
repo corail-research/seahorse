@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import copy
 
-from seahorse.game.game_layout.board import Piece
-from seahorse.game.representation import Representation
+from seahorse.game.game_layout.board import Board, Piece
 
 
 class PieceMancala(Piece):
@@ -61,7 +62,7 @@ class PieceMancala(Piece):
         return str(self.value)
 
 
-class BoardMancala(Representation):
+class BoardMancala(Board):
     """
     Represents the Mancala board.
 
@@ -82,9 +83,9 @@ class BoardMancala(Representation):
             for i in range(1,7):
                 env[(0,i)] = PieceMancala(4)
                 env[(1,i-1)] = PieceMancala(4)
-        super().__init__(env)
+        super().__init__(env,[2,7])
 
-    def copy(self):
+    def copy(self) -> BoardMancala :
         """
         Creates a copy of the board.
 

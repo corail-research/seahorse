@@ -1,4 +1,4 @@
-from typing import Dict, Iterable
+from typing import Dict, Iterable, List
 
 from seahorse.game.game_state import GameState
 from seahorse.game.master import GameMaster
@@ -30,7 +30,7 @@ class MasterMancala(GameMaster):
         """
         super().__init__(name, initial_game_state, players_iterator, log_file)
 
-    def compute_winner(self, scores: Dict[int, float]) -> Iterable[Player]:
+    def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
         """
         Computes the winners of the game based on the scores.
 
@@ -47,4 +47,4 @@ class MasterMancala(GameMaster):
             return [p for p in self.players if p.get_id() == 0]
         elif scores[self.players[0].get_id()] < scores[self.players[1].get_id()]:
             return [p for p in self.players if p.get_id() == 1]
-        return None
+        return self.players

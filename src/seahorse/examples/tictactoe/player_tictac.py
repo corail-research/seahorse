@@ -20,7 +20,7 @@ class PlayerTictac(Player):
         super().__init__(name)
         self.piece_type = piece_type
 
-    def get_piece_type(self):
+    def get_piece_type(self) -> str:
         """
         Returns:
             str: The type of the player's game piece.

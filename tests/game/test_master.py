@@ -23,7 +23,7 @@ class RandomPlayerIterator:
 
 
 class PlayerStub(Player):
-    def solve(self, possible_actions: Set[Board], **kwargs) -> Board:
+    def compute_action(self, possible_actions: Set[Board], **kwargs) -> Board:
         if kwargs:
             pass
         return list(possible_actions)[0].get_new_rep()

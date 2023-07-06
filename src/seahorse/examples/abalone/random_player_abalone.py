@@ -33,7 +33,7 @@ class MyPlayer(Player):
         """
         return self.piece_type
 
-    def solve(self, current_state: GameState, **kwargs) -> Action:
+    def compute_action(self, current_state: GameState, **kwargs) -> Action:
         """
         Function to implement the logic of the player (here random selection of a feasible solution).
 

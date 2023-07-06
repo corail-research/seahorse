@@ -106,7 +106,7 @@ class MyPlayer(PlayerTictac):
                 return v, move
         return v, move
 
-    def solve(self, current_state: GameState, **_) -> Action:
+    def compute_action(self, current_state: GameState, **_) -> Action:
         """
         Solves the game using the alpha-beta algorithm.
 
