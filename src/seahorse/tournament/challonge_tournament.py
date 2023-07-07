@@ -12,7 +12,32 @@ from seahorse.utils.custom_exceptions import ConnectionProblemError, NoTournamen
 
 
 class ChallongeTournament:
+    """
+    A class to interact with the Challonge tournament platform.
+
+    Attributes:
+        id_challonge (str): The Challonge ID.
+        keypass_challonge (str): The Challonge API key.
+        game_name (str): The name of the game.
+        log_file (str): The log file.
+
+    Args:
+        id_challonge (str): The Challonge ID.
+        keypass_challonge (str): The Challonge API key.
+        game_name (str): The name of the game.
+        log_file (str): The log file. Default is None.
+    """
+    
     def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_file: str = None) -> None:
+        """
+        Initializes a new instance of the ChallongeTournament class.
+
+        Args:
+            id_challonge (str): The Challonge ID.
+            keypass_challonge (str): The Challonge API key.
+            game_name (str): The name of the game.
+            log_file (str): The log file. Default is None.
+        """
         self.id_challonge = id_challonge
         self.keypass_challonge = keypass_challonge
         self.game_name = game_name
@@ -21,6 +46,18 @@ class ChallongeTournament:
         self.tournament = None
 
     async def create_tournament(self, tournament_name: str, tournament_url: str, csv_file: str, sep: str = ",") -> None:
+        """
+        Creates a new tournament on Challonge and adds participants from a CSV file.
+
+        Args:
+            tournament_name (str): The name of the tournament.
+            tournament_url (str): The URL of the tournament.
+            csv_file (str): The path to the CSV file containing participant names.
+            sep (str): The delimiter used in the CSV file. Default is ",".
+
+        Returns:
+            None
+        """
         self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
         self.tournament = await self.user.create_tournament(name=tournament_name, url=tournament_url)
         with open(csv_file) as csvfile :
@@ -30,6 +67,18 @@ class ChallongeTournament:
                     await self.tournament.add_participant(str(name))
 
     async def connect_tournament(self, tournament_name: str) -> None:
+        """
+        Connects to an existing tournament on Challonge.
+
+        Args:
+            tournament_name (str): The name of the tournament.
+
+        Returns:
+            None
+
+        Raises:
+            ConnectionProblemError: If the connection to the tournament fails.
+        """
         self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
         my_tournaments = await self.user.get_tournaments()
         for t in my_tournaments:
@@ -39,11 +88,31 @@ class ChallongeTournament:
         raise ConnectionProblemError()
 
     def retrieve_scores(self, match) -> str:
+        """
+        Retrieves the scores from a match.
+
+        Args:
+            match: The match object.
+
+        Returns:
+            str: The scores as a string.
+        """
         if not match.scores_csv :
             return match.scores_csv
         return match.scores_csv + ","
 
     def retrieve_winners(self, scores: str, p1, p2) -> list :
+        """
+        Retrieves the winners from the scores.
+
+        Args:
+            scores (str): The scores as a string.
+            p1: The participant object of player 1.
+            p2: The participant object of player 2.
+
+        Returns:
+            list: A list of winners.
+        """
         result = []
         if not scores :
             return result
@@ -57,16 +126,48 @@ class ChallongeTournament:
         return result
 
     def invert_score(self, score: str) -> str:
+        """
+        Inverts the score.
+
+        Args:
+            score (str): The score as a string.
+
+        Returns:
+            str: The inverted score.
+        """
         list_score = score[:-1].split("-")
         return list_score[1] + "-" + list_score[0] + ","
 
     def get_participant_winner(self, winner: str, p1, p2):
+        """
+        Gets the participant object of the winner.
+
+        Args:
+            winner (str): The name of the winner.
+            p1: The participant object of player 1.
+            p2: The participant object of player 2.
+
+        Returns:
+            The participant object of the winner.
+        """
         if winner == p1.name :
             return p1
         else :
             return p2
 
     async def play_round(self,name1: str, name2: str, port: int, folder_player: str) -> tuple[str, str]:
+        """
+        Plays a round of the tournament.
+
+        Args:
+            name1 (str): The name of player 1.
+            name2 (str): The name of player 2.
+            port (int): The port number.
+            folder_player (str): The folder containing the player scripts.
+
+        Returns:
+            tuple[str, str]: A tuple containing the score and the winner.
+        """
         if platform == "win32" :
             cmd = "py " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
         else :
@@ -79,6 +180,18 @@ class ChallongeTournament:
         return score, winner
 
     async def play_match(self, match, port: int, rounds: int, folder_player: str) -> None:
+        """
+        Plays a match of the tournament.
+
+        Args:
+            match: The match object.
+            port (int): The port number.
+            rounds (int): The number of rounds.
+            folder_player (str): The folder containing the player scripts.
+
+        Returns:
+            None
+        """
         if match.completed_at is None :
             p1 = await self.tournament.get_participant(match.player1_id)
             p2 = await self.tournament.get_participant(match.player2_id)
@@ -105,6 +218,20 @@ class ChallongeTournament:
             await match.unmark_as_underway()
 
     async def run(self, folder_player: str, rounds: int = 1, nb_process: int = 2) -> None:
+        """
+        Runs the tournament.
+
+        Args:
+            folder_player (str): The folder containing the player scripts.
+            rounds (int): The number of rounds. Default is 1.
+            nb_process (int): The number of parallel processes. Default is 2.
+
+        Returns:
+            None
+
+        Raises:
+            NoTournamentFailError: If there is no tournament.
+        """
         if self.tournament is not None :
             await self.tournament.start()
             matches = await self.tournament.get_matches()
