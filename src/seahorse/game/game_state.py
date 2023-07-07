@@ -1,14 +1,16 @@
 from abc import abstractmethod
 from itertools import cycle
+import json
 from typing import Any, Dict, FrozenSet, List, Set
 
 from seahorse.game.action import Action
 from seahorse.game.representation import Representation
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
+from seahorse.utils.serializer import Serializable
 
 
-class GameState:
+class GameState(Serializable):
     """
     A class representing the game state.
 
@@ -166,7 +168,7 @@ class GameState:
         raise MethodNotImplementedError()
 
     def __hash__(self) -> int:
-        return hash((hash(frozenset(self.scores.items())), self.next_player, hash(frozenset(self.players)), self.rep))
+        return hash((hash(frozenset(self.scores.items())), hash(self.rep)))
 
     def __eq__(self, value: object) -> bool:
         return hash(self) == hash(value)

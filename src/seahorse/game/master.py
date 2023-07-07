@@ -7,6 +7,7 @@ from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import ActionNotPermittedError, MethodNotImplementedError
+from seahorse.utils.serializer import Serializable
 
 
 class GameMaster:
@@ -42,7 +43,7 @@ class GameMaster:
         self.log_file = log_file
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(2)
+        self.emitter = EventMaster.get_instance(3,initial_game_state.__class__)
 
     async def step(self) -> GameState:
         """
@@ -57,6 +58,7 @@ class GameMaster:
         next_player.start_timer()
         action = await next_player.play(self.current_game_state)
         next_player.stop_timer()
+        
 
         if action not in possible_actions:
             raise ActionNotPermittedError()
@@ -73,8 +75,7 @@ class GameMaster:
         await self.emitter.sio.emit(
             "play",
             json.dumps(
-                self.current_game_state.__dict__, default=lambda o: o.to_json() if hasattr(o, "to_json") else "bob"
-            ),
+            self.current_game_state.toJson()),
         )
         while not self.current_game_state.is_done():
             self.current_game_state = await self.step()
@@ -82,9 +83,7 @@ class GameMaster:
             #print(self.current_game_state)
             await self.emitter.sio.emit(
                 "play",
-                json.dumps(
-                    self.current_game_state.__dict__, default=lambda o: o.to_json() if hasattr(o, "to_json") else "bob"
-                ),
+                self.current_game_state.toJson(),
             )
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         for _w in self.winner:

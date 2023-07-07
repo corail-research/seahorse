@@ -2,14 +2,16 @@ from seahorse.examples.tictactoe.alpha_player_tictac import MyPlayer as AlphaPla
 from seahorse.examples.tictactoe.board_tictac import BoardTictac
 from seahorse.examples.tictactoe.game_state_tictac import GameStateTictac
 from seahorse.examples.tictactoe.master_tictac import MasterTictac
+from seahorse.examples.tictactoe.player_tictac import PlayerTictac
 from seahorse.examples.tictactoe.random_player_tictac import MyPlayer as RandomPlayerTictac
-from seahorse.player.player import LocalPlayerProxy
+from seahorse.player.proxies import LocalPlayerProxy, RemotePlayerProxy
 
 
 def run_multiple_games():
-    for _ in range(5):
-        player1 = LocalPlayerProxy(AlphaPlayerTictac("X", name="louis"))
-        player2 = LocalPlayerProxy(RandomPlayerTictac("O", name="loic"))
+    for _ in range(1):
+        player1 = LocalPlayerProxy(AlphaPlayerTictac("X", name="louis"),gs=GameStateTictac)
+        player2 = RemotePlayerProxy(mimics=PlayerTictac,piece_type="O",name="jean")
+        #player2 = LocalPlayerProxy(AlphaPlayerTictac("O", name="pierre"))
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}

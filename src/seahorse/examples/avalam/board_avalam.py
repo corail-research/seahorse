@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from seahorse.game.game_layout.board import Board, Piece
+from seahorse.utils.serializer import Serializable
 
 if TYPE_CHECKING:
     from seahorse.player.player import Player
@@ -46,7 +47,7 @@ class PieceAvalam(Piece):
         return self.piece_type + str(self.value)
 
 
-class BoardAvalam(Board):
+class BoardAvalam(Board,Serializable):
     """
     Board class for the Avalam game.
 
@@ -79,7 +80,7 @@ class BoardAvalam(Board):
             to_print += "\n"
         return to_print
 
-    def to_json(self) -> dict:
+    def toJson(self) -> dict:
         """
         Convert the board to a JSON representation.
 

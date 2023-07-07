@@ -4,21 +4,30 @@ import asyncio
 import functools
 import json
 from collections import deque
-from typing import Callable
+from typing import TYPE_CHECKING, Any, Callable, List, Type
 
 import socketio
 from aiohttp import web
 
 from seahorse.game.action import Action
+from seahorse.utils.serializer import Serializable
+
+if TYPE_CHECKING:
+    from seahorse.game.game_state import GameState
 
 
 class EventSlave:
 
-    def activate(self,identifier:str=None) -> None:
+    def activate(self,
+                 identifier:str=None,
+                 wrapped_id:int=None,
+                 *,
+                 masterless:bool=False
+                 ) -> None:
         self.sio = socketio.AsyncClient()
         self.connected = False
         self.identifier = identifier
-        self.incoming_plays_queue = deque()
+        self.wrapped_id = wrapped_id
 
         @self.sio.event()
         async def connect():
@@ -29,36 +38,23 @@ class EventSlave:
         @self.sio.event()
         def disconnect():
             self.connected = False
+            
 
-        @self.sio.on("play")
-        # TODO sid check
-        def handle_play(*_):
-            self.incoming_plays_queue.appendleft(_)
-
-        @self.sio.on("turn")
-        def handle_turn(*_):
-            #print("turn")
-            pass
-
-    async def wait_for_next_play(self) -> Action:
-        while not len(self.incoming_plays_queue):
-            await asyncio.sleep(1)
-        return self.incoming_plays_queue.pop()
-
-    async def listen(self,*,keep_alive:bool) -> None:
+    async def listen(self,master_adress:str="http://localhost:8080",*,keep_alive:bool) -> None:
         if not self.connected:
-            await self.sio.connect("http://localhost:8080")
+            await self.sio.connect(master_adress)
         if keep_alive:
             while self.connected:
                 await asyncio.sleep(1)
 
 def event_emitting(label:str):
-    def meta_wrapper(fun: Callable):
+    def meta_wrapper(fun: Callable[[Any],Action]):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,*args,**kwargs):
             out = fun(self,*args, **kwargs)
-            # TODO: fix bob
-            await self.sio.emit(label,json.dumps(out.__dict__,default=lambda _:"bob"))
+            print(label)
+            await self.sio.emit(label,out.toJson())
+            print('pooof')
             return out
         return wrapper
     return meta_wrapper
@@ -66,11 +62,12 @@ def event_emitting(label:str):
 def remote_action(label:str):
     def meta_wrapper(fun: Callable):
         @functools.wraps(fun)
-        async def wrapper(self:EventSlave,**_):
-            # TODO: fix bob
-            await EventMaster.get_instance().sio.emit(label,"prout",to=self.sid)
-            #print("waiting for next play")
-            out = await self.wait_for_next_play()
+        async def wrapper(self:EventSlave,current_state:GameState,*_,**__):
+            print("____________----------+++",current_state)
+            await EventMaster.get_instance().sio.emit(label,current_state.toJson(),to=self.sid)
+            print("xxxxx")
+            out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
+            print("++++++")
             return out
         return wrapper
     return meta_wrapper
@@ -91,20 +88,20 @@ class EventMaster:
     __instance = None
 
     @staticmethod
-    def get_instance(n_clients:int=1) -> EventMaster:
+    def get_instance(n_clients:int=1,game_state:Type=Serializable) -> EventMaster:
         """Gets the instance object
 
         Args:
             n_clients (int, optional): the number of clients the instance is supposed to be listening, *ignored* if already initialized. Defaults to 1.
-
+            game_state : class of a game state
         Returns:
             object: _description_
         """
         if EventMaster.__instance is None:
-            EventMaster(n_clients=n_clients)
+            EventMaster(n_clients=n_clients,game_state=game_state)
         return EventMaster.__instance
 
-    def __init__(self,n_clients):
+    def __init__(self,n_clients,game_state):
         if EventMaster.__instance is not None:
             msg = "Trying to initalize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead."
             raise NotImplementedError(msg)
@@ -115,6 +112,9 @@ class EventMaster:
             self.__n_clients_connected = 0
             self.__identified_clients = {}
             self.__open_sessions = set()
+            self.__ident2sid = {} 
+            self.__sid2ident = {}
+            self.__game_state = game_state
 
             # Standard python-socketio server
             self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True, cors_allowed_origins="*")
@@ -145,23 +145,49 @@ class EventMaster:
                 """
                 self.__open_sessions.add(sid)
                 self.__n_clients_connected += 1
-                #print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
+                print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
 
-            @self.sio.on("play")
-            async def handle_play(*_):
-                #await self.sio.emit('play',data)
-                return None
+            @self.sio.on("action")
+            async def handle_play(sid,data):
+                # TODO : cope with race condition "action" before "identify"
+                self.__identified_clients[self.__sid2ident[sid]]["incoming"].appendleft(data)
 
             @self.sio.on("identify")
             async def handle_identify(sid,data):
-                #print("Identifying a listener")
-                #print(json.loads(data).get("identifier",0))
-                self.__identified_clients[json.loads(data).get("identifier",0)]=sid
+                print("Identifying a listener")
+                print(json.loads(data).get("identifier",0))
+                print(json.loads(data))
+                data = json.loads(data)
+                # TODO check presence of "id" in data 
+                self.__ident2sid[data.get("identifier",0)]=sid
+                self.__sid2ident[sid]=data.get("identifier",0)
+                self.__identified_clients[data.get("identifier",0)]={"sid":sid,"id":data["wrapped_id"],"incoming":deque()}
+
+
 
             # Setting the singleton instance
             EventMaster.__instance = self
 
-    async def wait_for_identified_client(self,name:str) -> str:
+    async def wait_for_next_play(self,sid,players:List) -> Action:
+        # TODO revise sanity checks to avoid critical errors
+        print("waiting for next play",print(sid))
+        while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
+            print(self.__identified_clients[self.__sid2ident[sid]]["incoming"])
+            await asyncio.sleep(1)
+        print("next play received")
+        action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
+        next_player_id = int(json.loads(json.loads(action['new_gs'])['next_player'])['id'])
+        next_player = list(filter(lambda p:p.id==next_player_id,players))[0]
+
+        past_gs = self.__game_state.fromJson(action["past_gs"])
+        past_gs.players = players 
+        new_gs = self.__game_state.fromJson(action["new_gs"],next_player=next_player) 
+        new_gs.players = players
+        
+
+        return Action(past_gs,new_gs)
+
+    async def wait_for_identified_client(self,name:str,local_id:int) -> str:
         """ Waits for an identified client (a player typically)
 
         Args:
@@ -171,7 +197,13 @@ class EventMaster:
         """
         while not self.__identified_clients.get(name,None):
             await asyncio.sleep(1)
-        return self.__identified_clients.get(name)
+
+        cl = self.__identified_clients.get(name)
+
+        # Check sid
+        await self.sio.emit("update_id",json.dumps({"new_id":local_id}),to=cl["sid"])
+
+        return cl
 
     async def _wait_for_connexion(self) -> None:
         """
@@ -209,6 +241,7 @@ class EventMaster:
 
             # Waiting for all listeners
             await self._wait_for_connexion()
+            print("started")
 
             # Launching the task
             task_future = asyncio.wrap_future(self.sio.start_background_task(task))

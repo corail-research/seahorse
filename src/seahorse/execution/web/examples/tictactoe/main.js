@@ -10,6 +10,7 @@ $(document).ready(function () {
                 index = steps.length - 1;
                 printBoard(json.rep.board);
             }
+            console.log(json)
 
 
         });

@@ -1,14 +1,16 @@
 from __future__ import annotations
+import json
 
 from typing import TYPE_CHECKING
 
 from seahorse.game.representation import Representation
+from seahorse.utils.serializer import Serializable
 
 if TYPE_CHECKING:
     from seahorse.player.player import Player
 
 
-class Piece:
+class Piece(Serializable):
     """
     A class representing a piece in the game.
 
@@ -17,7 +19,7 @@ class Piece:
         owner_id (int): The ID of the player who possesses the piece.
     """
 
-    def __init__(self, piece_type: str, owner: Player) -> None:
+    def __init__(self, piece_type: str, *,owner: Player=None, owner_id: int=-1) -> None:
         """
         Initializes a new instance of the Piece class.
 
@@ -27,7 +29,7 @@ class Piece:
         """
         self.piece_type = piece_type
         if owner is None:
-            self.owner_id = -1
+            self.owner_id = owner_id
         else:
             self.owner_id = owner.get_id()
 
@@ -64,8 +66,15 @@ class Piece:
     def __eq__(self, __value: object) -> bool:
         return hash(self) == hash(__value)
 
-    def __str__(self) -> str:
-        return self.get_type()
+    #def __str__(self) -> str:
+    #    return self.get_type()
+    
+    def toJson(self) -> str:
+        return json.dumps(self.__dict__)
+    
+    @classmethod
+    def fromJson(cls,data) -> str:
+        return cls(**json.loads(data))
 
 
 class Board(Representation):

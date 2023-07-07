@@ -2,9 +2,10 @@ from abc import abstractmethod
 from typing import Any
 
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
+from seahorse.utils.serializer import Serializable
 
 
-class Representation:
+class Representation(Serializable):
     """
     A class representing a game representation.
 

@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from seahorse.game.game_layout.board import Board, Piece
+from seahorse.utils.serializer import Serializable
 
 
-class BoardAbalone(Board):
+class BoardAbalone(Board,Serializable):
     """
     A class representing an Abalone board.
 
@@ -129,7 +130,7 @@ class BoardAbalone(Board):
             string += "\n"
         return string
 
-    def to_json(self) -> dict:
+    def toJson(self) -> dict:
         """
         Convert the board to a JSON-compatible dictionary.
 

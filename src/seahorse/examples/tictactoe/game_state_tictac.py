@@ -1,12 +1,15 @@
 import copy
+import json
 from math import sqrt
 from typing import Dict, List, Set
 
 from seahorse.examples.tictactoe.board_tictac import BoardTictac
+from seahorse.examples.tictactoe.player_tictac import PlayerTictac
 from seahorse.game.action import Action
 from seahorse.game.game_layout.board import Piece
 from seahorse.game.game_state import GameState
 from seahorse.player.player import Player
+from seahorse.utils.serializer import Serializable
 
 
 class GameStateTictac(GameState):
@@ -20,7 +23,7 @@ class GameStateTictac(GameState):
         rep (BoardTictac): The representation of the game.
     """
 
-    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardTictac) -> None:
+    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardTictac, *args, **kwargs) -> None:
         """
         Initializes a new instance of the GameStateTictac class.
 
@@ -184,3 +187,12 @@ class GameStateTictac(GameState):
         if not self.is_done():
             return super().__str__()
         return "The game is finished!"
+    
+    def toJson(self) -> str:
+        print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
+        return json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize())
+
+    @classmethod
+    def fromJson(cls,data:str,*,next_player:PlayerTictac=None) -> Serializable:
+        d = json.loads(data)
+        return cls(**{**d,"scores":{int(k):v for k,v in d['scores'].items()},"players":[PlayerTictac.fromJson(x) if json.loads(x)!='self' else next_player for x in d["players"]],"next_player":next_player,"rep":BoardTictac.fromJson(json.dumps(d['rep']))})

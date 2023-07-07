@@ -1,12 +1,15 @@
 from __future__ import annotations
+import json
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
+
+from seahorse.utils.serializer import Serializable
 
 if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
 
-class Action:
+class Action(Serializable):
     """
     A class representing an action in the game.
 
@@ -52,3 +55,6 @@ class Action:
 
     def __str__(self) -> str:
         return "From:\n" + self.get_current_game_state().get_rep().__str__() + "\nto:\n" + self.get_next_game_state().get_rep().__str__()
+
+    def toJson(self) -> str:
+        return json.dumps(self.__dict__,default=self.subSerialize())
