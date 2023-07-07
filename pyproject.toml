@@ -43,9 +43,9 @@ dependencies = [
 [tool.hatch.envs.default.scripts]
 gen-doc = [
           "rm -r docs",
-          "mkdir docs & pdoc seahorse -d=google -o docs/"
+          "mkdir docs & pdoc -html seahorse -o docs -d=google"
 ]
-serve-doc = "pdoc seahorse -d=google"
+serve-doc = "PYTHONPATH=. python3.11 -m pdoc seahorse -d=google"
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [
