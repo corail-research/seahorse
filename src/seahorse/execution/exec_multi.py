@@ -12,9 +12,6 @@ class ExecMulti():
     Attributes:
         main_file (str): The main file to execute.
         num_player (int): The number of players in each match.
-
-    Args:
-        main_file (str): The main file to execute.
     """
 
     def __init__(self, main_file: str) -> None:

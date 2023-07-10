@@ -20,12 +20,6 @@ class ChallongeTournament:
         keypass_challonge (str): The Challonge API key.
         game_name (str): The name of the game.
         log_file (str): The log file.
-
-    Args:
-        id_challonge (str): The Challonge ID.
-        keypass_challonge (str): The Challonge API key.
-        game_name (str): The name of the game.
-        log_file (str): The log file. Default is None.
     """
     
     def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_file: str = None) -> None:
