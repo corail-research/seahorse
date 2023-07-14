@@ -1,39 +1,12 @@
-import functools
 import time
-from typing import Any
 
 from seahorse.utils.custom_exceptions import (
     AlreadyRunningError,
-    ColiseumTimeoutError,
     NotRunningError,
-    TimerNotInitializedError,
 )
 
 
-def _timer_init_safeguard(fun):
-    """
-    Interal decorator to prevent calling timer methods before
-    its inialization.
-
-    Args:
-        fun (_type_): _description_
-
-    Raises:
-        TimerNotInitializedError: _description_
-
-    Returns:
-        _type_: _description_
-    """
-    @functools.wraps(fun)
-    def wrapper(self, *args, **kwargs):
-        if not hasattr(self, "_is_initialized"):
-            raise TimerNotInitializedError()
-        else:
-            return fun(self, *args, **kwargs)
-
-    return wrapper
-
-class TimeMixin:
+class Timer:
     """
     When implemented allows any object to keep track of time
 
@@ -53,7 +26,7 @@ class TimeMixin:
     ```
     """
 
-    def init_timer(self, time_limit: int) -> None:
+    def __init__(self, time_limit: float) -> None:
         """
         Initializes the time credit of the instance
 
@@ -69,7 +42,6 @@ class TimeMixin:
 
         self._is_initialized = True  # Must always be at the end
 
-    @_timer_init_safeguard
     def start_timer(self) -> float:
         """Starts the timer
 
@@ -85,7 +57,6 @@ class TimeMixin:
 
         return self._last_timestamp
 
-    @_timer_init_safeguard
     def is_running(self) -> bool:
         """
         Is the timer running ?
@@ -95,14 +66,12 @@ class TimeMixin:
         """
         return self._is_running
 
-    @_timer_init_safeguard
     def get_time_limit(self):
         """
         Get the limit set in `set_time_limit()`
         """
         return self._time_limit
 
-    @_timer_init_safeguard
     def get_remaining_time(self) -> float:
         """Gets the timer's remaining time
 
@@ -114,7 +83,6 @@ class TimeMixin:
         else:
             return self._remaining_time
 
-    @_timer_init_safeguard
     def stop_timer(self) -> float:
         """Pauses the timer
 
@@ -132,58 +100,11 @@ class TimeMixin:
         self._is_running = False
         return self._remaining_time
 
-    @_timer_init_safeguard
-    def is_locked(self) -> bool:
+
+    def is_finished(self) -> bool:
         """Is the time credit expired ?
 
         Returns:
             bool: `True` if expired `False` otherwise
         """
-        print("time :", self.get_remaining_time())
         return self.get_remaining_time() <= 0
-
-    def __setattr__(self, __name: str, value: Any) -> None:
-        """_summary_
-
-        Args:
-            Inherited from object
-        Raises:
-            TimeoutException: prevents modification after timout
-
-        """
-        try:
-            if self.is_locked():
-                raise ColiseumTimeoutError()
-            else:
-                self.__dict__[__name] = value
-
-        except TimerNotInitializedError:
-            self.__dict__[__name] = value
-        except Exception as e:
-            raise e
-
-def timed_function(fun):
-    """
-    Decorator to prevent using a function after object's timeout.
-    Args:
-        fun (_type_): wrapped function
-
-    Raises:
-        TimerNotInitializedError: _description_
-        Exception: _description_
-        ColiseumTimeoutError: _description_
-
-    Returns:
-        Callable[...]: wrapper
-    """
-    @functools.wraps(fun)
-    def wrapper(self, *args, **kwargs):
-        if not hasattr(self, "_is_initialized"):
-            raise TimerNotInitializedError()
-        if not hasattr(self,"get_time_limit"):
-            msg = "Using @timed_func within a object that is not timed.\n Please use TimeMixin."
-            raise Exception(msg)
-        elif(self.is_locked()):
-            raise ColiseumTimeoutError()
-        return fun(self, *args, **kwargs)
-    return wrapper

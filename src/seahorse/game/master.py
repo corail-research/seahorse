@@ -1,4 +1,6 @@
+import copy
 import json
+import sys
 from abc import abstractmethod
 from itertools import cycle
 from typing import Dict, Iterable, List
@@ -6,7 +8,12 @@ from typing import Dict, Iterable, List
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster
 from seahorse.player.player import Player
-from seahorse.utils.custom_exceptions import ActionNotPermittedError, MethodNotImplementedError
+from seahorse.utils.custom_exceptions import (
+    ActionNotPermittedError,
+    ColiseumTimeoutError,
+    MethodNotImplementedError,
+    StopAndStartError,
+)
 
 
 class GameMaster:
@@ -54,9 +61,15 @@ class GameMaster:
         next_player = self.current_game_state.get_next_player()
         possible_actions = self.current_game_state.get_possible_actions()
 
-        next_player.start_timer()
+        start = next_player.timer.start_timer()
+        #print("time :", next_player.timer._remaining_time)
         action = await next_player.play(self.current_game_state)
-        next_player.stop_timer()
+        next_player.timer.stop_timer()
+        #print("time :", next_player.timer._remaining_time)
+        if start != next_player.timer._last_timestamp :
+            raise StopAndStartError()
+        if next_player.timer.is_finished() :
+            raise ColiseumTimeoutError()
 
         if action not in possible_actions:
             raise ActionNotPermittedError()
@@ -77,7 +90,15 @@ class GameMaster:
             ),
         )
         while not self.current_game_state.is_done():
-            self.current_game_state = await self.step()
+            try :
+                self.current_game_state = await self.step()
+            except Exception:
+                temp_score = copy.copy(self.current_game_state.get_scores())
+                id_player_error = self.current_game_state.get_next_player().get_id()
+                temp_score.pop(id_player_error)
+                self.winner = self.compute_winner(temp_score)
+                self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
+                return self.winner
             #print(self.current_game_state.get_rep())
             #print(self.current_game_state)
             await self.emitter.sio.emit(
@@ -87,8 +108,6 @@ class GameMaster:
                 ),
             )
         self.winner = self.compute_winner(self.current_game_state.get_scores())
-        for _w in self.winner:
-            pass
         return self.winner
 
     def record_game(self) -> None:

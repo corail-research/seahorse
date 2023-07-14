@@ -121,5 +121,4 @@ class MyPlayer(PlayerTictac):
         depth = 0
         cutoff = 2500
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)
-
         return move

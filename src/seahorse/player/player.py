@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING, Any, Coroutine
 
 from seahorse.game.action import Action
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
-from seahorse.game.time_manager import TimeMixin
+from seahorse.game.timer import Timer
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 
 if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
 
-class Player(TimeMixin):
+class Player():
     """
     A base class representing a player in the game.
 
@@ -30,8 +30,8 @@ class Player(TimeMixin):
             time_limit (float, optional): The time limit for the player's moves. Defaults to 1e6.
         """
         self.name = name
-        self.init_timer(time_limit)
         self.id = id(self)
+        self.timer = Timer(time_limit=time_limit)
 
     def play(self, current_state: GameState) -> Action:
         """

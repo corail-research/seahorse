@@ -51,6 +51,13 @@ class ActionNotPermittedError(Exception):
         self.message = message
         super().__init__(message)
 
+class StopAndStartError(Exception):
+    """Thrown when trying to generate an action that's not permitted
+    """
+
+    def __init__(self,  message: str = "The timer has been changed"):
+        self.message = message
+        super().__init__(message)
 
 class ConnectionProblemError(Exception):
     """Thrown when trying to generate an action that's not permitted

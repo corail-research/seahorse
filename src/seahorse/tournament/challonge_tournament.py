@@ -21,7 +21,7 @@ class ChallongeTournament:
         game_name (str): The name of the game.
         log_file (str): The log file.
     """
-    
+
     def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_file: str = None) -> None:
         """
         Initializes a new instance of the ChallongeTournament class.
