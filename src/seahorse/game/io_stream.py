@@ -4,7 +4,7 @@ import asyncio
 import functools
 import json
 from collections import deque
-from typing import TYPE_CHECKING, Any, Callable, List, Type
+from typing import TYPE_CHECKING, Any, Callable, List, Type, Tuple
 
 import socketio
 from aiohttp import web
@@ -40,7 +40,7 @@ class EventSlave:
             self.connected = False
             
 
-    async def listen(self,master_adress:str="http://localhost:8080",*,keep_alive:bool) -> None:
+    async def listen(self,master_adress:str="http://localhost:16002",*,keep_alive:bool) -> None:
         if not self.connected:
             await self.sio.connect(master_adress)
         if keep_alive:
@@ -131,10 +131,9 @@ class EventMaster:
 
             # Shutdown callback
             async def on_shutdown(_):
-                self.__n_clients_connected=0
-                for x in self.__open_sessions:
-                    await self.sio.disconnect(x)
-                self.__open_sessions = set()
+                for x in list(self.__open_sessions):
+                    if x in self.__open_sessions:        
+                        await self.sio.disconnect(x)
 
             self.app.on_shutdown.append(on_shutdown)
 
@@ -146,6 +145,16 @@ class EventMaster:
                 self.__open_sessions.add(sid)
                 self.__n_clients_connected += 1
                 print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
+
+            @self.sio.event
+            def disconnect(sid):
+                print('Lost connection: ', sid)
+                self.__n_clients_connected -= 1 
+                self.__open_sessions.remove(sid)
+                if sid in self.__sid2ident.keys() and self.__sid2ident[sid] in self.__identified_clients:
+                    print(f"Client identified as {self.__sid2ident[sid]} was lost.")
+                    del self.__identified_clients[self.__sid2ident[sid]]
+
 
             @self.sio.on("action")
             async def handle_play(sid,data):
@@ -231,7 +240,7 @@ class EventMaster:
 
         # Sets the runner up and starts the tcp server
         self.event_loop.run_until_complete(self.runner.setup())
-        site = web.TCPSite(self.runner, "localhost", "8080")
+        site = web.TCPSite(self.runner, "localhost", "16002")
         self.event_loop.run_until_complete(site.start())
 
 
@@ -250,10 +259,9 @@ class EventMaster:
             # Cleaning up and closing the runner upon completion
             try:
                 await asyncio.wait_for(self.runner.cleanup(), timeout=1)
-            except TimeoutError:
+            except asyncio.exceptions.TimeoutError as _:
                 pass
 
         # Blocking call to the procedure
         self.event_loop.run_until_complete(stop())
-        self.event_loop.run_until_complete(site.stop())
 

@@ -3,6 +3,7 @@ import math
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.player.player import Player
+from typing import Tuple
 
 infinity = math.inf
 
@@ -63,7 +64,7 @@ class MyPlayer(Player):
                 id_player = player.get_id()
         return 2 * current_state.get_scores()[self.get_id()] - current_state.get_scores()[id_player]
 
-    def max_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> tuple[int, Action]:
+    def max_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> Tuple[int, Action]:
         """
         Computes the maximum value for the current player in the Alpha-Beta algorithm.
 
@@ -75,7 +76,7 @@ class MyPlayer(Player):
             cutoff (int): The cutoff depth.
 
         Returns:
-            tuple[int, Action]: The maximum value and the corresponding action.
+            Tuple[int, Action]: The maximum value and the corresponding action.
         """
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None
@@ -89,7 +90,7 @@ class MyPlayer(Player):
                 return v, move
         return v, move
 
-    def min_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> tuple[int, Action]:
+    def min_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> Tuple[int, Action]:
         """
         Computes the minimum value for the opponent player in the Alpha-Beta algorithm.
 
@@ -101,7 +102,7 @@ class MyPlayer(Player):
             cutoff (int): The cutoff depth.
 
         Returns:
-            tuple[int, Action]: The minimum value and the corresponding action.
+            Tuple[int, Action]: The minimum value and the corresponding action.
         """
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None

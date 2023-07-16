@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from seahorse.game.game_layout.board import Board, Piece
 from seahorse.utils.serializer import Serializable
+from typing import Tuple
 
 
 class BoardAbalone(Board,Serializable):
@@ -9,11 +10,11 @@ class BoardAbalone(Board,Serializable):
     A class representing an Abalone board.
 
     Attributes:
-        env (dict[tuple[int], Piece]): The environment dictionary composed of pieces.
+        env (dict[Tuple[int], Piece]): The environment dictionary composed of pieces.
         dimensions (list[int]): The dimensions of the board.
     """
 
-    def __init__(self, env: dict[tuple[int], Piece], dim: list[int]) -> None:
+    def __init__(self, env: dict[Tuple[int], Piece], dim: list[int]) -> None:
         super().__init__(env, dim)
 
     def __str__(self) -> str:

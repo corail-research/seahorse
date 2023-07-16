@@ -1,7 +1,7 @@
 from __future__ import annotations
 import json
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Tuple
 
 from seahorse.game.representation import Representation
 from seahorse.utils.serializer import Serializable
@@ -82,16 +82,16 @@ class Board(Representation):
     A class representing the game board.
 
     Attributes:
-        env (dict[tuple[int], Piece]): The environment dictionary composed of pieces.
+        env (dict[Tuple[int], Piece]): The environment dictionary composed of pieces.
         dimensions (list[int]): The dimensions of the board.
     """
 
-    def __init__(self, env: dict[tuple[int], Piece], dim: list[int]) -> None:
+    def __init__(self, env: dict[Tuple[int], Piece], dim: list[int]) -> None:
         """
         Initializes a new instance of the Board class.
 
         Args:
-            env (dict[tuple[int], Piece]): The environment dictionary composed of pieces.
+            env (dict[Tuple[int], Piece]): The environment dictionary composed of pieces.
             dim (list[int]): The dimensions of the board.
         """
         super().__init__(env)
@@ -106,7 +106,7 @@ class Board(Representation):
         """
         return self.dimensions
 
-    def get_pieces_player(self, owner: Player) -> tuple[int, list[Piece]]:
+    def get_pieces_player(self, owner: Player) -> Tuple[int, list[Piece]]:
         """
         Gets the pieces owned by a specific player.
 
@@ -114,7 +114,7 @@ class Board(Representation):
             owner (Player): The player specified.
 
         Returns:
-            tuple[int, list[Piece]]: The number of pieces owned by the player and the list of their pieces.
+            Tuple[int, list[Piece]]: The number of pieces owned by the player and the list of their pieces.
         """
         pieces_list = []
         number = 0

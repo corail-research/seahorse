@@ -6,6 +6,8 @@ from seahorse.examples.tictactoe.player_tictac import PlayerTictac
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 
+from typing import Tuple
+
 infinity = math.inf
 
 class MyPlayer(PlayerTictac):
@@ -54,7 +56,7 @@ class MyPlayer(PlayerTictac):
             return -1
         return 0
 
-    def max_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> tuple[float, Action]:
+    def max_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> Tuple[float, Action]:
         """
         Performs the max-value step of the alpha-beta algorithm.
 
@@ -66,7 +68,7 @@ class MyPlayer(PlayerTictac):
             cutoff (int): The cutoff depth.
 
         Returns:
-            tuple[float, Action]: The value and the corresponding action.
+            Tuple[float, Action]: The value and the corresponding action.
         """
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None
@@ -80,7 +82,7 @@ class MyPlayer(PlayerTictac):
                 return v, move
         return v, move
 
-    def min_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> tuple[float, Action]:
+    def min_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> Tuple[float, Action]:
         """
         Performs the min-value step of the alpha-beta algorithm.
 
@@ -92,7 +94,7 @@ class MyPlayer(PlayerTictac):
             cutoff (int): The cutoff depth.
 
         Returns:
-            tuple[float, Action]: The value and the corresponding action.
+            Tuple[float, Action]: The value and the corresponding action.
         """
         if self.cutoff_depth(depth, cutoff) or current_state.is_done():
             return self.heuristic(current_state), None

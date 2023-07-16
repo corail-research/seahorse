@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 from seahorse.game.game_layout.board import Board, Piece
 from seahorse.utils.serializer import Serializable
 
+from typing import Tuple
+
 if TYPE_CHECKING:
     from seahorse.player.player import Player
 
@@ -52,16 +54,16 @@ class BoardAvalam(Board,Serializable):
     Board class for the Avalam game.
 
     Attributes:
-        env (dict[tuple[int], PieceAvalam]): Environment dictionary composed of pieces
+        env (dict[Tuple[int], PieceAvalam]): Environment dictionary composed of pieces
         dimensions (list[int]): Dimensions of the board
     """
 
-    def __init__(self, env: dict[tuple[int], PieceAvalam], dim: list[int]) -> None:
+    def __init__(self, env: dict[Tuple[int], PieceAvalam], dim: list[int]) -> None:
         """
         Initialize the BoardAvalam instance.
 
         Args:
-            env (dict[tuple[int], PieceAvalam]): Environment dictionary composed of pieces
+            env (dict[Tuple[int], PieceAvalam]): Environment dictionary composed of pieces
             dim (list[int]): Dimensions of the board
         """
         super().__init__(env, dim)
