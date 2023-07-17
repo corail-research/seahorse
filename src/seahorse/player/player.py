@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Coroutine
 
 from seahorse.game.action import Action
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
-from seahorse.game.time_manager import TimeMixin
+from seahorse.game.timer import Timer
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
 
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
 
-class Player(TimeMixin,Serializable):
+class Player(Serializable):
     """
     A base class representing a player in the game.
 
@@ -34,15 +34,16 @@ class Player(TimeMixin,Serializable):
             hard_id (int, optional, keyword-only): Set the player's id in case of distant loading
         """
         self.name = name
-        self.init_timer(time_limit)
         if id==None:
             self.id = builtins.id(self)
         else:
             self.id = id
+        self.timer = Timer(time_limit=time_limit)
+
 
     def play(self, current_state: GameState) -> Action:
         """
-        Implements the player's logic and calls solve with minimal information.
+        Implements the player's logic and calls compute_action with minimal information.
 
         Args:
             current_state (GameState): The current game state.
@@ -54,10 +55,10 @@ class Player(TimeMixin,Serializable):
             Action: The resulting action.
         """
         # TODO: check score ????
-        return self.solve(current_state=current_state)
+        return self.compute_action(current_state=current_state)
 
     @abstractmethod
-    def solve(self, **kwargs) -> Action:
+    def compute_action(self, **kwargs) -> Action:
         """
         Should be dedicated to adversarial search.
 
@@ -72,14 +73,14 @@ class Player(TimeMixin,Serializable):
         """
         raise MethodNotImplementedError()
 
-    def get_id(self):
+    def get_id(self) -> int:
         """
         Returns:
             int: The ID of the player.
         """
         return self.id
 
-    def get_name(self):
+    def get_name(self) -> str:
         """
         Returns:
             str: The name of the player.

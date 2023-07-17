@@ -69,7 +69,7 @@ class GameState(Serializable):
         curr_id = self.players.index(current)
         return next(cycle(self.players[curr_id + 1 :] + self.players[:curr_id]))
 
-    def get_scores(self) -> Dict:
+    def get_scores(self) -> Dict[int, float]:
         """
         Returns the scores.
 

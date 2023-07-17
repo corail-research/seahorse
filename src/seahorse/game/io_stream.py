@@ -33,16 +33,16 @@ class EventSlave:
         async def connect():
             self.connected = True
             if self.identifier is not None:
-                await self.sio.emit("identify",json.dumps(self.__dict__,default=lambda _:"bob"))
+                await self.sio.emit("identify", json.dumps(self.__dict__, default=lambda _: "bob"))
 
         @self.sio.event()
         def disconnect():
             self.connected = False
             
 
-    async def listen(self,master_adress:str="http://localhost:16002",*,keep_alive:bool) -> None:
+    async def listen(self,master_address,*,keep_alive:bool) -> None:
         if not self.connected:
-            await self.sio.connect(master_adress)
+            await self.sio.connect(master_address)
         if keep_alive:
             while self.connected:
                 await asyncio.sleep(1)
@@ -56,10 +56,13 @@ def event_emitting(label:str):
             await self.sio.emit(label,out.toJson())
             print('pooof')
             return out
+
         return wrapper
+
     return meta_wrapper
 
-def remote_action(label:str):
+
+def remote_action(label: str):
     def meta_wrapper(fun: Callable):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,current_state:GameState,*_,**__):
@@ -69,7 +72,9 @@ def remote_action(label:str):
             out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
             print("++++++")
             return out
+
         return wrapper
+
     return meta_wrapper
 
 
@@ -88,25 +93,26 @@ class EventMaster:
     __instance = None
 
     @staticmethod
-    def get_instance(n_clients:int=1,game_state:Type=Serializable) -> EventMaster:
+    def get_instance(n_clients:int=1,game_state:Type=Serializable,port: int = 8080) -> EventMaster:
         """Gets the instance object
 
         Args:
             n_clients (int, optional): the number of clients the instance is supposed to be listening, *ignored* if already initialized. Defaults to 1.
             game_state : class of a game state
+            port (int, optional): the port to use. Defaults to 8080.
+
         Returns:
             object: _description_
         """
         if EventMaster.__instance is None:
-            EventMaster(n_clients=n_clients,game_state=game_state)
+            EventMaster(n_clients=n_clients,game_state=game_state, port=port)
         return EventMaster.__instance
 
-    def __init__(self,n_clients,game_state):
+    def __init__(self,n_clients,game_state,port):
         if EventMaster.__instance is not None:
-            msg = "Trying to initalize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead."
+            msg = "Trying to initialize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead."
             raise NotImplementedError(msg)
         else:
-
             # Initializing attributes
             self.n_clients = n_clients
             self.__n_clients_connected = 0
@@ -115,6 +121,7 @@ class EventMaster:
             self.__ident2sid = {} 
             self.__sid2ident = {}
             self.__game_state = game_state
+            self.port = port
 
             # Standard python-socketio server
             self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True, cors_allowed_origins="*")
@@ -138,7 +145,7 @@ class EventMaster:
             self.app.on_shutdown.append(on_shutdown)
 
             @self.sio.event()
-            def connect(sid,*_):
+            def connect(sid, *_):
                 """
                     Handling incoming connections
                 """
@@ -204,7 +211,7 @@ class EventMaster:
         Returns:
             str: the client sid
         """
-        while not self.__identified_clients.get(name,None):
+        while not self.__identified_clients.get(name, None):
             await asyncio.sleep(1)
 
         cl = self.__identified_clients.get(name)
@@ -219,11 +226,11 @@ class EventMaster:
             Coroutine that completes when the number of listening socketIO connexions
             is equal to `EventMaster.__instance.n_clients`
         """
-        #print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
-        while not self.__n_clients_connected==self.n_clients:
+        # print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
+        while not self.__n_clients_connected == self.n_clients:
             await asyncio.sleep(1)
 
-    def start(self,task:Callable[[None],None],listeners:list[EventSlave]) -> None:
+    def start(self, task: Callable[[None], None], listeners: list[EventSlave]) -> None:
         """
             Starts an emitting sequence and runs a tasks that embeds
             calls to `EventMaster.__instance.sio.emit()`
@@ -240,13 +247,13 @@ class EventMaster:
 
         # Sets the runner up and starts the tcp server
         self.event_loop.run_until_complete(self.runner.setup())
-        site = web.TCPSite(self.runner, "localhost", "16002")
+        #print(self.port)
+        site = web.TCPSite(self.runner, "localhost", self.port)
         self.event_loop.run_until_complete(site.start())
-
 
         async def stop():
             for x in listeners:
-                await x.listen(keep_alive=False)
+                await x.listen(master_address="http://localhost:"+str(self.port), keep_alive=False)
 
             # Waiting for all listeners
             await self._wait_for_connexion()
@@ -264,4 +271,3 @@ class EventMaster:
 
         # Blocking call to the procedure
         self.event_loop.run_until_complete(stop())
-

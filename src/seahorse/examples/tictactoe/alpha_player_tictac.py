@@ -108,7 +108,7 @@ class MyPlayer(PlayerTictac):
                 return v, move
         return v, move
 
-    def solve(self, current_state: GameState, **_) -> Action:
+    def compute_action(self, current_state: GameState, **_) -> Action:
         """
         Solves the game using the alpha-beta algorithm.
 
@@ -123,5 +123,4 @@ class MyPlayer(PlayerTictac):
         depth = 0
         cutoff = 2500
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)
-
         return move

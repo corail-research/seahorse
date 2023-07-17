@@ -22,7 +22,7 @@ class PlayerTictac(Player):
         super().__init__(name,**kwargs)
         self.piece_type = piece_type
 
-    def get_piece_type(self):
+    def get_piece_type(self) -> str:
         """
         Returns:
             str: The type of the player's game piece.
@@ -31,7 +31,7 @@ class PlayerTictac(Player):
     
         
     def toJson(self) -> str:
-        return json.dumps(self.__dict__,default=lambda x:x.toJson())
+        return json.dumps(self.__dict__,default=lambda x:x.toJson() if isinstance(x,Serializable) else None)
     
     @classmethod
     def fromJson(cls, data) -> Serializable:

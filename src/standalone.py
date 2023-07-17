@@ -5,4 +5,4 @@ from seahorse.player.proxies import LocalPlayerProxy
 
 
 player1 = LocalPlayerProxy(AlphaPlayerTictac("O", name="jean"),masterless=True,gs=GameStateTictac)
-asyncio.new_event_loop().run_until_complete(player1.listen(keep_alive=True))
+asyncio.new_event_loop().run_until_complete(player1.listen(keep_alive=True,master_address="http://localhost:16001"))

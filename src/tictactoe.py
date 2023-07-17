@@ -20,7 +20,7 @@ def run_multiple_games():
             scores=init_scores, next_player=player1, players=list_players, rep=init_rep)
 
         master = MasterTictac(
-            name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt"
+            name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt", port=16001
         )
         master.record_game()
 

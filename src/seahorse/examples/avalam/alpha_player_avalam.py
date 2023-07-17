@@ -27,7 +27,7 @@ class MyPlayer(Player):
         super().__init__(name)
         self.piece_type = piece_type
 
-    def get_piece_type(self):
+    def get_piece_type(self) -> str:
         """
         Get the type of the player's game piece.
 
@@ -115,7 +115,7 @@ class MyPlayer(Player):
                 return v, move
         return v, move
 
-    def solve(self, current_state: GameState, **_) -> Action:
+    def compute_action(self, current_state: GameState, **_) -> Action:
         """
         Function to implement the logic of the player (alpha-beta algorithm).
 

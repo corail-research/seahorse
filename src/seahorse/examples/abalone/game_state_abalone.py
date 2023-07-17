@@ -1,5 +1,5 @@
 import copy
-from typing import Dict, List
+from typing import Dict, List, Set
 
 from seahorse.examples.abalone.board_abalone import BoardAbalone
 from seahorse.game.action import Action
@@ -177,14 +177,14 @@ class GameStateAbalone(GameState):
                                 copy_b.pop((n_index[0] + n_i, n_index[1] + n_j, 1))
                         yield BoardAbalone(env=copy_b, dim=d), id_add
 
-    def generate_possible_actions(self) -> List[Action]:
+    def generate_possible_actions(self) -> Set[Action]:
         """
         Generate possible actions for the current game state.
 
         Returns:
             List[Action]: List of possible actions.
         """
-        poss_actions = [
+        poss_actions = {
             Action(
                 self,
                 GameStateAbalone(
@@ -196,7 +196,7 @@ class GameStateAbalone(GameState):
                 ),
             )
             for valid_next_rep, id_add in self.generator()
-        ]
+        }
         return poss_actions
 
     def compute_scores(self, id_add: int) -> Dict[int, float]:

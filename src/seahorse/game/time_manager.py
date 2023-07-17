@@ -70,7 +70,7 @@ class TimeMixin:
         self._is_initialized = True  # Must always be at the end
 
     @_timer_init_safeguard
-    def start_timer(self) -> None:
+    def start_timer(self) -> float:
         """Starts the timer
 
         Raises:
@@ -82,6 +82,8 @@ class TimeMixin:
         self._last_timestamp = time.time()
 
         self._is_running = True
+
+        return self._last_timestamp
 
     @_timer_init_safeguard
     def is_running(self) -> bool:
@@ -137,6 +139,7 @@ class TimeMixin:
         Returns:
             bool: `True` if expired `False` otherwise
         """
+        print("time :", self.get_remaining_time())
         return self.get_remaining_time() <= 0
 
     def __setattr__(self, __name: str, value: Any) -> None:

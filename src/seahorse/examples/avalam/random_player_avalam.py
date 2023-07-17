@@ -24,7 +24,7 @@ class MyPlayer(Player):
         super().__init__(name)
         self.piece_type = piece_type
 
-    def get_piece_type(self):
+    def get_piece_type(self) -> str:
         """
         Get the type of the player's piece.
 
@@ -33,7 +33,7 @@ class MyPlayer(Player):
         """
         return self.piece_type
 
-    def solve(self, current_state: GameState, **kwargs) -> Action:
+    def compute_action(self, current_state: GameState, **kwargs) -> Action:
         """
         Implement the logic of the player by randomly selecting a feasible solution.
 

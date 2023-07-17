@@ -2,52 +2,56 @@ from __future__ import annotations
 
 import asyncio
 import csv
-from abc import abstractmethod
+import math
+from sys import platform
 
 import challonge
+from split import chop
 
-from seahorse.utils.custom_exceptions import ConnectionProblemError, MethodNotImplementedError, NoTournamentFailError
+from seahorse.utils.custom_exceptions import ConnectionProblemError, NoTournamentFailError
 
 
 class ChallongeTournament:
-    def __init__(self, id_challonge, keypass_challonge, folder_player, log_file=None) -> None:
-        self.user = None
+    """
+    A class to interact with the Challonge tournament platform.
+
+    Attributes:
+        id_challonge (str): The Challonge ID.
+        keypass_challonge (str): The Challonge API key.
+        game_name (str): The name of the game.
+        log_file (str): The log file.
+    """
+
+    def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_file: str = None) -> None:
+        """
+        Initializes a new instance of the ChallongeTournament class.
+
+        Args:
+            id_challonge (str): The Challonge ID.
+            keypass_challonge (str): The Challonge API key.
+            game_name (str): The name of the game.
+            log_file (str): The log file. Default is None.
+        """
         self.id_challonge = id_challonge
         self.keypass_challonge = keypass_challonge
-        self.folder_player = folder_player
+        self.game_name = game_name
         self.log_file = log_file
+        self.user = None
         self.tournament = None
 
-    @abstractmethod
-    def build_initial_rep(self):
-        raise MethodNotImplementedError()
+    async def create_tournament(self, tournament_name: str, tournament_url: str, csv_file: str, sep: str = ",") -> None:
+        """
+        Creates a new tournament on Challonge and adds participants from a CSV file.
 
-    @abstractmethod
-    def build_initial_scores(self, p1, p2):
-        raise MethodNotImplementedError()
+        Args:
+            tournament_name (str): The name of the tournament.
+            tournament_url (str): The URL of the tournament.
+            csv_file (str): The path to the CSV file containing participant names.
+            sep (str): The delimiter used in the CSV file. Default is ",".
 
-    @abstractmethod
-    def build_initial_game_state(self, p1, p2, scores, rep):
-        raise MethodNotImplementedError()
-
-    @abstractmethod
-    def build_initial_master(self, p1, p2, game_state):
-        raise MethodNotImplementedError()
-
-    @abstractmethod
-    def build_players(self, p1, p2, folder_player) :
-        raise MethodNotImplementedError()
-
-    async def connect_tournament(self, tournament_name) :
-        self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
-        my_tournaments = await self.user.get_tournaments()
-        for t in my_tournaments:
-            if t.name == tournament_name :
-                self.tournament = t
-                return
-        raise ConnectionProblemError()
-
-    async def create_tournament(self, tournament_name, tournament_url, csv_file, sep=",") :
+        Returns:
+            None
+        """
         self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
         self.tournament = await self.user.create_tournament(name=tournament_name, url=tournament_url)
         with open(csv_file) as csvfile :
@@ -56,27 +60,56 @@ class ChallongeTournament:
                 for name in line :
                     await self.tournament.add_participant(str(name))
 
-    def format_scores(self, scores, player_1) :
-        sub_str_1 = None
-        sub_str_2 = None
-        for key in scores.keys() :
-            if key == player_1.get_id() :
-                sub_str_1 = str(int(scores[key]))
-            else :
-                sub_str_2 = str(int(scores[key]))
-        return sub_str_1 + "-" + sub_str_2
+    async def connect_tournament(self, tournament_name: str) -> None:
+        """
+        Connects to an existing tournament on Challonge.
 
-    def format_winner(self, winner, player_1, p1, p2) :
-        if winner.get_id() == player_1.get_id() :
-            return p1
-        else :
-            return p2
+        Args:
+            tournament_name (str): The name of the tournament.
 
-    def retrieve_scores(self, match) :
+        Returns:
+            None
+
+        Raises:
+            ConnectionProblemError: If the connection to the tournament fails.
+        """
+        self.user = await challonge.get_user(self.id_challonge, self.keypass_challonge)
+        my_tournaments = await self.user.get_tournaments()
+        for t in my_tournaments:
+            if t.name == tournament_name :
+                self.tournament = t
+                return
+        raise ConnectionProblemError()
+
+    def retrieve_scores(self, match) -> str:
+        """
+        Retrieves the scores from a match.
+
+        Args:
+            match: The match object.
+
+        Returns:
+            str: The scores as a string.
+        """
+        if not match.scores_csv :
+            return match.scores_csv
         return match.scores_csv + ","
 
-    def retrieve_winners(self, scores, p1, p2) :
+    def retrieve_winners(self, scores: str, p1, p2) -> list :
+        """
+        Retrieves the winners from the scores.
+
+        Args:
+            scores (str): The scores as a string.
+            p1: The participant object of player 1.
+            p2: The participant object of player 2.
+
+        Returns:
+            list: A list of winners.
+        """
         result = []
+        if not scores :
+            return result
         list_scores = scores[:-1].split(",")
         for score in list_scores:
             s1, s2 = score.split("-")
@@ -86,12 +119,76 @@ class ChallongeTournament:
                 result.append(p2)
         return result
 
-    async def play_match(self, match, rounds) :
+    def invert_score(self, score: str) -> str:
+        """
+        Inverts the score.
+
+        Args:
+            score (str): The score as a string.
+
+        Returns:
+            str: The inverted score.
+        """
+        list_score = score[:-1].split("-")
+        return list_score[1] + "-" + list_score[0] + ","
+
+    def get_participant_winner(self, winner: str, p1, p2):
+        """
+        Gets the participant object of the winner.
+
+        Args:
+            winner (str): The name of the winner.
+            p1: The participant object of player 1.
+            p2: The participant object of player 2.
+
+        Returns:
+            The participant object of the winner.
+        """
+        if winner == p1.name :
+            return p1
+        else :
+            return p2
+
+    async def play_round(self,name1: str, name2: str, port: int, folder_player: str) -> tuple[str, str]:
+        """
+        Plays a round of the tournament.
+
+        Args:
+            name1 (str): The name of player 1.
+            name2 (str): The name of player 2.
+            port (int): The port number.
+            folder_player (str): The folder containing the player scripts.
+
+        Returns:
+            tuple[str, str]: A tuple containing the score and the winner.
+        """
+        if platform == "win32" :
+            cmd = "py " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
+        else :
+            cmd = "python3 " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
+        process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        stdout, stderr = await process.communicate()
+        list_score_winner = stdout.decode("utf-8").split("\n")[-2].split(",")
+        score = str(math.floor(float(list_score_winner[0]))) + "-" + str(math.floor(float(list_score_winner[1]))) + ","
+        winner = str(list_score_winner[2])
+        return score, winner
+
+    async def play_match(self, match, port: int, rounds: int, folder_player: str) -> None:
+        """
+        Plays a match of the tournament.
+
+        Args:
+            match: The match object.
+            port (int): The port number.
+            rounds (int): The number of rounds.
+            folder_player (str): The folder containing the player scripts.
+
+        Returns:
+            None
+        """
         if match.completed_at is None :
-            #print(match.round)
             p1 = await self.tournament.get_participant(match.player1_id)
             p2 = await self.tournament.get_participant(match.player2_id)
-            player_1, player_2 = self.build_players(p1, p2, self.folder_player)
             already_played = 0
             if match.underway_at is None :
                 await match.mark_as_underway()
@@ -101,37 +198,34 @@ class ChallongeTournament:
                 scores = self.retrieve_scores(match)
                 winners = self.retrieve_winners(scores, p1, p2)
                 already_played = len(winners)
-            #print("=========NEW MATCH=========")
             for r in range(already_played, rounds) :
-                init_rep = self.build_initial_rep()
                 if r % 2 == 0 :
-                    init_scores = self.build_initial_scores(player_1,player_2)
-                    init_game_state = self.build_initial_game_state(player_1, player_2, init_scores, init_rep)
-                    master = self.build_initial_master(player_1,player_2,init_game_state)
+                    score, winner = await self.play_round(p1.name, p2.name, port, folder_player)
+                    scores += score
+                    winners.append(self.get_participant_winner(winner, p1, p2))
                 else :
-                    init_scores = self.build_initial_scores(player_2,player_1)
-                    init_game_state = self.build_initial_game_state(player_2, player_1, init_scores, init_rep)
-                    master = self.build_initial_master(player_2,player_1,init_game_state)
-                master.record_game()
-                #print(match.player1_id, match.player2_id, self.format_scores(master.get_scores(), player_1))
-                scores += self.format_scores(master.get_scores(), player_1) + ","
+                    score, winner = await self.play_round(p2.name, p1.name, port, folder_player)
+                    scores += self.invert_score(score)
+                    winners.append(self.get_participant_winner(winner, p1, p2))
                 await match.report_live_scores(scores[:-1])
-                winners.append(self.format_winner(master.get_winner()[0], player_1, p1, p2))
             await match.report_winner(max(winners,key=winners.count),scores[:-1])
             await match.unmark_as_underway()
 
-    # async def run(self, rounds=1):
-    #     if self.tournament is not None :
-    #         await self.tournament.start()
-    #         matches = await self.tournament.get_matches()
-    #         for match in matches:
-    #             await self.play_match(match,rounds)
-    #         await self.tournament.finalize()
-    #     else :
-    #         raise NoTournamentFailError()
+    async def run(self, folder_player: str, rounds: int = 1, nb_process: int = 2) -> None:
+        """
+        Runs the tournament.
 
-    async def run(self,rounds=1) :
-        max_thread = 2
+        Args:
+            folder_player (str): The folder containing the player scripts.
+            rounds (int): The number of rounds. Default is 1.
+            nb_process (int): The number of parallel processes. Default is 2.
+
+        Returns:
+            None
+
+        Raises:
+            NoTournamentFailError: If there is no tournament.
+        """
         if self.tournament is not None :
             await self.tournament.start()
             matches = await self.tournament.get_matches()
@@ -142,59 +236,10 @@ class ChallongeTournament:
                 else :
                     dict_round[match.round] = [match]
             for key in sorted(dict_round.keys()) :
-                counter = 0
-                list_jobs = []
-                while dict_round[key] :
-                    if counter < max_thread :
-                        list_jobs.append(asyncio.create_task(self.play_match(dict_round[key].pop(),rounds)))
-                    else :
-                        await asyncio.gather(*list_jobs)
-                        list_jobs = []
-                if list_jobs :
-                    await asyncio.gather(*list_jobs)
+                port = 16000
+                for matches in list(chop(nb_process, dict_round[key])) :
+                    list_jobs_routines = [asyncio.create_task(self.play_match(match, port+i, rounds, folder_player)) for i, match in enumerate(matches)]
+                    await asyncio.gather(*list_jobs_routines)
             await self.tournament.finalize()
         else :
             raise NoTournamentFailError()
-
-    # async def loop_matches(self, matches, rounds) :
-    #     for match in matches :
-    #         print(match)
-    #         await self.play_match(match,rounds)
-
-    # def async_wrapper(self, matches, rounds):
-    #     loop = asyncio.new_event_loop()
-    #     asyncio.set_event_loop(loop)
-    #     result = loop.run_until_complete(self.loop_matches(matches, rounds))
-    #     loop.close()
-    #     return result
-
-    # async def async_task(self, matches, rounds) :
-    #     print(matches)
-    #     loop = asyncio.get_event_loop()
-    #     print(matches)
-    #     await loop.run_in_executor(None,self.async_wrapper, matches, rounds)
-
-    # async def run(self, rounds=1) :
-    #     loop = asyncio.get_event_loop()
-    #     max_threads = 2
-    #     if self.tournament is not None :
-    #         await self.tournament.start()
-    #         matches = await self.tournament.get_matches()
-    #         dict_round = {}
-    #         for match in matches :
-    #             if dict_round.get(match.round,False) :
-    #                 dict_round[match.round] += [match]
-    #             else :
-    #                 dict_round[match.round] = [match]
-    #         for key in sorted(dict_round.keys()) :
-    #             #print(key)
-    #             tasks = []
-    #             for batch in list(chop(math.ceil(len(dict_round[key])/max_threads), dict_round[key])):
-    #                 #print(batch)
-    #                 tasks.append(asyncio.create_task(self.async_task(batch,rounds)))
-    #             loop.run_until_complete(asyncio.gather(*tasks))
-    #         await self.tournament.finalize()
-    #         loop.close()
-    #     else :
-    #         raise NoTournamentFailError()
-

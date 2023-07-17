@@ -20,7 +20,7 @@ class MyPlayer(PlayerTictac):
         """
         super().__init__(piece_type, name)
 
-    def solve(self, current_state: GameState, **kwargs) -> Action:
+    def compute_action(self, current_state: GameState, **kwargs) -> Action:
         """
         Implements the logic of the player by randomly selecting a feasible move.
 

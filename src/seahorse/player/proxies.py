@@ -42,7 +42,7 @@ class RemotePlayerProxy(Serializable,EventSlave):
         """
         pass
 
-    async def listen(self,*,keep_alive:bool) -> Coroutine[Any, Any, None]:
+    async def listen(self,*,keep_alive:bool,**kwargs) -> Coroutine[Any, Any, None]:
         """
         Listens for events.
 
@@ -110,7 +110,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         Returns:
             Action: The action resulting from the move.
         """
-        return self.solve(current_state=current_state)
+        return self.compute_action(current_state=current_state)
 
     def __getattr__(self, attr):
         return getattr(self.wrapped_player, attr)

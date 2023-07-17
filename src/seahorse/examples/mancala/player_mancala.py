@@ -26,7 +26,7 @@ class MyPlayer(Player):
         super().__init__(name)
 
 
-    def solve(self, current_state: GameStateMancala, **kwargs) -> Action:
+    def compute_action(self, current_state: GameStateMancala, **kwargs) -> Action:
         """
         Solves the game by implementing the logic of the player (random selection of a feasible solution).
 
