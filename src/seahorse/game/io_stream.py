@@ -52,9 +52,9 @@ def event_emitting(label:str):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,*args,**kwargs):
             out = fun(self,*args, **kwargs)
-            print(label)
+            #print(label)
             await self.sio.emit(label,out.toJson())
-            print('pooof')
+            #print('pooof')
             return out
 
         return wrapper
@@ -66,11 +66,11 @@ def remote_action(label: str):
     def meta_wrapper(fun: Callable):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,current_state:GameState,*_,**__):
-            print("____________----------+++",current_state)
+            #print("____________----------+++",current_state)
             await EventMaster.get_instance().sio.emit(label,current_state.toJson(),to=self.sid)
-            print("xxxxx")
+            #print("xxxxx")
             out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
-            print("++++++")
+            #print("++++++")
             return out
 
         return wrapper
@@ -188,7 +188,7 @@ class EventMaster:
         # TODO revise sanity checks to avoid critical errors
         print("waiting for next play",print(sid))
         while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
-            print(self.__identified_clients[self.__sid2ident[sid]]["incoming"])
+            #print(self.__identified_clients[self.__sid2ident[sid]]["incoming"])
             await asyncio.sleep(1)
         print("next play received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())

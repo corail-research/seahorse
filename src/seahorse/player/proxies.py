@@ -88,11 +88,11 @@ class LocalPlayerProxy(Serializable,EventSlave):
         self.activate(self.wrapped_player.name,masterless=masterless,wrapped_id=wrapped_player.get_id())
         @self.sio.on("turn")
         async def handle_turn(*data):
-            print("turn")
-            print(data)
-            print(gs.fromJson(data[0],next_player=self))
+            #print("turn")
+            #print(data)
+            #print(gs.fromJson(data[0],next_player=self))
             action = await self.play(gs.fromJson(data[0],next_player=self))
-            print("***",action)
+            #print("***",action)
 
         @self.sio.on("update_id")
         async def update_id(data):

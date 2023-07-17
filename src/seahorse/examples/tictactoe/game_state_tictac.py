@@ -190,7 +190,7 @@ class GameStateTictac(GameState):
         return "The game is finished!"
     
     def toJson(self) -> str:
-        print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
+        #print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
         return json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize())
 
     @classmethod

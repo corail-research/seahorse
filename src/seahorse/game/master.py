@@ -99,8 +99,8 @@ class GameMaster:
                 #self.winner = self.compute_winner(temp_score)
                 #self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
                 #return self.winner
-            #print(self.current_game_state.get_rep())
-            #print(self.current_game_state)
+            print(self.current_game_state.get_rep())
+            print(self.current_game_state)
             await self.emitter.sio.emit(
                 "play",
                 self.current_game_state.toJson(),
