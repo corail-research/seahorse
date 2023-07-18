@@ -19,7 +19,7 @@ class MasterAbalone(GameMaster):
     """
 
     def __init__(
-        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str, port: int
+        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str, port: int = 8080
     ) -> None:
         """
         Initialize the MasterAbalone instance.
