@@ -2,17 +2,18 @@ from seahorse.examples.abalone.alpha_player_abalone import MyPlayer as AlphaPlay
 from seahorse.examples.abalone.board_abalone import BoardAbalone
 from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
 from seahorse.examples.abalone.master_abalone import MasterAbalone
+from seahorse.examples.abalone.player_abalone import PlayerAbalone
 from seahorse.examples.abalone.random_player_abalone import MyPlayer as RandomPlayerAbalone
 from seahorse.game.game_layout.board import Piece
-from seahorse.player.player import LocalPlayerProxy
+from seahorse.player.proxies import LocalPlayerProxy, RemotePlayerProxy
 
 W = 1
 B = 2
 
 def run_multiple_games():
     for _ in range(1):
-        player1 = LocalPlayerProxy(AlphaPlayerAbalone("W", name="louis"))
-        player2 = LocalPlayerProxy(RandomPlayerAbalone("B", name="loic"))
+        player1 = LocalPlayerProxy(AlphaPlayerAbalone("B", name="louis"))
+        player2 = RemotePlayerProxy(mimics=PlayerAbalone,piece_type="W",name="bob")
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
@@ -114,7 +115,7 @@ def run_multiple_games():
         )
 
         master = MasterAbalone(
-             name="Abalone", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt"
+             name="Abalone", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt", port=16001
          )
         master.record_game()
 

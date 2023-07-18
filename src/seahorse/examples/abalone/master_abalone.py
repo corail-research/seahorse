@@ -19,7 +19,7 @@ class MasterAbalone(GameMaster):
     """
 
     def __init__(
-        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str
+        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str, port: int
     ) -> None:
         """
         Initialize the MasterAbalone instance.
@@ -31,7 +31,7 @@ class MasterAbalone(GameMaster):
                 If a list is provided, a cyclic iterator is automatically built
             log_file (str): Name of the log file
         """
-        super().__init__(name, initial_game_state, players_iterator, log_file)
+        super().__init__(name, initial_game_state, players_iterator, log_file, port)
 
     def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
         """

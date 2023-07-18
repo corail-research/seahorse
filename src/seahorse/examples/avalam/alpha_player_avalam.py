@@ -1,10 +1,9 @@
 import math
+from typing import Tuple
 
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.player.player import Player
-
-from typing import Tuple
 
 infinity = math.inf
 

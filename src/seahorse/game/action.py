@@ -1,6 +1,6 @@
 from __future__ import annotations
-import json
 
+import json
 from typing import TYPE_CHECKING, Type
 
 from seahorse.utils.serializer import Serializable

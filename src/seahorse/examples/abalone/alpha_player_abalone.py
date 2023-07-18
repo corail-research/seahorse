@@ -1,13 +1,13 @@
 import math
+from typing import Tuple
 
+from seahorse.examples.abalone.player_abalone import PlayerAbalone
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
-from seahorse.player.player import Player
-from typing import Tuple
 
 infinity = math.inf
 
-class MyPlayer(Player):
+class MyPlayer(PlayerAbalone):
     """
     A player class implementing the Alpha-Beta algorithm for the Abalone game.
 
@@ -23,17 +23,7 @@ class MyPlayer(Player):
             piece_type (str): The type of the player's game piece.
             name (str, optional): The name of the player. Defaults to "bob".
         """
-        super().__init__(name)
-        self.piece_type = piece_type
-
-    def get_piece_type(self) -> str:
-        """
-        Gets the type of the player's game piece.
-
-        Returns:
-            str: The type of the player's game piece.
-        """
-        return self.piece_type
+        super().__init__(piece_type, name)
 
     def cutoff_depth(self, d: int, cutoff: int) -> bool:
         """

@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from seahorse.game.game_layout.board import Board, Piece
-from seahorse.utils.serializer import Serializable
+import json
 from typing import Tuple
 
+from seahorse.game.game_layout.board import Board, Piece
+from seahorse.utils.serializer import Serializable
 
-class BoardAbalone(Board,Serializable):
+
+class BoardAbalone(Board):
     """
     A class representing an Abalone board.
 
@@ -14,7 +16,7 @@ class BoardAbalone(Board,Serializable):
         dimensions (list[int]): The dimensions of the board.
     """
 
-    def __init__(self, env: dict[Tuple[int], Piece], dim: list[int]) -> None:
+    def __init__(self, env: dict[tuple[int], Piece], dim: list[int]) -> None:
         super().__init__(env, dim)
 
     def __str__(self) -> str:
@@ -24,18 +26,19 @@ class BoardAbalone(Board,Serializable):
         Returns:
             str: The string representation of the board.
         """
-        dim = self.get_dimensions()
-        to_print = ""
-        for i in range(dim[0]):
-            for j in range(dim[1]):
-                if self.get_env().get((i, j), -1) != -1:
-                    to_print += (
-                        str(self.get_env().get((i, j)).get_type()) + " "
-                    )
-                else:
-                    to_print += "_ "
-            to_print += "\n"
-        return to_print
+        return self.nice_repr()
+        # dim = self.get_dimensions()
+        # to_print = ""
+        # for i in range(dim[0]):
+        #     for j in range(dim[1]):
+        #         if self.get_env().get((i, j), -1) != -1:
+        #             to_print += (
+        #                 str(self.get_env().get((i, j)).get_type()) + " "
+        #             )
+        #         else:
+        #             to_print += "_ "
+        #     to_print += "\n"
+        # return to_print
 
     def nice_repr(self) -> str:
         """
@@ -131,14 +134,38 @@ class BoardAbalone(Board,Serializable):
             string += "\n"
         return string
 
+    # def toJson(self) -> dict:
+    #     """
+    #     Convert the board to a JSON-compatible dictionary.
+
+    #     Returns:
+    #         dict: The JSON representation of the board.
+    #     """
+    #     board = [[None for _ in range(self.dimensions[1])] for _ in range(self.dimensions[0])]
+    #     for key, value in self.env.items():
+    #         board[key[0]][key[1]] = [value.owner_id, value.piece_type] if value is not None else None
+    #     return {"board": board}
+
     def toJson(self) -> dict:
         """
-        Convert the board to a JSON-compatible dictionary.
+        Converts the board to a JSON object.
 
         Returns:
             dict: The JSON representation of the board.
         """
-        board = [[None for _ in range(self.dimensions[1])] for _ in range(self.dimensions[0])]
-        for key, value in self.env.items():
-            board[key[0]][key[1]] = [value.owner_id, value.piece_type] if value is not None else None
-        return {"board": board}
+        # TODO: migrate below into js code
+        #board = [[None for _ in range(self.dimensions[1])] for _ in range(self.dimensions[0])]
+        #for key, value in self.env.items():
+        #    board[key[0]][key[1]] = value.piece_type if value is not None else None
+        #return {"board": board}
+        return {"env":{str(x):y for x,y in self.env.items()},"dim":self.dimensions}
+
+    @classmethod
+    def fromJson(cls, data) -> Serializable:
+        d = json.loads(data)
+        dd = json.loads(data)
+        for x,y in d["env"].items():
+            # TODO eval is unsafe
+            del dd["env"][x]
+            dd["env"][eval(x)] = Piece(**json.loads(y))
+        return cls(**dd)

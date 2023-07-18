@@ -45,8 +45,8 @@ class BoardTictac(Board):
     def fromJson(cls, data) -> Serializable:
         d = json.loads(data)
         dd = json.loads(data)
-        for x,y in d['env'].items():
+        for x,y in d["env"].items():
             # TODO eval is unsafe
-            del dd['env'][x]
-            dd['env'][eval(x)] = Piece(**json.loads(y))
+            del dd["env"][x]
+            dd["env"][eval(x)] = Piece(**json.loads(y))
         return cls(**dd)

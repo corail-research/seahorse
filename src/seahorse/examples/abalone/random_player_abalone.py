@@ -1,11 +1,11 @@
 import random
 
+from seahorse.examples.abalone.player_abalone import PlayerAbalone
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
-from seahorse.player.player import Player
 
 
-class MyPlayer(Player):
+class MyPlayer(PlayerAbalone):
     """
     Player class for Abalone game that makes random moves.
 
@@ -21,17 +21,8 @@ class MyPlayer(Player):
             piece_type (str): Type of the player's game piece
             name (str, optional): Name of the player (default is "bob")
         """
-        super().__init__(name)
-        self.piece_type = piece_type
+        super().__init__(piece_type,name)
 
-    def get_piece_type(self):
-        """
-        Get the type of the player's game piece.
-
-        Returns:
-            str: Piece type string representing the type of the piece
-        """
-        return self.piece_type
 
     def compute_action(self, current_state: GameState, **kwargs) -> Action:
         """

@@ -4,7 +4,7 @@ from seahorse.examples.abalone.board_abalone import BoardAbalone
 from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
 from seahorse.examples.abalone.master_abalone import MasterAbalone
 from seahorse.game.game_layout.board import Piece
-from seahorse.player.player import LocalPlayerProxy
+from seahorse.player.proxies import LocalPlayerProxy
 
 if __name__ == "__main__":
     args = sys.argv

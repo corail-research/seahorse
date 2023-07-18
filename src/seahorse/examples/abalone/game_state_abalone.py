@@ -1,11 +1,14 @@
 import copy
+import json
 from typing import Dict, List, Set
 
 from seahorse.examples.abalone.board_abalone import BoardAbalone
+from seahorse.examples.abalone.player_abalone import PlayerAbalone
 from seahorse.game.action import Action
 from seahorse.game.game_layout.board import Piece
 from seahorse.game.game_state import GameState
 from seahorse.player.player import Player
+from seahorse.utils.serializer import Serializable
 
 
 class GameStateAbalone(GameState):
@@ -19,7 +22,7 @@ class GameStateAbalone(GameState):
         rep (Representation): Representation of the game.
     """
 
-    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardAbalone, step: int) -> None:
+    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardAbalone, step: int, *args, **kwargs) -> None:
         super().__init__(scores, next_player, players, rep)
         self.max_score = -6
         self.max_step = 50
@@ -220,3 +223,13 @@ class GameStateAbalone(GameState):
         if not self.is_done():
             return super().__str__()
         return "The game is finished!"
+
+    def toJson(self) -> str:
+        #print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
+        return json.dumps({ i:j for i,j in self.__dict__.items() if i!="_possible_actions"},default=self.subSerialize())
+
+    @classmethod
+    def fromJson(cls,data:str,*,next_player:PlayerAbalone=None) -> Serializable:
+        d = json.loads(data)
+        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerAbalone.fromJson(x) if json.loads(x)!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardAbalone.fromJson(json.dumps(d["rep"]))})
+

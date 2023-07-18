@@ -1,12 +1,11 @@
 import math
 import time
 from itertools import cycle
+from typing import Tuple
 
 from seahorse.examples.tictactoe.player_tictac import PlayerTictac
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
-
-from typing import Tuple
 
 infinity = math.inf
 

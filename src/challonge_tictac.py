@@ -3,7 +3,7 @@ import sys
 from seahorse.examples.tictactoe.board_tictac import BoardTictac
 from seahorse.examples.tictactoe.game_state_tictac import GameStateTictac
 from seahorse.examples.tictactoe.master_tictac import MasterTictac
-from seahorse.player.player import LocalPlayerProxy
+from seahorse.player.proxies import LocalPlayerProxy
 
 if __name__ == "__main__":
     args = sys.argv

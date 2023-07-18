@@ -1,6 +1,7 @@
-from argparse import Action
 import json
+from argparse import Action
 from typing import Any, Coroutine, Type
+
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
 from seahorse.player.player import Player
@@ -60,9 +61,9 @@ class RemotePlayerProxy(Serializable,EventSlave):
 
     def __eq__(self, __value: object) -> bool:
         return hash(self) == hash(__value)
-    
+
     def toJson(self) -> str:
-        return json.dumps('self')
+        return json.dumps("self")
 
 
 class LocalPlayerProxy(Serializable,EventSlave):
@@ -91,7 +92,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
             #print("turn")
             #print(data)
             #print(gs.fromJson(data[0],next_player=self))
-            action = await self.play(gs.fromJson(data[0],next_player=self))
+            await self.play(gs.fromJson(data[0],next_player=self))
             #print("***",action)
 
         @self.sio.on("update_id")

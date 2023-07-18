@@ -4,7 +4,7 @@ import asyncio
 import functools
 import json
 from collections import deque
-from typing import TYPE_CHECKING, Any, Callable, List, Type, Tuple
+from typing import TYPE_CHECKING, Any, Callable, List, Tuple, Type
 
 import socketio
 from aiohttp import web
@@ -38,7 +38,7 @@ class EventSlave:
         @self.sio.event()
         def disconnect():
             self.connected = False
-            
+
 
     async def listen(self,master_address,*,keep_alive:bool) -> None:
         if not self.connected:
@@ -93,7 +93,7 @@ class EventMaster:
     __instance = None
 
     @staticmethod
-    def get_instance(n_clients:int=1,game_state:Type=Serializable,port: int = 8080) -> EventMaster:
+    def get_instance(n_clients:int=1,game_state:type=Serializable,port: int = 8080) -> EventMaster:
         """Gets the instance object
 
         Args:
@@ -118,7 +118,7 @@ class EventMaster:
             self.__n_clients_connected = 0
             self.__identified_clients = {}
             self.__open_sessions = set()
-            self.__ident2sid = {} 
+            self.__ident2sid = {}
             self.__sid2ident = {}
             self.__game_state = game_state
             self.port = port
@@ -139,7 +139,7 @@ class EventMaster:
             # Shutdown callback
             async def on_shutdown(_):
                 for x in list(self.__open_sessions):
-                    if x in self.__open_sessions:        
+                    if x in self.__open_sessions:
                         await self.sio.disconnect(x)
 
             self.app.on_shutdown.append(on_shutdown)
@@ -155,8 +155,8 @@ class EventMaster:
 
             @self.sio.event
             def disconnect(sid):
-                print('Lost connection: ', sid)
-                self.__n_clients_connected -= 1 
+                print("Lost connection: ", sid)
+                self.__n_clients_connected -= 1
                 self.__open_sessions.remove(sid)
                 if sid in self.__sid2ident.keys() and self.__sid2ident[sid] in self.__identified_clients:
                     print(f"Client identified as {self.__sid2ident[sid]} was lost.")
@@ -174,7 +174,7 @@ class EventMaster:
                 print(json.loads(data).get("identifier",0))
                 print(json.loads(data))
                 data = json.loads(data)
-                # TODO check presence of "id" in data 
+                # TODO check presence of "id" in data
                 self.__ident2sid[data.get("identifier",0)]=sid
                 self.__sid2ident[sid]=data.get("identifier",0)
                 self.__identified_clients[data.get("identifier",0)]={"sid":sid,"id":data["wrapped_id"],"incoming":deque()}
@@ -184,7 +184,7 @@ class EventMaster:
             # Setting the singleton instance
             EventMaster.__instance = self
 
-    async def wait_for_next_play(self,sid,players:List) -> Action:
+    async def wait_for_next_play(self,sid,players:list) -> Action:
         # TODO revise sanity checks to avoid critical errors
         print("waiting for next play",print(sid))
         while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
@@ -192,14 +192,14 @@ class EventMaster:
             await asyncio.sleep(1)
         print("next play received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
-        next_player_id = int(json.loads(json.loads(action['new_gs'])['next_player'])['id'])
+        next_player_id = int(json.loads(json.loads(action["new_gs"])["next_player"])["id"])
         next_player = list(filter(lambda p:p.id==next_player_id,players))[0]
 
         past_gs = self.__game_state.fromJson(action["past_gs"])
-        past_gs.players = players 
-        new_gs = self.__game_state.fromJson(action["new_gs"],next_player=next_player) 
+        past_gs.players = players
+        new_gs = self.__game_state.fromJson(action["new_gs"],next_player=next_player)
         new_gs.players = players
-        
+
 
         return Action(past_gs,new_gs)
 
@@ -266,7 +266,7 @@ class EventMaster:
             # Cleaning up and closing the runner upon completion
             try:
                 await asyncio.wait_for(self.runner.cleanup(), timeout=1)
-            except asyncio.exceptions.TimeoutError as _:
+            except asyncio.exceptions.TimeoutError:
                 pass
 
         # Blocking call to the procedure

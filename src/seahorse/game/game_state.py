@@ -1,6 +1,6 @@
+import json
 from abc import abstractmethod
 from itertools import cycle
-import json
 from typing import Any, Dict, FrozenSet, List, Set
 
 from seahorse.game.action import Action

@@ -3,7 +3,7 @@ from seahorse.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
 from seahorse.examples.avalam.game_state_avalam import GameStateAvalam
 from seahorse.examples.avalam.master_avalam import MasterAvalam
 from seahorse.examples.avalam.random_player_avalam import MyPlayer as RandomPlayerAvalam
-from seahorse.player.player import LocalPlayerProxy
+from seahorse.player.proxies import LocalPlayerProxy
 
 
 def run_multiple_games():

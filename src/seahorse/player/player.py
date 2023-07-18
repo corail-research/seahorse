@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from abc import abstractmethod
 import builtins
 import json
+from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Coroutine
 
 from seahorse.game.action import Action
@@ -34,7 +34,7 @@ class Player(Serializable):
             hard_id (int, optional, keyword-only): Set the player's id in case of distant loading
         """
         self.name = name
-        if id==None:
+        if id is None:
             self.id = builtins.id(self)
         else:
             self.id = id

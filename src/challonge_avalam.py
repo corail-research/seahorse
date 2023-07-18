@@ -3,7 +3,7 @@ import sys
 from seahorse.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
 from seahorse.examples.avalam.game_state_avalam import GameStateAvalam
 from seahorse.examples.avalam.master_avalam import MasterAvalam
-from seahorse.player.player import LocalPlayerProxy
+from seahorse.player.proxies import LocalPlayerProxy
 
 if __name__ == "__main__":
     args = sys.argv

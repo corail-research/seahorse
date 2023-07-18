@@ -2,7 +2,7 @@ from seahorse.examples.mancala.board_mancala import BoardMancala
 from seahorse.examples.mancala.game_state_mancala import GameStateMancala
 from seahorse.examples.mancala.master_mancala import MasterMancala
 from seahorse.examples.mancala.player_mancala import MyPlayer
-from seahorse.player.player import LocalPlayerProxy
+from seahorse.player.proxies import LocalPlayerProxy
 
 
 def run_multiple_games():

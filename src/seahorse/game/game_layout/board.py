@@ -1,6 +1,6 @@
 from __future__ import annotations
-import json
 
+import json
 from typing import TYPE_CHECKING, Tuple
 
 from seahorse.game.representation import Representation
@@ -68,10 +68,10 @@ class Piece(Serializable):
 
     #def __str__(self) -> str:
     #    return self.get_type()
-    
+
     def toJson(self) -> str:
         return json.dumps(self.__dict__)
-    
+
     @classmethod
     def fromJson(cls,data) -> str:
         return cls(**json.loads(data))
@@ -86,7 +86,7 @@ class Board(Representation):
         dimensions (list[int]): The dimensions of the board.
     """
 
-    def __init__(self, env: dict[Tuple[int], Piece], dim: list[int]) -> None:
+    def __init__(self, env: dict[tuple[int], Piece], dim: list[int]) -> None:
         """
         Initializes a new instance of the Board class.
 
@@ -106,7 +106,7 @@ class Board(Representation):
         """
         return self.dimensions
 
-    def get_pieces_player(self, owner: Player) -> Tuple[int, list[Piece]]:
+    def get_pieces_player(self, owner: Player) -> tuple[int, list[Piece]]:
         """
         Gets the pieces owned by a specific player.
 
