@@ -1,11 +1,11 @@
 import random
 
+from seahorse.examples.avalam.player_avalam import PlayerAvalam
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
-from seahorse.player.player import Player
 
 
-class MyPlayer(Player):
+class MyPlayer(PlayerAvalam):
     """
     A player class that makes random moves in the game Avalam.
 
@@ -21,17 +21,7 @@ class MyPlayer(Player):
             piece_type (str): The type of the player's piece.
             name (str, optional): The name of the player. Defaults to "bob".
         """
-        super().__init__(name)
-        self.piece_type = piece_type
-
-    def get_piece_type(self) -> str:
-        """
-        Get the type of the player's piece.
-
-        Returns:
-            str: The type of the piece.
-        """
-        return self.piece_type
+        super().__init__(piece_type, name)
 
     def compute_action(self, current_state: GameState, **kwargs) -> Action:
         """

@@ -2,14 +2,15 @@ from seahorse.examples.avalam.alpha_player_avalam import MyPlayer as AlphaPlayer
 from seahorse.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
 from seahorse.examples.avalam.game_state_avalam import GameStateAvalam
 from seahorse.examples.avalam.master_avalam import MasterAvalam
+from seahorse.examples.avalam.player_avalam import PlayerAvalam
 from seahorse.examples.avalam.random_player_avalam import MyPlayer as RandomPlayerAvalam
-from seahorse.player.proxies import LocalPlayerProxy
+from seahorse.player.proxies import LocalPlayerProxy, RemotePlayerProxy
 
 
 def run_multiple_games():
     for _ in range(1):
-        player1 = LocalPlayerProxy(AlphaPlayerAvalam("R", name="louis"))
-        player2 = LocalPlayerProxy(RandomPlayerAvalam("Y", name="loic"))
+        player1 = LocalPlayerProxy(AlphaPlayerAvalam("Y", name="louis"))
+        player2 = RemotePlayerProxy(mimics=PlayerAvalam,piece_type="R",name="bob")
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
@@ -40,7 +41,7 @@ def run_multiple_games():
         )
 
         master = MasterAvalam(
-            name="Avalam", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt"
+            name="Avalam", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt", port=16001
         )
         master.record_game()
 

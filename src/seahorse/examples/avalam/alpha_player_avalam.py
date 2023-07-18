@@ -1,13 +1,13 @@
 import math
 from typing import Tuple
 
+from seahorse.examples.avalam.player_avalam import PlayerAvalam
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
-from seahorse.player.player import Player
 
 infinity = math.inf
 
-class MyPlayer(Player):
+class MyPlayer(PlayerAvalam):
     """
     Player class for Avalam game that uses the alpha-beta algorithm for move selection.
 
@@ -23,17 +23,7 @@ class MyPlayer(Player):
             piece_type (str): Type of the player's game piece
             name (str, optional): Name of the player (default is "bob")
         """
-        super().__init__(name)
-        self.piece_type = piece_type
-
-    def get_piece_type(self) -> str:
-        """
-        Get the type of the player's game piece.
-
-        Returns:
-            str: Piece type string representing the type of the piece
-        """
-        return self.piece_type
+        super().__init__(piece_type, name)
 
     def cutoff_depth(self, d: int, cutoff: int) -> bool:
         """

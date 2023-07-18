@@ -1,10 +1,13 @@
 import copy
+import json
 from typing import Dict, List, Set
 
 from seahorse.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
+from seahorse.examples.avalam.player_avalam import PlayerAvalam
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.player.player import Player
+from seahorse.utils.serializer import Serializable
 
 
 class GameStateAvalam(GameState):
@@ -117,3 +120,12 @@ class GameStateAvalam(GameState):
         if not self.is_done():
             return super().__str__()
         return "The game is finished!"
+
+    def toJson(self) -> str:
+        #print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
+        return json.dumps({ i:j for i,j in self.__dict__.items() if i!="_possible_actions" and i!= "max_tower"},default=self.subSerialize())
+
+    @classmethod
+    def fromJson(cls,data:str,*,next_player:PlayerAvalam=None) -> Serializable:
+        d = json.loads(data)
+        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerAvalam.fromJson(x) if json.loads(x)!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardAvalam.fromJson(json.dumps(d["rep"]))})

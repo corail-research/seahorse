@@ -42,7 +42,8 @@ class ExecMulti():
         else:
             cmd = "python3 " + self.main_file + ".py" + " " + folder_players + " " + name_player1 + " " + name_player2 + " " + str(port)
         process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-        _, _ = await process.communicate()
+        stdout, _ = await process.communicate()
+        #print(stdout)
 
     async def run_multiple_rounds(self, rounds: int, nb_process: int, swap: bool, folder_players: str, name_player1: str, name_player2: str, port: int = 8080):
         """
