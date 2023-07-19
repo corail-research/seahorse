@@ -1,6 +1,6 @@
 import copy
 import json
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Tuple
 
 from seahorse.examples.abalone.board_abalone import BoardAbalone
 from seahorse.examples.abalone.player_abalone import PlayerAbalone
@@ -49,7 +49,7 @@ class GameStateAbalone(GameState):
         else:
             return False
 
-    def detect_conflict(self, i: int, j: int, n_i: int, n_j: int) -> List[Piece]:
+    def detect_conflict(self, i: int, j: int, n_i: int, n_j: int) -> List[Tuple[int, int]]:
         """
         Detect conflicts on the board.
 
