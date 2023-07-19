@@ -62,7 +62,7 @@ class GameMaster:
         possible_actions = self.current_game_state.get_possible_actions()
 
         start = next_player.timer.start_timer()
-        #print("time :", next_player.timer._remaining_time)
+        print("time :", next_player.timer._remaining_time)
         action = await next_player.play(self.current_game_state)
         next_player.timer.stop_timer()
         #print("time :", next_player.timer._remaining_time)

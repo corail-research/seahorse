@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 import copy
 import json
+from typing import TYPE_CHECKING
 
 from seahorse.examples.abalone.board_abalone import BoardAbalone
-from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
 from seahorse.game.action import Action
 from seahorse.game.game_layout.board import Piece
 from seahorse.player.player import Player
 from seahorse.utils.serializer import Serializable
+
+if TYPE_CHECKING:
+    from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
 
 
 class PlayerAbalone(Player):
