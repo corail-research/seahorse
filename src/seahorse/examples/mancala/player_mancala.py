@@ -1,11 +1,10 @@
-import random
+import json
 
-from seahorse.examples.mancala.game_state_mancala import GameStateMancala
-from seahorse.game.action import Action
 from seahorse.player.player import Player
+from seahorse.utils.serializer import Serializable
 
 
-class MyPlayer(Player):
+class PlayerMancala(Player):
     """
     A class representing a Mancala player.
 
@@ -16,28 +15,18 @@ class MyPlayer(Player):
         name (str): The name of the player.
     """
 
-    def __init__(self, name: str = "bob") -> None:
+    def __init__(self, name: str = "bob", **kwargs) -> None:
         """
         Initializes a new instance of the PlayerMancala class.
 
         Args:
             name (str): The name of the player.
         """
-        super().__init__(name)
+        super().__init__(name, **kwargs)
 
+    def toJson(self) -> str:
+        return json.dumps(self.__dict__,default=lambda x:x.toJson() if isinstance(x,Serializable) else None)
 
-    def compute_action(self, current_state: GameStateMancala, **kwargs) -> Action:
-        """
-        Solves the game by implementing the logic of the player (random selection of a feasible solution).
-
-        Args:
-            current_state (GameStateMancala): The current game state.
-            **kwargs: Additional keyword arguments.
-
-        Returns:
-            Action: The selected action.
-        """
-        possible_actions = current_state.generate_possible_actions()
-        if kwargs:
-            pass
-        return random.choice(list(possible_actions))
+    @classmethod
+    def fromJson(cls, data) -> Serializable:
+        return PlayerMancala(**json.loads(data))

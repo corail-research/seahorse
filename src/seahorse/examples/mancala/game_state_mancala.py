@@ -1,10 +1,14 @@
 from __future__ import annotations
 
+import json
+
 from seahorse.examples.mancala.board_mancala import BoardMancala
+from seahorse.examples.mancala.player_mancala import PlayerMancala
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import ActionNotPermittedError
+from seahorse.utils.serializer import Serializable
 
 BOARD_SIZE = 6
 
@@ -208,3 +212,13 @@ class GameStateMancala(GameState):
 
     def __hash__(self) -> int:
         return hash(frozenset([(hash(pos),hash(piece.get_value())) for pos,piece in self.rep.get_env().items()]))
+
+    def toJson(self) -> str:
+        #print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
+        return json.dumps({ i:j for i,j in self.__dict__.items() if i!="_possible_actions"},default=self.subSerialize())
+
+    @classmethod
+    def fromJson(cls,data:str,*,next_player:PlayerMancala=None) -> Serializable:
+        d = json.loads(data)
+        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerMancala.fromJson(x) if json.loads(x)!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardMancala.fromJson(json.dumps(d["rep"]))})
+

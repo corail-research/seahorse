@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import copy
+import json
 
 from seahorse.game.game_layout.board import Board, Piece
+from seahorse.player.player import Player
+from seahorse.utils.serializer import Serializable
 
 
 class PieceMancala(Piece):
@@ -16,14 +19,14 @@ class PieceMancala(Piece):
         value (int): The value of the piece.
     """
 
-    def __init__(self, value: int) -> None:
+    def __init__(self, value: int, piece_type: str= None, owner: Player=None, owner_id: int=-1) -> None:
         """
         Initializes a new instance of the PieceMancala class.
 
         Args:
             value (int): The value of the piece.
         """
-        super().__init__(None, None)
+        super().__init__(piece_type,owner,owner_id)
         self.value = value
 
     def remove(self) -> int:
@@ -60,6 +63,13 @@ class PieceMancala(Piece):
 
     def __str__(self) -> str:
         return str(self.value)
+
+    def toJson(self) -> str:
+        return json.dumps(self.__dict__)
+
+    @classmethod
+    def fromJson(cls,data) -> str:
+        return cls(**json.loads(data))
 
 
 class BoardMancala(Board):
@@ -109,3 +119,27 @@ class BoardMancala(Board):
             to_print += "  " + str(self.env[(1,i)]) + "   "
         to_print += "\n"
         return to_print
+
+    def toJson(self) -> dict:
+        """
+        Converts the board to a JSON object.
+
+        Returns:
+            dict: The JSON representation of the board.
+        """
+        # TODO: migrate below into js code
+        #board = [[None for _ in range(self.dimensions[1])] for _ in range(self.dimensions[0])]
+        #for key, value in self.env.items():
+        #    board[key[0]][key[1]] = value.piece_type if value is not None else None
+        #return {"board": board}
+        return {"env":{str(x):y for x,y in self.env.items()},"dim":self.dimensions}
+
+    @classmethod
+    def fromJson(cls, data) -> Serializable:
+        d = json.loads(data)
+        dd = json.loads(data)
+        for x,y in d["env"].items():
+            # TODO eval is unsafe
+            del dd["env"][x]
+            dd["env"][eval(x)] = PieceMancala(**json.loads(y))
+        return cls(**dd)
