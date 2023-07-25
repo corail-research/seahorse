@@ -9,7 +9,7 @@ from seahorse.player.proxies import LocalPlayerProxy, RemotePlayerProxy
 
 def run_multiple_games():
     for _ in range(2):
-        player1 = LocalPlayerProxy(AlphaPlayerTictac("X", name="louis"),gs=GameStateTictac)
+        player1 = LocalPlayerProxy(RandomPlayerTictac("X", name="louis"),gs=GameStateTictac)
         player2 = RemotePlayerProxy(mimics=PlayerTictac,piece_type="O",name="jean")
         #player2 = LocalPlayerProxy(AlphaPlayerTictac("O", name="pierre"))
 

@@ -70,7 +70,7 @@ class Piece(Serializable):
     #    return self.get_type()
     
     def to_json(self) -> str:
-        return json.dumps(self.__dict__)
+        return self.__dict__
     
     @classmethod
     def from_json(cls,data) -> str:

@@ -45,7 +45,7 @@ class EventSlave:
             await self.sio.connect(master_address)
         if keep_alive:
             while self.connected:
-                await asyncio.sleep(1)
+                await asyncio.sleep(.1)
 
 def event_emitting(label:str):
     def meta_wrapper(fun: Callable[[Any],Action]):
@@ -190,7 +190,7 @@ class EventMaster:
         print("waiting for next play",print(sid))
         while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
             print(self.__identified_clients[self.__sid2ident[sid]]["incoming"])
-            await asyncio.sleep(1)
+            await asyncio.sleep(.1)
         print("next play received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
         next_player_id = int(action['new_gs']['next_player']['id'])
@@ -213,7 +213,7 @@ class EventMaster:
             str: the client sid
         """
         while not self.__identified_clients.get(name, None):
-            await asyncio.sleep(1)
+            await asyncio.sleep(.1)
 
         cl = self.__identified_clients.get(name)
 
@@ -229,7 +229,7 @@ class EventMaster:
         """
         # print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
         while not self.__n_clients_connected == self.n_clients:
-            await asyncio.sleep(1)
+            await asyncio.sleep(.1)
 
     def start(self, task: Callable[[None], None], listeners: list[EventSlave]) -> None:
         """
