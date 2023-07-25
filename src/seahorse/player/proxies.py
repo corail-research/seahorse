@@ -61,8 +61,8 @@ class RemotePlayerProxy(Serializable,EventSlave):
     def __eq__(self, __value: object) -> bool:
         return hash(self) == hash(__value)
     
-    def toJson(self) -> str:
-        return json.dumps('self')
+    def to_json(self) -> str:
+        return 'self'
 
 
 class LocalPlayerProxy(Serializable,EventSlave):
@@ -90,8 +90,8 @@ class LocalPlayerProxy(Serializable,EventSlave):
         async def handle_turn(*data):
             print("turn")
             print(data)
-            print(gs.fromJson(data[0],next_player=self))
-            action = await self.play(gs.fromJson(data[0],next_player=self))
+            print(gs.from_json(data[0],next_player=self))
+            action = await self.play(gs.from_json(data[0],next_player=self))
             print("***",action)
 
         @self.sio.on("update_id")
@@ -124,5 +124,5 @@ class LocalPlayerProxy(Serializable,EventSlave):
     def __str__(self) -> str:
         return f"Player {self.wrapped_player.get_name()} has ID {self.wrapped_player.get_id()}."
 
-    def toJson(self) -> str:
-        return self.wrapped_player.toJson()
+    def to_json(self) -> dict:
+        return self.wrapped_player.to_json()

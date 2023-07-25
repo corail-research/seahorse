@@ -82,7 +82,7 @@ class BoardAvalam(Board,Serializable):
             to_print += "\n"
         return to_print
 
-    def toJson(self) -> dict:
+    def to_json(self) -> dict:
         """
         Convert the board to a JSON representation.
 

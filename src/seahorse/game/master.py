@@ -49,7 +49,7 @@ class GameMaster:
         self.log_file = log_file
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(2,initial_game_state.__class__,port=port)
+        self.emitter = EventMaster.get_instance(3,initial_game_state.__class__,port=port)
 
     async def step(self) -> GameState:
         """
@@ -85,8 +85,7 @@ class GameMaster:
         """
         await self.emitter.sio.emit(
             "play",
-            json.dumps(
-            self.current_game_state.toJson()),
+            json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
         while not self.current_game_state.is_done():
             # TODO try except is illegal, need to identify the exception we need to catch probably Timeout
@@ -103,7 +102,7 @@ class GameMaster:
             #print(self.current_game_state)
             await self.emitter.sio.emit(
                 "play",
-                self.current_game_state.toJson(),
+                json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
             )
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         return self.winner

@@ -27,7 +27,7 @@ class BoardTictac(Board):
     def __str__(self) -> str:
         return super().__str__()
 
-    def toJson(self) -> dict:
+    def to_json(self) -> dict:
         """
         Converts the board to a JSON object.
 
@@ -42,7 +42,7 @@ class BoardTictac(Board):
         return {"env":{str(x):y for x,y in self.env.items()},"dim":self.dimensions}
 
     @classmethod
-    def fromJson(cls, data) -> Serializable:
+    def from_json(cls, data) -> Serializable:
         d = json.loads(data)
         dd = json.loads(data)
         for x,y in d['env'].items():

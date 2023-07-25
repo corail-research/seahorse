@@ -131,7 +131,7 @@ class BoardAbalone(Board,Serializable):
             string += "\n"
         return string
 
-    def toJson(self) -> dict:
+    def to_json(self) -> dict:
         """
         Convert the board to a JSON-compatible dictionary.
 

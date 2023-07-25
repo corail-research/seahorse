@@ -53,7 +53,8 @@ def event_emitting(label:str):
         async def wrapper(self:EventSlave,*args,**kwargs):
             out = fun(self,*args, **kwargs)
             print(label)
-            await self.sio.emit(label,out.toJson())
+            print(json.dumps(out.to_json(),default=lambda x:x.to_json()))
+            await self.sio.emit(label,json.dumps(out.to_json(),default=lambda x:x.to_json()))
             print('pooof')
             return out
 
@@ -67,7 +68,7 @@ def remote_action(label: str):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,current_state:GameState,*_,**__):
             print("____________----------+++",current_state)
-            await EventMaster.get_instance().sio.emit(label,current_state.toJson(),to=self.sid)
+            await EventMaster.get_instance().sio.emit(label,json.dumps(current_state.to_json(),default=lambda x:x.to_json()),to=self.sid)
             print("xxxxx")
             out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
             print("++++++")
@@ -192,12 +193,12 @@ class EventMaster:
             await asyncio.sleep(1)
         print("next play received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
-        next_player_id = int(json.loads(json.loads(action['new_gs'])['next_player'])['id'])
+        next_player_id = int(action['new_gs']['next_player']['id'])
         next_player = list(filter(lambda p:p.id==next_player_id,players))[0]
 
-        past_gs = self.__game_state.fromJson(action["past_gs"])
+        past_gs = self.__game_state.from_json(json.dumps(action["past_gs"]))
         past_gs.players = players 
-        new_gs = self.__game_state.fromJson(action["new_gs"],next_player=next_player) 
+        new_gs = self.__game_state.from_json(json.dumps(action["new_gs"]),next_player=next_player) 
         new_gs.players = players
         
 
