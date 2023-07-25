@@ -9,7 +9,6 @@ from seahorse.game.action import Action
 from seahorse.game.game_layout.board import Piece
 from seahorse.player.player import Player
 from seahorse.utils.serializer import Serializable
-
 if TYPE_CHECKING:
     from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
 
@@ -42,7 +41,7 @@ class PlayerAbalone(Player):
         """
         return self.piece_type
 
-    def convert_light_action_to_action(src:tuple[int, int], dst:tuple[int, int], current_game_state:GameStateAbalone) ->  Action :
+    def convert_light_action_to_action(self,src:tuple[int, int], dst:tuple[int, int], current_game_state:GameStateAbalone) ->  Action :
         b = current_game_state.get_rep().get_env()
         d = current_game_state.get_rep().get_dimensions()
         n_i, n_j = dst[0]-src[0],dst[1]-src[1]

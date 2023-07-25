@@ -1,3 +1,4 @@
+from seahorse.examples.abalone.abalone_human_player import MyPlayer as HumanAbalonePlayer
 from seahorse.examples.abalone.alpha_player_abalone import MyPlayer as AlphaPlayerAbalone
 from seahorse.examples.abalone.board_abalone import BoardAbalone
 from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
@@ -12,11 +13,13 @@ B = 2
 
 def run_multiple_games():
     for _ in range(1):
-        player1 = LocalPlayerProxy(AlphaPlayerAbalone("B", name="louis"))
-        player2 = RemotePlayerProxy(mimics=PlayerAbalone,piece_type="W",name="bob")
+        
+        player1 = LocalPlayerProxy(AlphaPlayerAbalone(piece_type="B"))
+        player2 = LocalPlayerProxy(HumanAbalonePlayer(piece_type="W", name="nani"))
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
+        print("init_scores", init_scores)
         dim = [17, 9]
         env = {}
         # 0 case non accessible
