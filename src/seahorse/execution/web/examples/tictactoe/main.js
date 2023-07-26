@@ -2,7 +2,7 @@ $(document).ready(function () {
     var steps = [];
     var index = -1;
     const logElement = document.getElementById("log");
-    const socket = io("ws://localhost:8080");
+    const socket = io("ws://localhost:16001");
     socket.on("play", (...args) => {
         json = JSON.parse(args[0]);
             if (json.rep && json.rep.board){

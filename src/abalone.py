@@ -1,7 +1,4 @@
-import asyncio
 import json
-import socketio
-from seahorse.examples.abalone.abalone_human_player import MyPlayer as HumanAbalonePlayer
 from seahorse.examples.abalone.alpha_player_abalone import MyPlayer as AlphaPlayerAbalone
 from seahorse.examples.abalone.board_abalone import BoardAbalone
 from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
