@@ -14,9 +14,9 @@
     <script type="text/javascript">
         const statesElement = document.getElementById("states");
         const playElement = document.getElementById("plays");
-        const socket = io("ws://localhost:8080");
+        const socket = io("ws://localhost:16001");
         socket.on("play", (...args) => {
-            console.log(args);
+            console.log(JSON.parse(args));
             playElement.textContent=playElement.textContent+"\n"+args
         });
         socket.on("state", (...args) => {

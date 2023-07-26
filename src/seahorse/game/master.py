@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import json
 import sys
@@ -85,8 +86,7 @@ class GameMaster:
         """
         await self.emitter.sio.emit(
             "play",
-            json.dumps(
-            self.current_game_state.toJson()),
+            json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
         while not self.current_game_state.is_done():
             # TODO try except is illegal, need to identify the exception we need to catch probably Timeout
@@ -99,11 +99,12 @@ class GameMaster:
                 #self.winner = self.compute_winner(temp_score)
                 #self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
                 #return self.winner
-            print(self.current_game_state.get_rep())
-            print(self.current_game_state)
+            #print(self.current_game_state.get_rep())
+            #print(self.current_game_state)
+            await asyncio.sleep(1)
             await self.emitter.sio.emit(
                 "play",
-                self.current_game_state.toJson(),
+                json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
             )
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         return self.winner

@@ -188,12 +188,12 @@ class GameStateTictac(GameState):
         if not self.is_done():
             return super().__str__()
         return "The game is finished!"
-
-    def toJson(self) -> str:
-        #print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
-        return json.dumps({ i:j for i,j in self.__dict__.items() if i!="_possible_actions"},default=self.subSerialize())
+    
+    def to_json(self) -> dict:
+        return { i:j for i,j in self.__dict__.items() if i!='_possible_actions'}
 
     @classmethod
-    def fromJson(cls,data:str,*,next_player:PlayerTictac=None) -> Serializable:
+    def from_json(cls,data:str,*,next_player:PlayerTictac=None) -> Serializable:
         d = json.loads(data)
-        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerTictac.fromJson(x) if json.loads(x)!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardTictac.fromJson(json.dumps(d["rep"]))})
+        print(d)
+        return cls(**{**d,"scores":{int(k):v for k,v in d['scores'].items()},"players":[PlayerTictac.from_json(json.dumps(x)) if x!='self' else next_player for x in d["players"]],"next_player":next_player,"rep":BoardTictac.from_json(json.dumps(d['rep']))})

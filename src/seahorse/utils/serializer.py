@@ -8,23 +8,23 @@ from seahorse.utils.custom_exceptions import MethodNotImplementedError
 class Serializable:
 
     @abstractmethod
-    def toJson(self)->str:
+    def to_json(self)->dict:
         raise MethodNotImplementedError()
 
     @classmethod
     @abstractmethod
-    def fromJson(cls,data,**kwargs)->"Serializable":
+    def from_json(cls,data,**kwargs)->'Serializable':
         raise MethodNotImplementedError()
 
     @classmethod
     def subSerialize(cls):
         def method(x):
             if isinstance(x,Serializable):
-                return x.toJson()
+                return x.to_json()
             elif isinstance(x,Iterable):
                 return [method(w) for w in x]
             elif isinstance(x,dict):
                 return {str(i):j for i,j in x.items()}
             else:
-                return json.dumps(x.__dict__,default=lambda _:"_")
+                return x.__dict__
         return method

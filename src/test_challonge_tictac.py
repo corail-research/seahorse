@@ -1,7 +1,9 @@
 import asyncio
-
+import ssl
+import certifi 
+import aiohttp
+ssl_context = ssl.create_default_context(cafile=certifi.where())
 import nest_asyncio
-
 from seahorse.tournament.challonge_tournament import ChallongeTournament
 
 

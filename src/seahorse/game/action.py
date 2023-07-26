@@ -56,5 +56,5 @@ class Action(Serializable):
     def __str__(self) -> str:
         return "From:\n" + self.get_current_game_state().get_rep().__str__() + "\nto:\n" + self.get_next_game_state().get_rep().__str__()
 
-    def toJson(self) -> str:
-        return json.dumps(self.__dict__,default=self.subSerialize())
+    def to_json(self) -> dict:
+        return self.__dict__

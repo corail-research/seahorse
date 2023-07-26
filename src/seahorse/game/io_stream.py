@@ -45,16 +45,17 @@ class EventSlave:
             await self.sio.connect(master_address)
         if keep_alive:
             while self.connected:
-                await asyncio.sleep(1)
+                await asyncio.sleep(.1)
 
 def event_emitting(label:str):
     def meta_wrapper(fun: Callable[[Any],Action]):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,*args,**kwargs):
             out = fun(self,*args, **kwargs)
-            #print(label)
-            await self.sio.emit(label,out.toJson())
-            #print('pooof')
+            print(label)
+            print(json.dumps(out.to_json(),default=lambda x:x.to_json()))
+            await self.sio.emit(label,json.dumps(out.to_json(),default=lambda x:x.to_json()))
+            print('pooof')
             return out
 
         return wrapper
@@ -66,9 +67,9 @@ def remote_action(label: str):
     def meta_wrapper(fun: Callable):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,current_state:GameState,*_,**__):
-            #print("____________----------+++",current_state)
-            await EventMaster.get_instance().sio.emit(label,current_state.toJson(),to=self.sid)
-            #print("xxxxx")
+            print("____________----------+++",current_state)
+            await EventMaster.get_instance().sio.emit(label,json.dumps(current_state.to_json(),default=lambda x:x.to_json()),to=self.sid)
+            print("xxxxx")
             out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
             #print("++++++")
             return out
@@ -193,16 +194,16 @@ class EventMaster:
         # TODO revise sanity checks to avoid critical errors
         print("waiting for next play",print(sid))
         while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
-            #print(self.__identified_clients[self.__sid2ident[sid]]["incoming"])
-            await asyncio.sleep(1)
+            print(self.__identified_clients[self.__sid2ident[sid]]["incoming"])
+            await asyncio.sleep(.1)
         print("next play received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
-        next_player_id = int(json.loads(json.loads(action["new_gs"])["next_player"])["id"])
+        next_player_id = int(action['new_gs']['next_player']['id'])
         next_player = list(filter(lambda p:p.id==next_player_id,players))[0]
 
-        past_gs = self.__game_state.fromJson(action["past_gs"])
-        past_gs.players = players
-        new_gs = self.__game_state.fromJson(action["new_gs"],next_player=next_player)
+        past_gs = self.__game_state.from_json(json.dumps(action["past_gs"]))
+        past_gs.players = players 
+        new_gs = self.__game_state.from_json(json.dumps(action["new_gs"]),next_player=next_player) 
         new_gs.players = players
 
 
@@ -223,7 +224,7 @@ class EventMaster:
             str: the client sid
         """
         while not self.__identified_clients.get(name, None):
-            await asyncio.sleep(1)
+            await asyncio.sleep(.1)
 
         cl = self.__identified_clients.get(name)
 
@@ -239,7 +240,7 @@ class EventMaster:
         """
         # print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
         while not self.__n_clients_connected == self.n_clients:
-            await asyncio.sleep(1)
+            await asyncio.sleep(.1)
 
     def start(self, task: Callable[[None], None], listeners: list[EventSlave]) -> None:
         """

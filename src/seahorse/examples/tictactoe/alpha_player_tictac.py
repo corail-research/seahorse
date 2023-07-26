@@ -118,7 +118,6 @@ class MyPlayer(PlayerTictac):
         Returns:
             Action: The selected action.
         """
-        time.sleep(0.5)
         depth = 0
         cutoff = 2500
         v, move = self.max_value(current_state, -infinity, +infinity, depth, cutoff)

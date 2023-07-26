@@ -88,19 +88,7 @@ class BoardAvalam(Board):
             to_print += "\n"
         return to_print
 
-    # def toJson(self) -> dict:
-    #     """
-    #     Convert the board to a JSON representation.
-
-    #     Returns:
-    #         dict: JSON representation of the board
-    #     """
-    #     board = [[None for _ in range(self.dimensions[1])] for _ in range(self.dimensions[0])]
-    #     for key, value in self.env.items():
-    #         board[key[0]][key[1]] = [value.owner_id, value.piece_type, value.value] if value is not None else None
-    #     return {"board": board}
-
-    def toJson(self) -> dict:
+    def to_json(self) -> dict:
         """
         Converts the board to a JSON object.
 

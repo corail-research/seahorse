@@ -5,10 +5,19 @@ $(document).ready(function () {
     const socket = io("ws://localhost:16001");
     socket.on("play", (...args) => {
         json = JSON.parse(args[0]);
-            if (json.rep && json.rep.board){
-                steps.push(json.rep.board);
+            if (json.rep && json.rep.env){
+                board = [] 
+                for(var i=0;i<json.rep.dim[0];i++){
+                  board.push([])
+                  for (var _=0;_<json.rep.dim[1];_++)board[i].push('_')
+                }
+                for (const [key, value] of Object.entries(json.rep.env)) {
+                  coord = key.replace(")","").replace("(","").replace(" ","").split(',')
+                  board[coord[0]][coord[1]] = value.piece_type
+                }
+                steps.push(board);
                 index = steps.length - 1;
-                printBoard(json.rep.board);
+                printBoard(board);
             }
             console.log(json)
 

@@ -29,12 +29,12 @@ class PlayerTictac(Player):
             str: The type of the player's game piece.
         """
         return self.piece_type
-
-
-    def toJson(self) -> str:
-        return json.dumps(self.__dict__,default=lambda x:x.toJson() if isinstance(x,Serializable) else None)
-
+    
+        
+    def to_json(self) -> dict:
+        return {i:j for i,j in self.__dict__.items() if i!="timer"}
+    
     @classmethod
-    def fromJson(cls, data) -> Serializable:
+    def from_json(cls, data) -> Serializable:
         return PlayerTictac(**json.loads(data))
 
