@@ -68,10 +68,10 @@ class Piece(Serializable):
 
     #def __str__(self) -> str:
     #    return self.get_type()
-    
+
     def to_json(self) -> str:
         return self.__dict__
-    
+
     @classmethod
     def from_json(cls,data) -> str:
         return cls(**json.loads(data))

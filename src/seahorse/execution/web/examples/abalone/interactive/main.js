@@ -17,6 +17,11 @@ $(document).ready(function () {
     }
   });
 
+  socket.on("ActionNotPermitted", (...args)=>{
+    // TODO: Display message to user
+    console.log("action not permitted")
+  })
+
   socket.on("disconnect", (...args) => {
     // set display block to img of id #img
 
@@ -312,7 +317,7 @@ $(document).ready(function () {
     ];
     for (let key in board) {
       new_key = key.substring(1, key.length - 1).replace(/, /g, "_");
-      obj = JSON.parse(board[key]);
+      obj = board[key];
       let new_coord = conversion[new_key];
       gridData[new_coord[0]][new_coord[1]] = obj["piece_type"]
     }

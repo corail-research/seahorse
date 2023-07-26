@@ -32,9 +32,9 @@ class PlayerAvalam(Player):
         """
         return self.piece_type
 
-    def toJson(self) -> str:
-        return json.dumps(self.__dict__,default=lambda x:x.toJson() if isinstance(x,Serializable) else None)
+    def to_json(self) -> str:
+        return json.dumps(self.__dict__,default=lambda x:x.to_json() if isinstance(x,Serializable) else None)
 
     @classmethod
-    def fromJson(cls, data) -> Serializable:
+    def from_json(cls, data) -> Serializable:
         return PlayerAvalam(**json.loads(data))

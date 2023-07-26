@@ -149,11 +149,11 @@ class BoardAbalone(Board):
         return {"env":{str(x):y for x,y in self.env.items()},"dim":self.dimensions}
 
     @classmethod
-    def fromJson(cls, data) -> Serializable:
+    def from_json(cls, data) -> Serializable:
         d = json.loads(data)
         dd = json.loads(data)
         for x,y in d["env"].items():
             # TODO eval is unsafe
             del dd["env"][x]
-            dd["env"][eval(x)] = Piece(**json.loads(y))
+            dd["env"][eval(x)] = Piece.from_json(**json.dumps(y))
         return cls(**dd)

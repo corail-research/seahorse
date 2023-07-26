@@ -1,4 +1,7 @@
 import json
+
+from aiohttp import web
+
 from seahorse.examples.abalone.alpha_player_abalone import MyPlayer as AlphaPlayerAbalone
 from seahorse.examples.abalone.board_abalone import BoardAbalone
 from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
@@ -11,7 +14,6 @@ from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, remote_action
 from seahorse.player.player import Player
 from seahorse.player.proxies import LocalPlayerProxy, RemotePlayerProxy
-from aiohttp import web
 
 W = 1
 B = 2
@@ -21,16 +23,18 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         super().__init__(mimics, *args, **kwargs)
 
     async def play(self, current_state: GameState) -> Action:
-        #print("xxxxx")
-        data = json.loads(await EventMaster.get_instance().wait_for_event("interact"))
-        
-        
-        #print("++++++")
-        return current_state.convert_light_action_to_action(data["from"], data["to"])
+        while True:
+            data = json.loads(await EventMaster.get_instance().wait_for_event("interact"))
+            action = current_state.convert_light_action_to_action(data["from"], data["to"])
+            if action in current_state.get_possible_actions():
+                break
+            else:
+                await EventMaster.get_instance().sio.emit("ActionNotPermitted",None)
+        return action
 
 def run_multiple_games():
     for _ in range(1):
-        
+
         player1 = LocalPlayerProxy(AlphaPlayerAbalone(piece_type="B"))
         player2 = InteractivePlayerProxy(PlayerAbalone(piece_type="W", name="nani"))
 

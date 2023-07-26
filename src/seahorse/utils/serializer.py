@@ -13,7 +13,7 @@ class Serializable:
 
     @classmethod
     @abstractmethod
-    def from_json(cls,data,**kwargs)->'Serializable':
+    def from_json(cls,data,**kwargs)->"Serializable":
         raise MethodNotImplementedError()
 
     @classmethod

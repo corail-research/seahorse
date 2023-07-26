@@ -201,7 +201,7 @@ class GameStateAbalone(GameState):
             for valid_next_rep, id_add in self.generator()
         }
         return poss_actions
-    
+
     def convert_light_action_to_action(self,src:tuple[int, int], dst:tuple[int, int]) ->  Action :
         current_game_state = self
         b = current_game_state.get_rep().get_env()
@@ -271,12 +271,11 @@ class GameStateAbalone(GameState):
             return super().__str__()
         return "The game is finished!"
 
-    def toJson(self) -> str:
-        #print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
-        return json.dumps({ i:j for i,j in self.__dict__.items() if i!="_possible_actions"},default=self.subSerialize())
+    def to_json(self) -> str:
+        return { i:j for i,j in self.__dict__.items() if i!="_possible_actions"}
 
     @classmethod
-    def fromJson(cls,data:str,*,next_player:PlayerAbalone=None) -> Serializable:
+    def from_json(cls,data:str,*,next_player:PlayerAbalone=None) -> Serializable:
         d = json.loads(data)
-        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerAbalone.fromJson(x) if json.loads(x)!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardAbalone.fromJson(json.dumps(d["rep"]))})
+        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerAbalone.from_json(json.dumps(x)) if x!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardAbalone.from_json(json.dumps(d["rep"]))})
 

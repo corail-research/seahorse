@@ -1,7 +1,5 @@
 import asyncio
-import copy
 import json
-import sys
 from abc import abstractmethod
 from itertools import cycle
 from typing import Dict, Iterable, List
@@ -90,8 +88,9 @@ class GameMaster:
         )
         while not self.current_game_state.is_done():
             # TODO try except is illegal, need to identify the exception we need to catch probably Timeout
-            #try :
+
             self.current_game_state = await self.step()
+            
             #except Exception:
                 #temp_score = copy.copy(self.current_game_state.get_scores())
                 #id_player_error = self.current_game_state.get_next_player().get_id()

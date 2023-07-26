@@ -47,11 +47,11 @@ class PieceAvalam(Piece):
     def __str__(self) -> str:
         return self.piece_type + str(self.value)
 
-    def toJson(self) -> str:
+    def to_json(self) -> str:
         return json.dumps(self.__dict__)
 
     @classmethod
-    def fromJson(cls,data) -> str:
+    def from_json(cls,data) -> str:
         return cls(**json.loads(data))
 
 
@@ -103,7 +103,7 @@ class BoardAvalam(Board):
         return {"env":{str(x):y for x,y in self.env.items()},"dim":self.dimensions}
 
     @classmethod
-    def fromJson(cls, data) -> Serializable:
+    def from_json(cls, data) -> Serializable:
         d = json.loads(data)
         dd = json.loads(data)
         for x,y in d["env"].items():

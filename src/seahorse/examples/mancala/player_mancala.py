@@ -24,9 +24,9 @@ class PlayerMancala(Player):
         """
         super().__init__(name, **kwargs)
 
-    def toJson(self) -> str:
-        return json.dumps(self.__dict__,default=lambda x:x.toJson() if isinstance(x,Serializable) else None)
+    def to_json(self) -> str:
+        return {i:j for i,j in self.__dict__.items() if i!="timer"}
 
     @classmethod
-    def fromJson(cls, data) -> Serializable:
+    def from_json(cls, data) -> Serializable:
         return PlayerMancala(**json.loads(data))

@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import builtins
-import json
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Coroutine
+from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
-from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
 from seahorse.game.timer import Timer
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
@@ -24,7 +22,7 @@ class Player(Serializable):
         name (str) : the name of the player
     """
 
-    def __init__(self, name: str = "bob", time_limit: float = 1e6,*,id:int=None,**kwargs) -> None:
+    def __init__(self, name: str = "bob", time_limit: float = 1e6,*,id:int=None,**_) -> None:
         """
         Initializes a new instance of the Player class.
 

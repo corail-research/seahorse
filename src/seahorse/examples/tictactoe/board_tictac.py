@@ -47,6 +47,6 @@ class BoardTictac(Board):
         dd = json.loads(data)
         for x,y in d["env"].items():
             # TODO eval is unsafe
-            del dd['env'][x]
-            dd['env'][eval(x)] = Piece.from_json(json.dumps(y))
+            del dd["env"][x]
+            dd["env"][eval(x)] = Piece.from_json(json.dumps(y))
         return cls(**dd)

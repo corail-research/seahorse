@@ -52,10 +52,10 @@ def event_emitting(label:str):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,*args,**kwargs):
             out = fun(self,*args, **kwargs)
-            print(label)
-            print(json.dumps(out.to_json(),default=lambda x:x.to_json()))
+            #print(label)
+            #print(json.dumps(out.to_json(),default=lambda x:x.to_json()))
             await self.sio.emit(label,json.dumps(out.to_json(),default=lambda x:x.to_json()))
-            print('pooof')
+            #print("pooof")
             return out
 
         return wrapper
@@ -165,7 +165,7 @@ class EventMaster:
                     del self.__identified_clients[self.__sid2ident[sid]]
 
             @self.sio.on("*")
-            async def catch_all(event,sid,data):
+            async def catch_all(event,_,data):
                 self.__events[event] = self.__events.get(event,deque())
                 self.__events[event].appendleft(data)
 
@@ -198,17 +198,17 @@ class EventMaster:
             await asyncio.sleep(.1)
         print("next play received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
-        next_player_id = int(action['new_gs']['next_player']['id'])
+        next_player_id = int(action["new_gs"]["next_player"]["id"])
         next_player = list(filter(lambda p:p.id==next_player_id,players))[0]
 
         past_gs = self.__game_state.from_json(json.dumps(action["past_gs"]))
-        past_gs.players = players 
-        new_gs = self.__game_state.from_json(json.dumps(action["new_gs"]),next_player=next_player) 
+        past_gs.players = players
+        new_gs = self.__game_state.from_json(json.dumps(action["new_gs"]),next_player=next_player)
         new_gs.players = players
 
 
         return Action(past_gs,new_gs)
-    
+
     async def wait_for_event(self,label):
         while not len(self.__events.get(label,[])):
             await asyncio.sleep(1)

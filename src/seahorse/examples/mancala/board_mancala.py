@@ -64,13 +64,6 @@ class PieceMancala(Piece):
     def __str__(self) -> str:
         return str(self.value)
 
-    def toJson(self) -> str:
-        return json.dumps(self.__dict__)
-
-    @classmethod
-    def fromJson(cls,data) -> str:
-        return cls(**json.loads(data))
-
 
 class BoardMancala(Board):
     """
@@ -120,7 +113,7 @@ class BoardMancala(Board):
         to_print += "\n"
         return to_print
 
-    def toJson(self) -> dict:
+    def to_json(self) -> dict:
         """
         Converts the board to a JSON object.
 
@@ -135,7 +128,7 @@ class BoardMancala(Board):
         return {"env":{str(x):y for x,y in self.env.items()},"dim":self.dimensions}
 
     @classmethod
-    def fromJson(cls, data) -> Serializable:
+    def from_json(cls, data) -> Serializable:
         d = json.loads(data)
         dd = json.loads(data)
         for x,y in d["env"].items():

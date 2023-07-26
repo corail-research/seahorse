@@ -213,12 +213,11 @@ class GameStateMancala(GameState):
     def __hash__(self) -> int:
         return hash(frozenset([(hash(pos),hash(piece.get_value())) for pos,piece in self.rep.get_env().items()]))
 
-    def toJson(self) -> str:
-        #print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
-        return json.dumps({ i:j for i,j in self.__dict__.items() if i!="_possible_actions"},default=self.subSerialize())
+    def to_json(self) -> str:
+        return { i:j for i,j in self.__dict__.items() if i!="_possible_actions"}
 
     @classmethod
-    def fromJson(cls,data:str,*,next_player:PlayerMancala=None) -> Serializable:
+    def from_json(cls,data:str,*,next_player:PlayerMancala=None) -> Serializable:
         d = json.loads(data)
-        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerMancala.fromJson(x) if json.loads(x)!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardMancala.fromJson(json.dumps(d["rep"]))})
+        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerMancala.from_json(json.dumps(x)) if x!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardMancala.from_json(json.dumps(d["rep"]))})
 

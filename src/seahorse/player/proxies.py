@@ -43,7 +43,7 @@ class RemotePlayerProxy(Serializable,EventSlave):
         """
         pass
 
-    async def listen(self,*,keep_alive:bool,**kwargs) -> Coroutine[Any, Any, None]:
+    async def listen(self,**_) -> Coroutine[Any, Any, None]:
         """
         Listens for events.
 
@@ -61,9 +61,9 @@ class RemotePlayerProxy(Serializable,EventSlave):
 
     def __eq__(self, __value: object) -> bool:
         return hash(self) == hash(__value)
-    
+
     def to_json(self) -> str:
-        return 'self'
+        return "self"
 
 
 class LocalPlayerProxy(Serializable,EventSlave):

@@ -9,6 +9,7 @@ from seahorse.game.action import Action
 from seahorse.game.game_layout.board import Piece
 from seahorse.player.player import Player
 from seahorse.utils.serializer import Serializable
+
 if TYPE_CHECKING:
     from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
 
@@ -87,9 +88,9 @@ class PlayerAbalone(Player):
                     )
         return None
 
-    def toJson(self) -> str:
-        return json.dumps(self.__dict__,default=lambda x:x.toJson() if isinstance(x,Serializable) else None)
+    def to_json(self) -> str:
+        return {i:j for i,j in self.__dict__.items() if i!="timer"}
 
     @classmethod
-    def fromJson(cls, data) -> Serializable:
+    def from_json(cls, data) -> Serializable:
         return PlayerAbalone(**json.loads(data))
