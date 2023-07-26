@@ -4,24 +4,6 @@ $(document).ready(function () {
   const logElement = document.getElementById("log");
   var play = false;
   const socket = io("ws://localhost:16001");
-  const player = new WebSocket('ws://localhost:8080');
-
-// Connection opened
-player.addEventListener('open', function (event) {
-  console.log('WebSocket connection established.');
-
-});
-
-player.addEventListener('message', function (event) {
-  console.log('Message from server ', event.data);
-});
-
-
-// Connection closed
-player.addEventListener('close', function (event) {
-  console.log(event)
-  console.log('WebSocket connection closed.');
-});
 
 
   socket.on("play", (...args) => {
@@ -126,7 +108,7 @@ player.addEventListener('close', function (event) {
           secondLoc.classList.remove("active");
           loc = activeBall.id.split("_");
           type = document.getElementById("ball_"+loc[1]+"_"+loc[2]).classList.contains("white") ? "W" : "B";
-          player.send(JSON.stringify({"from":getLocation(activeBall), "to":getLocation(secondLoc), "type":type}));
+          socket.emit("interact",JSON.stringify({"from":getLocation(activeBall), "to":getLocation(secondLoc), "type":type}));
           activeBall = null;
           secondLoc = null;
         }, 1000);

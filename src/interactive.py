@@ -16,10 +16,6 @@ class InteractivePlayer(PlayerTictac):
     def __init__(self, piece_type: str, name: str = "bob", **kwargs) -> None:
         super().__init__(piece_type, name, **kwargs)
 
-    async def blabla(self) :
-        print("wouhou")
-        asyncio.ensure_future(asyncio.create_task(time.sleep(100)))
-
     def compute_action(self, current_state: GameState, **kargs) -> Action:
         print("Current state:")
         print(current_state.get_rep())

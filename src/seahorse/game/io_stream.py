@@ -120,6 +120,7 @@ class EventMaster:
             self.__open_sessions = set()
             self.__ident2sid = {}
             self.__sid2ident = {}
+            self.__events = {}
             self.__game_state = game_state
             self.port = port
 
@@ -162,6 +163,10 @@ class EventMaster:
                     print(f"Client identified as {self.__sid2ident[sid]} was lost.")
                     del self.__identified_clients[self.__sid2ident[sid]]
 
+            @self.sio.on("*")
+            async def catch_all(event,sid,data):
+                self.__events[event] = self.__events.get(event,deque())
+                self.__events[event].appendleft(data)
 
             @self.sio.on("action")
             async def handle_play(sid,data):
@@ -202,6 +207,12 @@ class EventMaster:
 
 
         return Action(past_gs,new_gs)
+    
+    async def wait_for_event(self,label):
+        while not len(self.__events.get(label,[])):
+            await asyncio.sleep(1)
+        data = self.__events[label].pop()
+        return data
 
     async def wait_for_identified_client(self,name:str,local_id:int) -> str:
         """ Waits for an identified client (a player typically)
