@@ -2,11 +2,11 @@ import random
 import unittest
 from typing import Dict, List, Set
 
-from coliseum.game.action import Action
-from coliseum.game.game_layout.board import Board
-from coliseum.game.game_state import GameState
-from coliseum.game.master import GameMaster
-from coliseum.player.player import Player
+from seahorse.game.action import Action
+from seahorse.game.game_layout.board import Board
+from seahorse.game.game_state import GameState
+from seahorse.game.master import GameMaster
+from seahorse.player.player import Player
 
 
 class RandomPlayerIterator:
@@ -23,7 +23,7 @@ class RandomPlayerIterator:
 
 
 class PlayerStub(Player):
-    def solve(self, possible_actions: Set[Board], **kwargs) -> Board:
+    def compute_action(self, possible_actions: Set[Board], **kwargs) -> Board:
         if kwargs:
             pass
         return list(possible_actions)[0].get_new_rep()

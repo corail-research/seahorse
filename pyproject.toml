@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "coliseum"
+name = "seahorse"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
@@ -27,12 +27,12 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/corail-research/coliseum#readme"
-Issues = "https://github.com/corail-research/coliseum/issues"
-Source = "https://github.com/corai-research/coliseum"
+Documentation = "https://github.com/corail-research/seahorse#readme"
+Issues = "https://github.com/corail-research/seahorse/issues"
+Source = "https://github.com/corai-research/seahorse"
 
 [tool.hatch.version]
-path = "src/coliseum/__about__.py"
+path = "src/seahorse/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
@@ -43,9 +43,9 @@ dependencies = [
 [tool.hatch.envs.default.scripts]
 gen-doc = [
           "rm -r docs",
-          "mkdir docs & pdoc coliseum -d=google -o docs/"
+          "mkdir docs & pdoc -html seahorse -o docs -d=google"
 ]
-serve-doc = "pdoc coliseum -d=google"
+serve-doc = "PYTHONPATH=. python3.11 -m pdoc seahorse -d=google"
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [
@@ -69,7 +69,7 @@ dependencies = [
   "ruff>=0.0.243",
 ]
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/coliseum tests}"
+typing = "mypy --install-types --non-interactive {args:src/seahorse tests}"
 style = [
   "ruff {args:.}",
   "black --check --diff {args:.}",
@@ -135,7 +135,7 @@ unfixable = [
 ]
 
 [tool.ruff.isort]
-known-first-party = ["coliseum"]
+known-first-party = ["seahorse"]
 
 [tool.ruff.flake8-tidy-imports]
 ban-relative-imports = "all"
@@ -145,16 +145,16 @@ ban-relative-imports = "all"
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
 
 [tool.coverage.run]
-source_pkgs = ["coliseum", "tests"]
+source_pkgs = ["seahorse", "tests"]
 branch = true
 parallel = true
 omit = [
-  "src/coliseum/__about__.py",
+  "src/seahorse/__about__.py",
 ]
 
 [tool.coverage.paths]
-coliseum = ["src/coliseum", "*/coliseum/src/coliseum"]
-tests = ["tests", "*/coliseum/tests"]
+seahorse = ["src/seahorse", "*/seahorse/src/seahorse"]
+tests = ["tests", "*/seahorse/tests"]
 
 [tool.coverage.report]
 exclude_lines = [

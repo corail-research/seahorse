@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    </head>
+    <body>
+        <p id="states" style="max-height:100px;overflow:hidden;">
+        </p>
+        <p id="plays" style="max-height:100px;overflow:hidden;color:red">
+
+        </p>
+    </body>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js" integrity="sha384-c79GN5VsunZvi+Q/WObgk2in0CbZsHnjEqvFxC5DxHn9lTfNce2WW6h2pH6u/kF+" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        const statesElement = document.getElementById("states");
+        const playElement = document.getElementById("plays");
+        const socket = io("ws://localhost:16001");
+        socket.on("play", (...args) => {
+            console.log(JSON.parse(args));
+            playElement.textContent=playElement.textContent+"\n"+args
+        });
+        socket.on("state", (...args) => {
+            console.log(args);
+            statesElement.textContent=statesElement.textContent+"\n"+args
+        });
+    </script>
+</html>

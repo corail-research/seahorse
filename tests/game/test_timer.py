@@ -1,8 +1,8 @@
 import time
 import unittest
 
-from coliseum.game.time_manager import TimeMixin, timed_function
-from coliseum.utils.custom_exceptions import (
+from seahorse.game.time_manager import TimeMixin, timed_function
+from seahorse.utils.custom_exceptions import (
     AlreadyRunningError,
     ColiseumTimeoutError,
     NotRunningError,
