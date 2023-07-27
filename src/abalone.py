@@ -21,6 +21,7 @@ B = 2
 class InteractivePlayerProxy(LocalPlayerProxy):
     def __init__(self, mimics: type[Player], *args, **kwargs) -> None:
         super().__init__(mimics, *args, **kwargs)
+        self.wrapped_player.player_type = "interactive"
 
     async def play(self, current_state: GameState) -> Action:
         while True:
@@ -35,8 +36,8 @@ class InteractivePlayerProxy(LocalPlayerProxy):
 def run_multiple_games():
     for _ in range(1):
 
+        player2 = LocalPlayerProxy(RandomPlayerAbalone(piece_type="W"))
         player1 = LocalPlayerProxy(AlphaPlayerAbalone(piece_type="B"))
-        player2 = InteractivePlayerProxy(PlayerAbalone(piece_type="W", name="nani"))
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}

@@ -10,7 +10,8 @@ $(document).ready(function () {
     json = JSON.parse(args[0]);
     if(!json.rep)json = JSON.parse(json);
     if (json.rep && json.rep.env) {
-      convertedGrid = convertToGridData({"board":json.rep.env, "scores":json.scores});
+      convertedGrid = convertToGridData({"board":json.rep.env, "scores":json.scores, "next_player":json.next_player, "players":json.players});
+      console.log(json);
       steps.push(convertedGrid);
       index = steps.length - 1;
       drawGrid(convertedGrid);
@@ -19,7 +20,11 @@ $(document).ready(function () {
 
   socket.on("ActionNotPermitted", (...args)=>{
     // TODO: Display message to user
-    console.log("action not permitted")
+    $("#error").css("opacity", "1");
+    setTimeout(function(){
+      $("#error").css("opacity", "0");
+    }
+    , 2000);
   })
 
   socket.on("disconnect", (...args) => {
@@ -95,6 +100,18 @@ $(document).ready(function () {
     
   }
 
+  function score_balls(color, number) {
+    score = document.getElementById(color+"_score");
+    score.innerHTML = "";
+    for (i = 0; i < number; i++) {
+      ball = document.createElement("div");
+      ball.classList.add("ball");
+      ball.classList.add(color);
+      ball.style.backgroundColor = color;
+      score.appendChild(ball);
+    }
+  }
+
   function onBallClick(event) {
     if(activeBall== null && event.currentTarget.classList.contains("playable")){
       console.log("null");
@@ -165,10 +182,12 @@ $(document).ready(function () {
 
   function drawGrid(gridData) {
 
-    //console.log(gridData);
 
     scores = gridData["scores"];
+    next_player = gridData["next_player"];
     gridData = gridData["gridData"];
+
+    console.log(scores);
 
     canvas.innerHTML = ""
 
@@ -210,13 +229,14 @@ $(document).ready(function () {
         
   
         const value = gridData[row][col];
-  
+        // 1 = black, 2 = white, 3 = empty
         // Draw hexagon border for values different from 0
+
         if (value !== 0) {
           if (value === 1) {
-            drawHexagon(x, y, col, row, true);
+            drawHexagon(x, y, col, row, next_player && next_player.player_type=="interactive" && next_player.piece_type=="B");
           } else if (value === 2) {
-            drawHexagon(x, y, col, row, true);
+            drawHexagon(x, y, col, row, next_player && next_player.player_type=="interactive" && next_player.piece_type=="W");
           }
           else{
             drawHexagon(x, y, col, row);
@@ -231,49 +251,12 @@ $(document).ready(function () {
       }
     }
 
-    /*
-    const blackCircles = scores['B'] || 0;
-  for (let i = 0; i < blackCircles; i++) {
-    const cx = hexagonRadius * (2 * i + 2);
-    const cy = canvas.height - hexagonRadius * 2;
-    ctx.fillStyle = 'black';
-    ctx.beginPath();
-    ctx.arc(cx, cy, hexagonRadius / 1.5, 0, 2 * Math.PI);
-    ctx.closePath();
-    ctx.fill();
-
-    // Add event listener to the black circle
-    canvas.addEventListener('click', function (event) {
-      console.log("black");
-      const rect = canvas.getBoundingClientRect();
-      const clickX = event.clientX - rect.left;
-      const clickY = event.clientY - rect.top;
-
-      // Calculate the distance between the click position and the black circle center
-      const distance = Math.sqrt((cx - clickX) ** 2 + (cy - clickY) ** 2);
-
-      // Check if the click is inside the black circle
-      if (distance <= hexagonRadius / 1.5) {
-        console.log("Clicked on black circle at indices:", [i, gridData.length - 1]);
-      }
-    });
     
-  }
-
-  // Draw the bottom right white circles
+  const blackCircles = scores['B'] || 0;
+  score_balls("black", blackCircles);
   const whiteCircles = scores['W'] || 0;
-  for (let i = 0; i < whiteCircles; i++) {
-    const cx = canvas.width - hexagonRadius * (2 * i + 2);
-    const cy = canvas.height - hexagonRadius * 2;
-    ctx.fillStyle = 'white';
-    ctx.beginPath();
-    ctx.arc(cx, cy, hexagonRadius / 1.5, 0, 2 * Math.PI);
-    ctx.closePath();
-    ctx.fill();
+  score_balls("white", whiteCircles);
 
-    // Add event listener to the white circle
-    
-  }*/
 
 
   }
@@ -295,13 +278,24 @@ $(document).ready(function () {
   function convertToGridData(board) {
     //console.log(board); 
     scores = board["scores"]
+    next_player = board["next_player"]
+    players = board["players"]
     board = board["board"]
 
     conversion = {'0_4': [0, 6], '1_3': [0, 5], '2_2': [0, 4], '3_1': [0, 3], '4_0': [0, 2], '1_5': [1, 6], '2_4': [1, 5], '3_3': [1, 4], '4_2': [1, 3], '5_1': [1, 2], '6_0': [1, 1], '2_6': [2, 7], '3_5': [2, 6], '4_4': [2, 5], '5_3': [2, 4], '6_2': [2, 3], '7_1': [2, 2], '8_0': [2, 1], '3_7': [3, 7], '4_6': [3, 6], '5_5': [3, 5], '6_4': [3, 4], '7_3': [3, 3], '8_2': [3, 2], '9_1': [3, 1], '10_0': [3, 0], '4_8': [4, 8], '5_7': [4, 7], '6_6': [4, 6], '7_5': [4, 5], '8_4': [4, 4], '9_3': [4, 3], '10_2': [4, 2], '11_1': [4, 1], '12_0': [4, 0], '6_8': [5, 7], '7_7': [5, 6], '8_6': [5, 5], '9_5': [5, 4], '10_4': [5, 3], '11_3': [5, 2], '12_2': [5, 1], '13_1': [5, 0], '8_8': [6, 7], '9_7': [6, 6], '10_6': [6, 5], '11_5': [6, 4], '12_4': [6, 3], '13_3': [6, 2], '14_2': [6, 1], '10_8': [7, 6], '11_7': [7, 5], '12_6': [7, 4], '13_5': [7, 3], '14_4': [7, 2], '15_3': [7, 1], '12_8': [8, 6], '13_7': [8, 5], '14_6': [8, 4], '15_5': [8, 3], '16_4': [8, 2]}
 
     //console.log(get_id_color("B",board));
     //real_scores = {"W":scores[get_id_color("W",board)]*-1, "B":scores[get_id_color("B",board)]*-1}
-    real_scores = {"W":0, "B":0}
+    score_w = 0;
+    score_b = 0;
+
+    for(i = 0; i < players.length; i++) {
+      //console.log(players[i]);
+
+      if(players[i].piece_type == "W") score_w = -scores[players[i].id];
+      if(players[i].piece_type == "B") score_b = -scores[players[i].id];
+    }
+    real_scores = {"W":score_w, "B":score_b}
     //console.log(real_scores);
 
     const gridData = [
@@ -401,7 +395,7 @@ $(document).ready(function () {
         }
       }
     }
-    return {"gridData":gridData, "scores":real_scores};
+    return {"gridData":gridData, "scores":real_scores, "next_player":next_player};
   }
   
   function resizeCanvas() {
