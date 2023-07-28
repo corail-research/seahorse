@@ -47,11 +47,20 @@ $(document).ready(function () {
                   }
                   else{
                     document.getElementById("c"+id).classList.add("empty");
-                    document.getElementById("c"+id).addEventListener("click", );
+                    document.getElementById("c"+id).addEventListener("click", onCellClick);
               }
           }}
           
         }
+      }
+
+        function onCellClick(event) {
+          if (event.target.classList.contains("empty")) {
+            const cell = event.target;
+            const cellId = cell.id.replace("c", "");
+
+            socket.emit("interact", JSON.stringify({"position": cellId}));
+          }}
       
         function drawElement(type, id) {
             // create a div

@@ -34,9 +34,23 @@ html,body{
 table{
     width: 70vh;
     height: 70vh;
-    border-collapse: collapse;
+    border-collapse: separate;
 
 }
+
+tr td:first-child{
+    border-left: none;
+}
+tr td:last-child{
+    border-right: none;
+}
+tr:first-child td{
+    border-top: none;
+}
+tr:last-child td{
+    border-bottom: none;
+}
+
 tr{
     width: 100%;
     height: 33%;

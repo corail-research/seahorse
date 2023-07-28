@@ -17,9 +17,10 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         self.wrapped_player.player_type = "interactive"
 
     async def play(self, current_state: GameState) -> Action:
+        print("BPP")
         while True:
             data = json.loads(await EventMaster.get_instance().wait_for_event("interact"))
-            action = current_state.convert_light_action_to_action(data["from"], data["to"])
+            action = current_state.convert_light_action_to_action(data)
             if action in current_state.get_possible_actions():
                 break
             else:
@@ -29,7 +30,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
 def run_multiple_games():
     for _ in range(1):
         player1 = LocalPlayerProxy(AlphaPlayerTictac("X", name="louis"),gs=GameStateTictac)
-        player2 = LocalPlayerProxy(AlphaPlayerTictac("O", name="pierre"))
+        player2 = InteractivePlayerProxy(PlayerTictac("O", name="pierre"))
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
