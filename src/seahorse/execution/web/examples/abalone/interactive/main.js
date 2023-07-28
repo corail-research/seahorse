@@ -3,7 +3,7 @@ $(document).ready(function () {
   var index = -1;
   const logElement = document.getElementById("log");
   var play = false;
-  const socket = io("ws://localhost:16001");
+  const socket = io("ws://10.200.37.65:16001");
 
 
   socket.on("play", (...args) => {

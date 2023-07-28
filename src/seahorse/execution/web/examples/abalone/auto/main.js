@@ -3,7 +3,7 @@ $(document).ready(function () {
   var index = -1;
   const logElement = document.getElementById("log");
   var play = false;
-  const socket = io("ws://localhost:8080");
+  const socket = io("ws://10.200.37.65:16001");
   socket.on("play", (...args) => {
     json = JSON.parse(args[0]);
     //console.log(json);
