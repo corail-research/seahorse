@@ -151,6 +151,16 @@ class GameStateTictac(GameState):
                 else:
                     scores[player.get_id()] = 0.0
         return scores
+    
+    def convert_light_action_to_action(self,data:Dict) -> Action:
+        position = int(data["position"])
+        i = position%3
+        j = position//3
+        print(i,j)
+        for action in self.get_possible_actions():
+            if action.get_next_state().get_rep().get_env().get((i,j),None) is not None:
+                return action
+        return None
 
     def has_won(self) -> bool:
         """

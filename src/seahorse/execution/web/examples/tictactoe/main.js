@@ -25,84 +25,50 @@ $(document).ready(function () {
         });
     
         const canvas = document.getElementById('canvas');
-
-        // Get the canvas context
-        const ctx = canvas.getContext('2d');
       
         // Define the grid size and cell size
         const gridSize = 3;
-        const cellSize = canvas.width / gridSize;
       
         // Function to draw the Tic Tac Toe grid
         function printBoard(gridData) {
-          // Clear the canvas
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
       
-          // Draw the grid lines
-          ctx.strokeStyle = '#000'; // Black color
-          ctx.lineWidth = 2;
+          canvas.innerHTML = '<table id="table"><tr><td id="c0"></td><td id="c1"></td><td id="c2"></td></tr><tr><td id="c3"></td><td id="c4"></td><td id="c5"></td><tr><td id="c6"></td><td id="c7"></td><td id="c8"></td></tr></table>';
       
-          for (let i = 1; i < gridSize; i++) {
-            // Draw vertical lines
-            ctx.beginPath();
-            ctx.moveTo(i * cellSize, 0);
-            ctx.lineTo(i * cellSize, canvas.height);
-            ctx.stroke();
-      
-            // Draw horizontal lines
-            ctx.beginPath();
-            ctx.moveTo(0, i * cellSize);
-            ctx.lineTo(canvas.width, i * cellSize);
-            ctx.stroke();
-          }
-      
-          // Draw the X and O markers
-          const markerSize = cellSize / 2;
           if (gridData) {
             for (let row = 0; row < gridSize; row++) {
                 for (let col = 0; col < gridSize; col++) {
                   const cellValue = gridData[row][col];
-          
+                  id = row*3+col
                   if (cellValue === 'X') {
-                    drawX(row, col, markerSize);
+                    drawElement("X",id)
                   } else if (cellValue === 'O') {
-                    drawO(row, col, markerSize);
+                    drawElement("O",id)
                   }
-                }
+                  else{
+                    document.getElementById("c"+id).classList.add("empty");
+                    document.getElementById("c"+id).addEventListener("click", );
               }
-          }
+          }}
           
         }
       
-        function drawX(row, col, size) {
-            ctx.strokeStyle = '#f00'; // Red color
-            ctx.lineWidth = 8;
-          
-            const x = col * cellSize + size;
-            const y = row * cellSize + size;
-          
-            const offset = 10; // Adjust the offset as needed
-          
-            ctx.beginPath();
-            ctx.moveTo(x - size + offset, y - size + offset);
-            ctx.lineTo(x + size - offset, y + size - offset);
-            ctx.moveTo(x - size + offset, y + size - offset);
-            ctx.lineTo(x + size - offset, y - size + offset);
-            ctx.stroke();
+        function drawElement(type, id) {
+            // create a div
+            var div = document.createElement("div");
+            if (type == "X"){
+              div.innerHTML = "✖";
+              div.style.color = "red";
+            }
+            else{
+              div.innerHTML = "◯";
+              div.style.color = "blue";
+            }
+            document.getElementById("c"+id).appendChild(div);
           }
+            
       
-        // Function to draw an O marker
-        function drawO(row, col, size) {
-          ctx.strokeStyle = '#00f'; // Blue color
-          ctx.lineWidth = 8;
-      
-          const x = col * cellSize + size;
-          const y = row * cellSize + size;
-      
-          ctx.beginPath();
-          ctx.arc(x, y, size - 10, 0, 2 * Math.PI);
-          ctx.stroke();
-        }
+
       
 
     $("#next").click(function () {

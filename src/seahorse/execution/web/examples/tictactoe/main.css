@@ -28,3 +28,32 @@ html,body{
     margin: 0;
     padding: 0;
 }
+
+
+
+table{
+    width: 70vh;
+    height: 70vh;
+    border-collapse: collapse;
+
+}
+tr{
+    width: 100%;
+    height: 33%;
+}
+td{
+    text-align: center;
+    vertical-align: middle;
+
+    border: 3px solid black;
+    height: 33%;
+    width:33%;
+    font-size: 10vh;
+    z-index: 99;
+}
+
+td.empty:hover{
+    border: 3px solid rgb(52, 191, 255);
+    z-index: 999;
+}
+
