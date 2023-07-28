@@ -36,8 +36,8 @@ class InteractivePlayerProxy(LocalPlayerProxy):
 def run_multiple_games():
     for _ in range(1):
 
-        player2 = LocalPlayerProxy(RandomPlayerAbalone(piece_type="W"))
-        player1 = LocalPlayerProxy(AlphaPlayerAbalone(piece_type="B"))
+        player2 = RemotePlayerProxy(mimics=RandomPlayerAbalone,piece_type="W",name="marcel")
+        player1 = InteractivePlayerProxy(AlphaPlayerAbalone(piece_type="B"))
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}

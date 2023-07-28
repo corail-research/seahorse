@@ -260,12 +260,12 @@ class EventMaster:
         # Sets the runner up and starts the tcp server
         self.event_loop.run_until_complete(self.runner.setup())
         #print(self.port)
-        site = web.TCPSite(self.runner, "localhost", self.port)
+        site = web.TCPSite(self.runner, "10.200.37.65", self.port)
         self.event_loop.run_until_complete(site.start())
 
         async def stop():
             for x in listeners:
-                await x.listen(master_address="http://localhost:"+str(self.port), keep_alive=False)
+                await x.listen(master_address="http://10.200.37.65:"+str(self.port), keep_alive=False)
 
             # Waiting for all listeners
             await self._wait_for_connexion()
