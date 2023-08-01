@@ -206,4 +206,4 @@ class GameStateTictac(GameState):
     @classmethod
     def from_json(cls,data:str,*,next_player:PlayerTictac=None) -> Serializable:
         d = json.loads(data)
-        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerTictac.from_json(json.dumps(x)) if x!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardTictac.from_json(json.dumps(d["rep"]))})
+        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerTictac.from_json(json.dumps(x)) if not isinstance(x,str) else next_player for x in d["players"]],"next_player":next_player,"rep":BoardTictac.from_json(json.dumps(d["rep"]))})

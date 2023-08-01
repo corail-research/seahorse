@@ -94,7 +94,7 @@ class EventMaster:
     __instance = None
 
     @staticmethod
-    def get_instance(n_clients:int=1,game_state:type=Serializable,port: int = 8080) -> EventMaster:
+    def get_instance(n_clients:int=1,game_state:type=Serializable,port: int = 8080,hostname: str="localhost") -> EventMaster:
         """Gets the instance object
 
         Args:
@@ -106,10 +106,10 @@ class EventMaster:
             object: _description_
         """
         if EventMaster.__instance is None:
-            EventMaster(n_clients=n_clients,game_state=game_state, port=port)
+            EventMaster(n_clients=n_clients,game_state=game_state, port=port, hostname=hostname)
         return EventMaster.__instance
 
-    def __init__(self,n_clients,game_state,port):
+    def __init__(self,n_clients,game_state,port,hostname):
         if EventMaster.__instance is not None:
             msg = "Trying to initialize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead."
             raise NotImplementedError(msg)
@@ -124,6 +124,7 @@ class EventMaster:
             self.__events = {}
             self.__game_state = game_state
             self.port = port
+            self.hostname = hostname
 
             # Standard python-socketio server
             self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True, cors_allowed_origins="*")
@@ -260,12 +261,12 @@ class EventMaster:
         # Sets the runner up and starts the tcp server
         self.event_loop.run_until_complete(self.runner.setup())
         #print(self.port)
-        site = web.TCPSite(self.runner, "10.200.37.65", self.port)
+        site = web.TCPSite(self.runner, self.hostname, self.port)
         self.event_loop.run_until_complete(site.start())
 
         async def stop():
             for x in listeners:
-                await x.listen(master_address="http://10.200.37.65:"+str(self.port), keep_alive=False)
+                await x.listen(master_address=f"http://{self.hostname}:{str(self.port)}", keep_alive=False)
 
             # Waiting for all listeners
             await self._wait_for_connexion()

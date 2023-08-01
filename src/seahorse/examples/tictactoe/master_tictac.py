@@ -19,21 +19,9 @@ class MasterTictac(GameMaster):
         log_file (str): The name of the log file.
     """
 
-    def __init__(
-        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str, port: int = 8080
-    ) -> None:
-        """
-        Initializes a new instance of the MasterTictac class.
-
-        Args:
-            name (str): The name of the game.
-            initial_game_state (GameState): The initial state of the game.
-            players_iterator (Iterable[Player]): An iterable for the players_iterator, ordered according
-                                                 to the playing order.
-            log_file (str): The name of the log file.
-        """
-        super().__init__(name, initial_game_state, players_iterator, log_file, port)
-
+    def __init__(self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str, port: int = 8080, hostname: str = "localhost", n_listeners: int = 4) -> None:
+        super().__init__(name, initial_game_state, players_iterator, log_file, port, hostname, n_listeners=n_listeners)
+        
     def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
         """
         Computes the winners of the game based on the scores.

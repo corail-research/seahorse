@@ -66,11 +66,11 @@ $(document).ready(function () {
             // create a div
             var div = document.createElement("div");
             if (type == "X"){
-              div.innerHTML = "✖";
+              div.innerHTML = "&#x2715";
               div.style.color = "red";
             }
             else{
-              div.innerHTML = "◯";
+              div.innerHTML = "&#x25EF;";
               div.style.color = "blue";
             }
             document.getElementById("c"+id).appendChild(div);

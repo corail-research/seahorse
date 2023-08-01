@@ -219,5 +219,5 @@ class GameStateMancala(GameState):
     @classmethod
     def from_json(cls,data:str,*,next_player:PlayerMancala=None) -> Serializable:
         d = json.loads(data)
-        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerMancala.from_json(json.dumps(x)) if x!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardMancala.from_json(json.dumps(d["rep"]))})
+        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerMancala.from_json(json.dumps(x)) if not isinstance(x,str) else next_player for x in d["players"]],"next_player":next_player,"rep":BoardMancala.from_json(json.dumps(d["rep"]))})
 

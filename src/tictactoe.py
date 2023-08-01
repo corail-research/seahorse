@@ -17,7 +17,6 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         self.wrapped_player.player_type = "interactive"
 
     async def play(self, current_state: GameState) -> Action:
-        print("BPP")
         while True:
             data = json.loads(await EventMaster.get_instance().wait_for_event("interact"))
             action = current_state.convert_light_action_to_action(data)

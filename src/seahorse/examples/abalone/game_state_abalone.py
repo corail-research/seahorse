@@ -202,7 +202,8 @@ class GameStateAbalone(GameState):
         }
         return poss_actions
 
-    def convert_light_action_to_action(self,src:tuple[int, int], dst:tuple[int, int]) ->  Action :
+    def convert_light_action_to_action(self,data) ->  Action :
+        src,dst=data['from'],data['to']
         current_game_state = self
         b = current_game_state.get_rep().get_env()
         d = current_game_state.get_rep().get_dimensions()
@@ -277,5 +278,5 @@ class GameStateAbalone(GameState):
     @classmethod
     def from_json(cls,data:str,*,next_player:PlayerAbalone=None) -> Serializable:
         d = json.loads(data)
-        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerAbalone.from_json(json.dumps(x)) if x!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardAbalone.from_json(json.dumps(d["rep"]))})
+        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerAbalone.from_json(json.dumps(x)) if not isinstance(x,str) else next_player for x in d["players"]],"next_player":next_player,"rep":BoardAbalone.from_json(json.dumps(d["rep"]))})
 

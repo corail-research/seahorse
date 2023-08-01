@@ -128,4 +128,4 @@ class GameStateAvalam(GameState):
     @classmethod
     def from_json(cls,data:str,*,next_player:PlayerAvalam=None) -> Serializable:
         d = json.loads(data)
-        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerAvalam.from_json(x) if json.loads(x)!="self" else next_player for x in d["players"]],"next_player":next_player,"rep":BoardAvalam.from_json(json.dumps(d["rep"]))})
+        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerAvalam.from_json(x) if not isinstance(x,str) else next_player for x in d["players"]],"next_player":next_player,"rep":BoardAvalam.from_json(json.dumps(d["rep"]))})

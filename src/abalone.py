@@ -26,7 +26,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
     async def play(self, current_state: GameState) -> Action:
         while True:
             data = json.loads(await EventMaster.get_instance().wait_for_event("interact"))
-            action = current_state.convert_light_action_to_action(data["from"], data["to"])
+            action = current_state.convert_light_action_to_action(data)
             if action in current_state.get_possible_actions():
                 break
             else:

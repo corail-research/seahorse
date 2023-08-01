@@ -3,7 +3,7 @@ $(document).ready(function () {
   var index = -1;
   const logElement = document.getElementById("log");
   var play = false;
-  const socket = io("ws://10.200.37.65:16001");
+  const socket = io("ws://localhost:16001");
 
 
   socket.on("play", (...args) => {
@@ -291,12 +291,17 @@ $(document).ready(function () {
 
     for(i = 0; i < players.length; i++) {
       //console.log(players[i]);
+      if(typeof players[i] === 'string' || players[i] instanceof String){
+        players[i]={"id":parseInt(players[i])}
+        pt = Object.entries(board).filter(e=>e[1]["owner_id"]==players[i].id)[0][1].piece_type
+        console.log(pt)
+        players[i]["piece_type"]=pt
+      }
 
       if(players[i].piece_type == "W") score_w = -scores[players[i].id];
       if(players[i].piece_type == "B") score_b = -scores[players[i].id];
     }
     real_scores = {"W":score_w, "B":score_b}
-    //console.log(real_scores);
 
     const gridData = [
       [0, 0, 3, 3, 3, 3, 3, 0, 0],

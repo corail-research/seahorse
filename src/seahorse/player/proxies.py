@@ -63,7 +63,7 @@ class RemotePlayerProxy(Serializable,EventSlave):
         return hash(self) == hash(__value)
 
     def to_json(self) -> str:
-        return "self"
+        return str(self.wrapped_id)
 
 
 class LocalPlayerProxy(Serializable,EventSlave):
@@ -127,3 +127,18 @@ class LocalPlayerProxy(Serializable,EventSlave):
 
     def to_json(self) -> dict:
         return self.wrapped_player.to_json()
+    
+class InteractivePlayerProxy(LocalPlayerProxy):
+    def __init__(self, mimics: type[Player], *args, **kwargs) -> None:
+        super().__init__(mimics, *args, **kwargs)
+        self.wrapped_player.player_type = "interactive"
+
+    async def play(self, current_state: GameState) -> Action:
+        while True:
+            data = json.loads(await EventMaster.get_instance().wait_for_event("interact"))
+            action = current_state.convert_light_action_to_action(data)
+            if action in current_state.get_possible_actions():
+                break
+            else:
+                await EventMaster.get_instance().sio.emit("ActionNotPermitted",None)
+        return action
