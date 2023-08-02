@@ -4,8 +4,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build]
 exclude = [
-  "src/seahorse/examples",
-  "src/seahorse/execution",
+  "examples",
   "src/*.py",
   "src/tournament",
   "pkg/_compat.py"
