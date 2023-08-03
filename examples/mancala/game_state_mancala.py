@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 
-from seahorse.examples.mancala.board_mancala import BoardMancala
-from seahorse.examples.mancala.player_mancala import PlayerMancala
+from board_mancala import BoardMancala
+from player_mancala import PlayerMancala
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.player.player import Player

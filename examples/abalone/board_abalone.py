@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import json
-from typing import Tuple
-
 from seahorse.game.game_layout.board import Board, Piece
 from seahorse.utils.serializer import Serializable
 

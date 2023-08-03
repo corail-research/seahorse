@@ -1,8 +1,8 @@
 import random
 from argparse import Action
 
-from seahorse.examples.mancala.game_state_mancala import GameStateMancala
-from seahorse.examples.mancala.player_mancala import PlayerMancala
+from game_state_mancala import GameStateMancala
+from player_mancala import PlayerMancala
 
 
 class MyPlayer(PlayerMancala):

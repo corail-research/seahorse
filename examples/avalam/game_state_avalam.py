@@ -2,8 +2,8 @@ import copy
 import json
 from typing import Dict, List, Set
 
-from seahorse.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
-from seahorse.examples.avalam.player_avalam import PlayerAvalam
+from board_avalam import BoardAvalam, PieceAvalam
+from player_avalam import PlayerAvalam
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.player.player import Player

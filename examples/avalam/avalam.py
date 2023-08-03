@@ -1,9 +1,9 @@
-from seahorse.examples.avalam.alpha_player_avalam import MyPlayer as AlphaPlayerAvalam
-from seahorse.examples.avalam.board_avalam import BoardAvalam, PieceAvalam
-from seahorse.examples.avalam.game_state_avalam import GameStateAvalam
-from seahorse.examples.avalam.master_avalam import MasterAvalam
-from seahorse.examples.avalam.player_avalam import PlayerAvalam
-from seahorse.examples.avalam.random_player_avalam import MyPlayer as RandomPlayerAvalam
+from alpha_player_avalam import MyPlayer as AlphaPlayerAvalam
+from board_avalam import BoardAvalam, PieceAvalam
+from game_state_avalam import GameStateAvalam
+from master_avalam import MasterAvalam
+from player_avalam import PlayerAvalam
+from random_player_avalam import MyPlayer as RandomPlayerAvalam
 from seahorse.player.proxies import LocalPlayerProxy, RemotePlayerProxy
 
 

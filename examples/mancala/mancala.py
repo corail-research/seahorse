@@ -1,7 +1,7 @@
-from seahorse.examples.mancala.board_mancala import BoardMancala
-from seahorse.examples.mancala.game_state_mancala import GameStateMancala
-from seahorse.examples.mancala.master_mancala import MasterMancala
-from seahorse.examples.mancala.random_player_mancala import MyPlayer as RandomPlayerMancala
+from board_mancala import BoardMancala
+from game_state_mancala import GameStateMancala
+from master_mancala import MasterMancala
+from random_player_mancala import MyPlayer as RandomPlayerMancala
 from seahorse.player.proxies import LocalPlayerProxy
 
 

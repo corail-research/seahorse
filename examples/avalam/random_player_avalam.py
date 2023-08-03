@@ -1,6 +1,6 @@
 import random
 
-from seahorse.examples.avalam.player_avalam import PlayerAvalam
+from player_avalam import PlayerAvalam
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 

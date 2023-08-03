@@ -2,8 +2,8 @@ import copy
 import json
 from typing import Dict, List, Set, Tuple
 
-from seahorse.examples.abalone.board_abalone import BoardAbalone
-from seahorse.examples.abalone.player_abalone import PlayerAbalone
+from board_abalone import BoardAbalone
+from player_abalone import PlayerAbalone
 from seahorse.game.action import Action
 from seahorse.game.game_layout.board import Piece
 from seahorse.game.game_state import GameState

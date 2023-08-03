@@ -1,5 +1,4 @@
 import math
-import time
 from itertools import cycle
 from typing import Tuple
 

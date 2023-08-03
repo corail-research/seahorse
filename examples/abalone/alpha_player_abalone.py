@@ -1,7 +1,7 @@
 import math
 from typing import Tuple
 
-from seahorse.examples.abalone.player_abalone import PlayerAbalone
+from player_abalone import PlayerAbalone
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 

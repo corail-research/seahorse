@@ -1,7 +1,7 @@
 import asyncio
 
-from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
-from seahorse.examples.abalone.random_player_abalone import MyPlayer as RandomPlayerAbalone
+from game_state_abalone import GameStateAbalone
+from random_player_abalone import MyPlayer as RandomPlayerAbalone
 from seahorse.player.proxies import LocalPlayerProxy
 
 player1 = LocalPlayerProxy(RandomPlayerAbalone(piece_type="W", name= "marcel"),masterless=True,gs=GameStateAbalone)

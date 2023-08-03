@@ -1,8 +1,8 @@
 import sys
 
-from seahorse.examples.abalone.board_abalone import BoardAbalone
-from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
-from seahorse.examples.abalone.master_abalone import MasterAbalone
+from board_abalone import BoardAbalone
+from game_state_abalone import GameStateAbalone
+from master_abalone import MasterAbalone
 from seahorse.game.game_layout.board import Piece
 from seahorse.player.proxies import LocalPlayerProxy
 

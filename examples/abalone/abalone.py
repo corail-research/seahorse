@@ -1,17 +1,14 @@
 import json
-
-from aiohttp import web
-
-from seahorse.examples.abalone.alpha_player_abalone import MyPlayer as AlphaPlayerAbalone
-from seahorse.examples.abalone.board_abalone import BoardAbalone
-from seahorse.examples.abalone.game_state_abalone import GameStateAbalone
-from seahorse.examples.abalone.master_abalone import MasterAbalone
-from seahorse.examples.abalone.player_abalone import PlayerAbalone
-from seahorse.examples.abalone.random_player_abalone import MyPlayer as RandomPlayerAbalone
+from alpha_player_abalone import MyPlayer as AlphaPlayerAbalone
+from board_abalone import BoardAbalone
+from game_state_abalone import GameStateAbalone
+from master_abalone import MasterAbalone
+from player_abalone import PlayerAbalone
+from random_player_abalone import MyPlayer as RandomPlayerAbalone
 from seahorse.game.action import Action
 from seahorse.game.game_layout.board import Piece
 from seahorse.game.game_state import GameState
-from seahorse.game.io_stream import EventMaster, remote_action
+from seahorse.game.io_stream import EventMaster
 from seahorse.player.player import Player
 from seahorse.player.proxies import LocalPlayerProxy, RemotePlayerProxy
 
