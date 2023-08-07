@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import builtins
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
 from seahorse.game.timer import Timer
@@ -22,7 +22,7 @@ class Player(Serializable):
         name (str) : the name of the player
     """
 
-    def __init__(self, name: str = "bob", time_limit: float = 1e6,*,id:Optional[int],**_) -> None:
+    def __init__(self, name: str = "bob", time_limit: float = 1e6,*,id:int | None,**_) -> None:
         """
         Initializes a new instance of the Player class.
 

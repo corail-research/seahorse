@@ -4,7 +4,7 @@ import asyncio
 import functools
 import json
 from collections import deque
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable
 
 import socketio
 from aiohttp import web
@@ -20,8 +20,8 @@ if TYPE_CHECKING:
 class EventSlave:
 
     def activate(self,
-                 identifier:Optional[str],
-                 wrapped_id:Optional[int],
+                 identifier:str | None,
+                 wrapped_id:int | None,
                  ) -> None:
         self.sio = socketio.AsyncClient()
         self.connected = False
