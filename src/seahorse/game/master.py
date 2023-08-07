@@ -2,7 +2,6 @@ import asyncio
 import json
 from abc import abstractmethod
 from itertools import cycle
-import sys
 from typing import Dict, Iterable, List
 
 from loguru import logger
@@ -32,11 +31,11 @@ class GameMaster:
     """
 
     def __init__(
-        self, 
-        name: str, 
-        initial_game_state: GameState, 
-        players_iterator: Iterable[Player], 
-        log_file: str, 
+        self,
+        name: str,
+        initial_game_state: GameState,
+        players_iterator: Iterable[Player],
+        log_file: str,
         port: int =8080,
         hostname: str ="localhost",
         n_listeners: int =4
@@ -100,7 +99,7 @@ class GameMaster:
             # TODO try except is illegal, need to identify the exception we need to catch probably Timeout
 
             self.current_game_state = await self.step()
-            
+
             #except Exception:
                 #temp_score = copy.copy(self.current_game_state.get_scores())
                 #id_player_error = self.current_game_state.get_next_player().get_id()

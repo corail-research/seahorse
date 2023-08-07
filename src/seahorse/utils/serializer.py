@@ -1,4 +1,3 @@
-import json
 from abc import abstractmethod
 from collections.abc import Iterable
 
@@ -17,7 +16,7 @@ class Serializable:
         raise MethodNotImplementedError()
 
     @classmethod
-    def subSerialize(cls):
+    def sub_serialize(cls):
         def method(x):
             if isinstance(x,Serializable):
                 return x.to_json()

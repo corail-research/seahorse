@@ -79,16 +79,15 @@ class LocalPlayerProxy(Serializable,EventSlave):
         play(current_state: GameState) -> Action: Plays a move.
     """
 
-    def __init__(self, wrapped_player: Player, masterless:bool=False, gs:Type=GameState) -> None:
+    def __init__(self, wrapped_player: Player,gs:Type=GameState) -> None:
         """
         Initializes a new instance of the LocalPlayerProxy class.
 
         Args:
             wrapped_player (Player): The player object to wrap.
-            masterless (bool): True when the player is connected to a remote master.
         """
         self.wrapped_player = wrapped_player
-        self.activate(self.wrapped_player.name,masterless=masterless,wrapped_id=wrapped_player.get_id())
+        self.activate(self.wrapped_player.name,wrapped_id=wrapped_player.get_id())
         @self.sio.on("turn")
         async def handle_turn(*data):
             logger.info(f"{self.wrapped_player.name} is playing")
@@ -129,7 +128,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
 
     def to_json(self) -> dict:
         return self.wrapped_player.to_json()
-    
+
 class InteractivePlayerProxy(LocalPlayerProxy):
     def __init__(self, mimics: type[Player], *args, **kwargs) -> None:
         super().__init__(mimics, *args, **kwargs)

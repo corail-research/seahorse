@@ -64,7 +64,7 @@ def abalone(args):
     if args.remote:
         open_webpage('/'.join(["file://"]+os.path.abspath(__file__).split("/")[:-1]+["seahorse/execution/web/examples/abalone/interactive/index.html"]))
 
-        player1 = LocalPlayerProxy(AlphaPlayerAbalone(piece_type="W", name= "marcel"),masterless=True,gs=GameStateAbalone)
+        player1 = LocalPlayerProxy(AlphaPlayerAbalone(piece_type="W", name= "marcel"),gs=GameStateAbalone)
         asyncio.new_event_loop().run_until_complete(player1.listen(keep_alive=True,master_address=f"http://{args.address}:{args.port}"))
     else:
         open_webpage('/'.join(["file://"]+os.path.abspath(__file__).split("/")[:-1]+["seahorse/execution/web/examples/abalone/interactive/index.html"]))

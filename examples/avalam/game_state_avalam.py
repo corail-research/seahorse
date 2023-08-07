@@ -122,8 +122,8 @@ class GameStateAvalam(GameState):
         return "The game is finished!"
 
     def to_json(self) -> str:
-        #print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.subSerialize()))
-        return json.dumps({ i:j for i,j in self.__dict__.items() if i!="_possible_actions" and i!= "max_tower"},default=self.subSerialize())
+        #print(json.dumps({ i:j for i,j in self.__dict__.items() if i!='_possible_actions'},default=self.sub_serialize()))
+        return json.dumps({ i:j for i,j in self.__dict__.items() if i!="_possible_actions" and i!= "max_tower"},default=self.sub_serialize())
 
     @classmethod
     def from_json(cls,data:str,*,next_player:PlayerAvalam=None) -> Serializable:

@@ -1,4 +1,3 @@
-import json
 from abc import abstractmethod
 from itertools import cycle
 from typing import Any, Dict, FrozenSet, List, Set

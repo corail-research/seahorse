@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 from seahorse.game.representation import Representation
 from seahorse.utils.serializer import Serializable

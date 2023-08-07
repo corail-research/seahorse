@@ -4,11 +4,11 @@ import asyncio
 import functools
 import json
 from collections import deque
-from typing import TYPE_CHECKING, Any, Callable, List, Tuple, Type
-from loguru import logger
+from typing import TYPE_CHECKING, Any, Callable
 
 import socketio
 from aiohttp import web
+from loguru import logger
 
 from seahorse.game.action import Action
 from seahorse.utils.serializer import Serializable
@@ -22,8 +22,6 @@ class EventSlave:
     def activate(self,
                  identifier:str=None,
                  wrapped_id:int=None,
-                 *,
-                 masterless:bool=False
                  ) -> None:
         self.sio = socketio.AsyncClient()
         self.connected = False
@@ -263,7 +261,7 @@ class EventMaster:
 
         async def stop():
             for x in listeners:
-                await x.listen(master_address=f"http://{self.hostname}:{str(self.port)}", keep_alive=False)
+                await x.listen(master_address=f"http://{self.hostname}:{self.port!s}", keep_alive=False)
 
             # Waiting for all listeners
             await self._wait_for_connexion()
