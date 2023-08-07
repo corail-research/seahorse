@@ -3,6 +3,8 @@ import json
 from math import sqrt
 from typing import Dict, List, Set
 
+from loguru import logger
+
 from board_tictac import BoardTictac
 from player_tictac import PlayerTictac
 from seahorse.game.action import Action
@@ -154,10 +156,10 @@ class GameStateTictac(GameState):
     
     def convert_light_action_to_action(self,data:Dict) -> Action:
         position = int(data["position"])
-        print(data)
+        logger.debug(f"Converting light action {data}")
         i = position//3
         j = position%3
-        print(i,j)
+        logger.debug(f"{i}{j}")
         for action in self.get_possible_actions():
             if action.get_next_game_state().get_rep().get_env().get((i,j),None) is not None:
                 return action

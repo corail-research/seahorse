@@ -1,5 +1,7 @@
 import sys
 
+from loguru import logger
+
 from board_tictac import BoardTictac
 from game_state_tictac import GameStateTictac
 from master_tictac import MasterTictac
@@ -26,5 +28,5 @@ if __name__ == "__main__":
     master.record_game()
     scores = master.get_scores()
     for key in scores.keys() :
-        print(scores[key],end=",")
-    print(master.get_winner()[0].get_name())
+        logger.info(f"{scores[key]},")
+    logger.info(f"{master.get_winner()[0].get_name()}")

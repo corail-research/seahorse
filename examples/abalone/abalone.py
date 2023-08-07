@@ -1,4 +1,6 @@
 import json
+
+from loguru import logger
 from alpha_player_abalone import MyPlayer as AlphaPlayerAbalone
 from board_abalone import BoardAbalone
 from game_state_abalone import GameStateAbalone
@@ -38,7 +40,7 @@ def run_multiple_games():
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
-        print("init_scores", init_scores)
+        logger.info(f"init_scores{ init_scores}")
         dim = [17, 9]
         env = {}
         # 0 case non accessible

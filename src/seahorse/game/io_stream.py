@@ -5,6 +5,7 @@ import functools
 import json
 from collections import deque
 from typing import TYPE_CHECKING, Any, Callable, List, Tuple, Type
+from loguru import logger
 
 import socketio
 from aiohttp import web
@@ -67,11 +68,8 @@ def remote_action(label: str):
     def meta_wrapper(fun: Callable):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,current_state:GameState,*_,**__):
-            print("____________----------+++",current_state)
             await EventMaster.get_instance().sio.emit(label,json.dumps(current_state.to_json(),default=lambda x:x.to_json()),to=self.sid)
-            print("xxxxx")
             out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
-            #print("++++++")
             return out
 
         return wrapper
@@ -154,15 +152,15 @@ class EventMaster:
                 """
                 self.__open_sessions.add(sid)
                 self.__n_clients_connected += 1
-                print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
+                logger.info(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
 
             @self.sio.event
             def disconnect(sid):
-                print("Lost connection: ", sid)
+                logger.warning("Lost connection: ", sid)
                 self.__n_clients_connected -= 1
                 self.__open_sessions.remove(sid)
                 if sid in self.__sid2ident.keys() and self.__sid2ident[sid] in self.__identified_clients:
-                    print(f"Client identified as {self.__sid2ident[sid]} was lost.")
+                    logger.warning(f"Client identified as {self.__sid2ident[sid]} was lost.")
                     del self.__identified_clients[self.__sid2ident[sid]]
 
             @self.sio.on("*")
@@ -177,9 +175,9 @@ class EventMaster:
 
             @self.sio.on("identify")
             async def handle_identify(sid,data):
-                print("Identifying a listener")
-                print(json.loads(data).get("identifier",0))
-                print(json.loads(data))
+                logger.info("Identifying a listener")
+                logger.info(json.loads(data).get("identifier",0))
+                logger.debug(f"Deserialized data {json.loads(data)}")
                 data = json.loads(data)
                 # TODO check presence of "id" in data
                 self.__ident2sid[data.get("identifier",0)]=sid
@@ -193,11 +191,10 @@ class EventMaster:
 
     async def wait_for_next_play(self,sid,players:list) -> Action:
         # TODO revise sanity checks to avoid critical errors
-        print("waiting for next play",print(sid))
+        logger.info(f"Waiting for next play from {self.__sid2ident[sid]}")
         while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
-            print(self.__identified_clients[self.__sid2ident[sid]]["incoming"])
             await asyncio.sleep(.1)
-        print("next play received")
+        logger.info("Action received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
         next_player_id = int(action["new_gs"]["next_player"]["id"])
         next_player = list(filter(lambda p:p.id==next_player_id,players))[0]
@@ -270,7 +267,7 @@ class EventMaster:
 
             # Waiting for all listeners
             await self._wait_for_connexion()
-            print("started")
+            logger.info("Starting match")
 
             # Launching the task
             task_future = asyncio.wrap_future(self.sio.start_background_task(task))

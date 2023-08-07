@@ -2,6 +2,8 @@ import json
 from argparse import Action
 from typing import Any, Coroutine, Type
 
+from loguru import logger
+
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
 from seahorse.player.player import Player
@@ -89,15 +91,15 @@ class LocalPlayerProxy(Serializable,EventSlave):
         self.activate(self.wrapped_player.name,masterless=masterless,wrapped_id=wrapped_player.get_id())
         @self.sio.on("turn")
         async def handle_turn(*data):
-            print("turn")
-            print(data)
-            print(gs.from_json(data[0],next_player=self))
+            logger.info(f"{self.wrapped_player.name} is playing")
+            logger.debug(f"Data received : {data}")
+            logger.debug(f"Deserialized data : \n{gs.from_json(data[0],next_player=self)}")
             action = await self.play(gs.from_json(data[0],next_player=self))
-            print("***",action)
+            logger.info(f"{self.wrapped_player} played the following action : \n{action}")
 
         @self.sio.on("update_id")
         async def update_id(data):
-            print("update_id received",json.loads(data)["new_id"])
+            logger.debug("update_id received",json.loads(data)["new_id"])
             self.wrapped_player.id = json.loads(data)["new_id"]
 
     @event_emitting("action")

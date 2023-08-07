@@ -1,5 +1,7 @@
 import sys
 
+from loguru import logger
+
 from board_abalone import BoardAbalone
 from game_state_abalone import GameStateAbalone
 from master_abalone import MasterAbalone
@@ -127,5 +129,5 @@ if __name__ == "__main__":
     for key in scores.keys() :
         invert_list.append(abs(scores[key]))
     for i in range(len(invert_list)-1,-1,-1) :
-        print(invert_list[i],end=",")
-    print(master.get_winner()[0].get_name())
+        logger.info(f"{invert_list[i]},")
+    logger.info(master.get_winner()[0].get_name())

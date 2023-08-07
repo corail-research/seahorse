@@ -2,7 +2,10 @@ import asyncio
 import json
 from abc import abstractmethod
 from itertools import cycle
+import sys
 from typing import Dict, Iterable, List
+
+from loguru import logger
 
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster
@@ -68,7 +71,7 @@ class GameMaster:
         possible_actions = self.current_game_state.get_possible_actions()
 
         start = next_player.timer.start_timer()
-        print("time :", next_player.timer._remaining_time)
+        logger.info("time :", next_player.timer._remaining_time)
         action = await next_player.play(self.current_game_state)
         next_player.timer.stop_timer()
         #print("time :", next_player.timer._remaining_time)

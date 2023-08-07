@@ -2,6 +2,8 @@ import functools
 import time
 from typing import Any
 
+from loguru import logger
+
 from seahorse.utils.custom_exceptions import (
     AlreadyRunningError,
     ColiseumTimeoutError,
@@ -139,7 +141,7 @@ class TimeMixin:
         Returns:
             bool: `True` if expired `False` otherwise
         """
-        print("time :", self.get_remaining_time())
+        logger.info("time :", self.get_remaining_time())
         return self.get_remaining_time() <= 0
 
     def __setattr__(self, __name: str, value: Any) -> None:
