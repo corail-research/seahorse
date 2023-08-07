@@ -15,11 +15,11 @@ class MasterAvalam(GameMaster):
         current_game_state (GameState): Current state of the game.
         players_iterator (Iterable): An iterable for the players_iterator, ordered according to the playing order.
                                      If a list is provided, a cyclic iterator is automatically built.
-        log_file (str): Name of the log file.
+        log_level (str): Name of the log file.
     """
 
     def __init__(
-        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str, port: int = 8080
+        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_level: str, port: int = 8080
     ) -> None:
         """
         Initialize the MasterAvalam instance.
@@ -29,9 +29,9 @@ class MasterAvalam(GameMaster):
             initial_game_state (GameState): Initial state of the game.
             players_iterator (Iterable[Player]): An iterable for the players_iterator, ordered according to the playing order.
                                                  If a list is provided, a cyclic iterator is automatically built.
-            log_file (str): Name of the log file.
+            log_level (str): Name of the log file.
         """
-        super().__init__(name, initial_game_state, players_iterator, log_file, port)
+        super().__init__(name, initial_game_state, players_iterator, log_level, port)
 
     def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
         """

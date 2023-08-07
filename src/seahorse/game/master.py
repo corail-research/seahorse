@@ -2,12 +2,13 @@ import asyncio
 import json
 from abc import abstractmethod
 from itertools import cycle
+import sys
 from typing import Dict, Iterable, List
 
 from loguru import logger
 
 from seahorse.game.game_state import GameState
-from seahorse.game.io_stream import EventMaster
+from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
@@ -27,7 +28,7 @@ class GameMaster:
         current_game_state (GameState): The current state of the game.
         players_iterator (Iterable): An iterable for the players, ordered according
             to the playing order. If a list is provided, a cyclic iterator is automatically built.
-        log_file (str): The name of the log file.
+        log_level (str): The name of the log file.
     """
 
     def __init__(
@@ -35,7 +36,7 @@ class GameMaster:
         name: str,
         initial_game_state: GameState,
         players_iterator: Iterable[Player],
-        log_file: str,
+        log_level: str = "INFO",
         port: int =8080,
         hostname: str ="localhost",
         n_listeners: int =4
@@ -48,16 +49,18 @@ class GameMaster:
             initial_game_state (GameState): The initial state of the game.
             players_iterator (Iterable[Player]): An iterable for the players, ordered according
                 to the playing order.
-            log_file (str): The name of the log file.
+            log_level (str): The name of the log file.
         """
         self.name = name
         self.current_game_state = initial_game_state
         self.initial_game_state = initial_game_state
         self.players = initial_game_state.players
-        self.log_file = log_file
+        self.log_level = log_level
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
         self.emitter = EventMaster.get_instance(n_listeners,initial_game_state.__class__,port=port,hostname=hostname)
+        logger.remove()
+        logger.add(sys.stderr, level=log_level)
 
     async def step(self) -> GameState:
         """
@@ -70,10 +73,13 @@ class GameMaster:
         possible_actions = self.current_game_state.get_possible_actions()
 
         start = next_player.timer.start_timer()
-        logger.info("time :", next_player.timer._remaining_time)
-        action = await next_player.play(self.current_game_state)
+        logger.info(f"time : {next_player.timer._remaining_time}")
+        if isinstance(next_player,EventSlave):
+            action = await next_player.play(self.current_game_state)
+        else:
+            action = next_player.play(self.current_game_state)
         next_player.timer.stop_timer()
-        #print("time :", next_player.timer._remaining_time)
+
         if start != next_player.timer._last_timestamp :
             raise StopAndStartError()
         if next_player.timer.is_finished() :
@@ -107,7 +113,7 @@ class GameMaster:
                 #self.winner = self.compute_winner(temp_score)
                 #self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
                 #return self.winner
-            #print(self.current_game_state.get_rep())
+            logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
             #print(self.current_game_state)
             await asyncio.sleep(.1)
             await self.emitter.sio.emit(
@@ -151,7 +157,7 @@ class GameMaster:
         Returns:
             str: The path of the log file.
         """
-        return self.log_file
+        return self.log_level
 
     def get_winner(self) -> List[Player]:
         """

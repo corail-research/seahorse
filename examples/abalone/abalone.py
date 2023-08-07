@@ -12,30 +12,15 @@ from seahorse.game.game_layout.board import Piece
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster
 from seahorse.player.player import Player
-from seahorse.player.proxies import LocalPlayerProxy, RemotePlayerProxy
+from seahorse.player.proxies import LocalPlayerProxy, RemotePlayerProxy, InteractivePlayerProxy
 
 W = 1
 B = 2
 
-class InteractivePlayerProxy(LocalPlayerProxy):
-    def __init__(self, mimics: type[Player], *args, **kwargs) -> None:
-        super().__init__(mimics, *args, **kwargs)
-        self.wrapped_player.player_type = "interactive"
-
-    async def play(self, current_state: GameState) -> Action:
-        while True:
-            data = json.loads(await EventMaster.get_instance().wait_for_event("interact"))
-            action = current_state.convert_light_action_to_action(data)
-            if action in current_state.get_possible_actions():
-                break
-            else:
-                await EventMaster.get_instance().sio.emit("ActionNotPermitted",None)
-        return action
-
 def run_multiple_games():
     for _ in range(1):
 
-        player2 = RemotePlayerProxy(mimics=RandomPlayerAbalone,piece_type="W",name="marcel")
+        player2 = RemotePlayerProxy(mimics=PlayerAbalone,piece_type="W",name="marcel")
         player1 = InteractivePlayerProxy(AlphaPlayerAbalone(piece_type="B"))
 
         list_players = [player1, player2]
@@ -139,7 +124,7 @@ def run_multiple_games():
         )
 
         master = MasterAbalone(
-             name="Abalone", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt", port=16001
+             name="Abalone", initial_game_state=initial_game_state, players_iterator=list_players, log_level="INFO", port=16001
          )
         master.record_game()
 

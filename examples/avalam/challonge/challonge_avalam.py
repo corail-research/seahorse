@@ -46,7 +46,7 @@ if __name__ == "__main__":
     )
 
     master = MasterAvalam(
-        name="Avalam", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt"
+        name="Avalam", initial_game_state=initial_game_state, players_iterator=list_players, log_level="INFO"
     )
     master.record_game()
     scores = master.get_scores()

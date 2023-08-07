@@ -19,7 +19,7 @@ class Piece(Serializable):
         owner_id (int): The ID of the player who possesses the piece.
     """
 
-    def __init__(self, piece_type: str, owner: Player | None, owner_id: int=-1) -> None:
+    def __init__(self, piece_type: str, owner: Player | None = None, owner_id: int=-1) -> None:
         """
         Initializes a new instance of the Piece class.
 

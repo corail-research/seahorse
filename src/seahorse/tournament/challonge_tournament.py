@@ -19,10 +19,10 @@ class ChallongeTournament:
         id_challonge (str): The Challonge ID.
         keypass_challonge (str): The Challonge API key.
         game_name (str): The name of the game.
-        log_file (str): The log file.
+        log_level (str): The log file.
     """
 
-    def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_file: str|None) -> None:
+    def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_level: str|None) -> None:
         """
         Initializes a new instance of the ChallongeTournament class.
 
@@ -30,12 +30,12 @@ class ChallongeTournament:
             id_challonge (str): The Challonge ID.
             keypass_challonge (str): The Challonge API key.
             game_name (str): The name of the game.
-            log_file (str): The log file. Default is None.
+            log_level (str): The log file. Default is None.
         """
         self.id_challonge = id_challonge
         self.keypass_challonge = keypass_challonge
         self.game_name = game_name
-        self.log_file = log_file
+        self.log_level = log_level
         self.user = None
         self.tournament = None
 

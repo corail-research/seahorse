@@ -20,8 +20,8 @@ if TYPE_CHECKING:
 class EventSlave:
 
     def activate(self,
-                 identifier:str | None,
-                 wrapped_id:int | None,
+                 identifier:str | None = None,
+                 wrapped_id:int | None = None,
                  ) -> None:
         self.sio = socketio.AsyncClient()
         self.connected = False
@@ -154,7 +154,7 @@ class EventMaster:
 
             @self.sio.event
             def disconnect(sid):
-                logger.warning("Lost connection: ", sid)
+                logger.warning(f"Lost connection: {sid}")
                 self.__n_clients_connected -= 1
                 self.__open_sessions.remove(sid)
                 if sid in self.__sid2ident.keys() and self.__sid2ident[sid] in self.__identified_clients:
@@ -195,7 +195,7 @@ class EventMaster:
         logger.info("Action received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
         next_player_id = int(action["new_gs"]["next_player"]["id"])
-        next_player = next(list(filter(lambda p:p.id==next_player_id,players)))
+        next_player = next(iter(list(filter(lambda p:p.id==next_player_id,players))))
 
         past_gs = self.__game_state.from_json(json.dumps(action["past_gs"]))
         past_gs.players = players
@@ -207,7 +207,7 @@ class EventMaster:
 
     async def wait_for_event(self,label):
         while not len(self.__events.get(label,[])):
-            await asyncio.sleep(1)
+            await asyncio.sleep(.1)
         data = self.__events[label].pop()
         return data
 
@@ -234,7 +234,7 @@ class EventMaster:
             Coroutine that completes when the number of listening socketIO connexions
             is equal to `EventMaster.__instance.n_clients`
         """
-        # print(f"Waiting for listeners {self.__n_clients_connected} out of {self.n_clients} are connected.")
+        logger.info(f"Waiting for listeners; {self.__n_clients_connected} out of {self.n_clients} are connected.")
         while not self.__n_clients_connected == self.n_clients:
             await asyncio.sleep(.1)
 
@@ -260,7 +260,7 @@ class EventMaster:
         self.event_loop.run_until_complete(site.start())
 
         async def stop():
-            for x in listeners:
+            for x in filter(lambda x:isinstance(x,EventSlave),listeners):
                 await x.listen(master_address=f"http://{self.hostname}:{self.port!s}", keep_alive=False)
 
             # Waiting for all listeners

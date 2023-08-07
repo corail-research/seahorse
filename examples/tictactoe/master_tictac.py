@@ -16,11 +16,11 @@ class MasterTictac(GameMaster):
         players_iterator (Iterable): An iterable for the players_iterator, ordered according
                                     to the playing order. If a list is provided,
                                     a cyclic iterator is automatically built.
-        log_file (str): The name of the log file.
+        log_level (str): The name of the log file.
     """
 
-    def __init__(self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str, port: int = 8080, hostname: str = "localhost", n_listeners: int = 4) -> None:
-        super().__init__(name, initial_game_state, players_iterator, log_file, port, hostname, n_listeners=n_listeners)
+    def __init__(self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_level: str, port: int = 8080, hostname: str = "localhost", n_listeners: int = 4) -> None:
+        super().__init__(name, initial_game_state, players_iterator, log_level, port, hostname, n_listeners=n_listeners)
 
     def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
         """

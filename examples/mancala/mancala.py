@@ -15,7 +15,7 @@ def run_multiple_games():
         init_rep = BoardMancala()
         initial_game_state = GameStateMancala(init_scores, player1, list_players, init_rep)
 
-        master = MasterMancala(name = "Mancala", initial_game_state = initial_game_state, players_iterator = list_players, log_file = "log.txt")
+        master = MasterMancala(name = "Mancala", initial_game_state = initial_game_state, players_iterator = list_players, log_level = "log.txt")
         master.record_game()
 
 run_multiple_games()

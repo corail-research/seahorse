@@ -121,7 +121,7 @@ if __name__ == "__main__":
     )
 
     master = MasterAbalone(
-            name="Abalone", initial_game_state=initial_game_state, players_iterator=list_players, log_file="log.txt"
+            name="Abalone", initial_game_state=initial_game_state, players_iterator=list_players, log_level="INFO"
         )
     master.record_game()
     scores = master.get_scores()

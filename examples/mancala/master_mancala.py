@@ -13,11 +13,11 @@ class MasterMancala(GameMaster):
         name (str): The name of the game master.
         initial_game_state (GameState): The initial game state.
         players_iterator (Iterable[Player]): An iterable of players.
-        log_file (str): The log file.
+        log_level (str): The log file.
     """
 
     def __init__(
-        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_file: str, port: int = 8080
+        self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_level: str, port: int = 8080
     ) -> None:
         """
         Initializes a new instance of the MasterMancala class.
@@ -26,9 +26,9 @@ class MasterMancala(GameMaster):
             name (str): The name of the game master.
             initial_game_state (GameState): The initial game state.
             players_iterator (Iterable[Player]): An iterable of players.
-            log_file (str): The log file.
+            log_level (str): The log file.
         """
-        super().__init__(name, initial_game_state, players_iterator, log_file, port)
+        super().__init__(name, initial_game_state, players_iterator, log_level, port)
 
     def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
         """

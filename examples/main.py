@@ -53,7 +53,7 @@ def tictactoe(args):
             name="Tic-Tac-Toe", 
             initial_game_state=initial_game_state, 
             players_iterator=list_players, 
-            log_file="log.txt", 
+            log_level="INFO", 
             port=args.port,
             hostname=args.address,
             n_listeners=args.listeners
@@ -132,7 +132,7 @@ def abalone(args):
              name="Abalone",
              initial_game_state=initial_game_state,
              players_iterator=list_players, 
-             log_file="log.txt", 
+             log_level="INFO", 
              port=args.port,
              hostname=args.address,
              n_listeners=args.listeners
