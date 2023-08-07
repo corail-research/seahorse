@@ -22,7 +22,7 @@ class Player(Serializable):
         name (str) : the name of the player
     """
 
-    def __init__(self, name: str = "bob", time_limit: float = 1e6,*,id:int | None,**_) -> None:
+    def __init__(self, name: str = "bob", time_limit: float = 1e6,*,id:int | None = None,**_) -> None:
         """
         Initializes a new instance of the Player class.
 

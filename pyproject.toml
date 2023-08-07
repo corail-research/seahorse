@@ -31,7 +31,7 @@ dependencies = [
   "aiohttp==3.8.5",
   "python-socketio",
   "python-engineio==4.5.1",
-  "python-socketio==5.8.0",
+  "python-socketio==5.8.0"
 ]
 
 [project.urls]
