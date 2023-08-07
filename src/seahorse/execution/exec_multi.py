@@ -5,7 +5,7 @@ from sys import platform
 from split import chop
 
 
-class ExecMulti():
+class ExecMulti:
     """
     A class to execute multiple rounds and matches of a game.
 

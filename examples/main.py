@@ -31,15 +31,15 @@ def open_webpage(url):
         os.startfile(url)
     except AttributeError:
         try:
-            subprocess.call(['open', url])
+            subprocess.call(["open", url])
         except:
-            logger.error('Could not open URL')
+            logger.error("Could not open URL")
 
 def tictactoe(args):
     if args.remote:
         pass
     else:
-        open_webpage('/'.join(["file://"]+os.path.abspath(__file__).split("/")[:-1]+["seahorse/execution/web/examples/tictactoe/index.html"]))
+        open_webpage("/".join(["file://"]+os.path.abspath(__file__).split("/")[:-1]+["seahorse/execution/web/examples/tictactoe/index.html"]))
         player1 = LocalPlayerProxy(AlphaPlayerTictac("X", name="louis"),gs=GameStateTictac)
         player2 = InteractivePlayerProxy(PlayerTictac("O", name="pierre"))
 
@@ -62,12 +62,12 @@ def tictactoe(args):
 
 def abalone(args):
     if args.remote:
-        open_webpage('/'.join(["file://"]+os.path.abspath(__file__).split("/")[:-1]+["seahorse/execution/web/examples/abalone/interactive/index.html"]))
+        open_webpage("/".join(["file://"]+os.path.abspath(__file__).split("/")[:-1]+["seahorse/execution/web/examples/abalone/interactive/index.html"]))
 
         player1 = LocalPlayerProxy(AlphaPlayerAbalone(piece_type="W", name= "marcel"),gs=GameStateAbalone)
         asyncio.new_event_loop().run_until_complete(player1.listen(keep_alive=True,master_address=f"http://{args.address}:{args.port}"))
     else:
-        open_webpage('/'.join(["file://"]+os.path.abspath(__file__).split("/")[:-1]+["seahorse/execution/web/examples/abalone/interactive/index.html"]))
+        open_webpage("/".join(["file://"]+os.path.abspath(__file__).split("/")[:-1]+["seahorse/execution/web/examples/abalone/interactive/index.html"]))
 
         player2 = RemotePlayerProxy(mimics=RandomPlayerAbalone,piece_type="W",name="marcel")
         player1 = InteractivePlayerProxy(AlphaPlayerAbalone(piece_type="B"))
@@ -142,21 +142,21 @@ def abalone(args):
 if __name__=="__main__":
 
     parser = argparse.ArgumentParser(
-                        prog='Launcher',
-                        description='What the program does',
-                        epilog='Text at the bottom of help')
-    parser.add_argument('-p','--port',required=True,type=int)
-    parser.add_argument('-a','--address',required=True)
-    parser.add_argument('-r','--remote',required=False,action='store_true')
-    parser.add_argument('-l','--listeners',required=False,type=int)
-    parser.add_argument('-g','--game',required=True,choices=['tictactoe','abalone','avalam'])
+                        prog="Launcher",
+                        description="What the program does",
+                        epilog="Text at the bottom of help")
+    parser.add_argument("-p","--port",required=True,type=int)
+    parser.add_argument("-a","--address",required=True)
+    parser.add_argument("-r","--remote",required=False,action="store_true")
+    parser.add_argument("-l","--listeners",required=False,type=int)
+    parser.add_argument("-g","--game",required=True,choices=["tictactoe","abalone","avalam"])
     args=parser.parse_args()
 
     if args.game=="tictactoe":
         tictactoe(args)
     elif args.game=="abalone":
         abalone(args)
-    
+
 
 
 

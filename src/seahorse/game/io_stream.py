@@ -4,7 +4,7 @@ import asyncio
 import functools
 import json
 from collections import deque
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 import socketio
 from aiohttp import web
@@ -20,8 +20,8 @@ if TYPE_CHECKING:
 class EventSlave:
 
     def activate(self,
-                 identifier:str=None,
-                 wrapped_id:int=None,
+                 identifier:Optional[str],
+                 wrapped_id:Optional[int],
                  ) -> None:
         self.sio = socketio.AsyncClient()
         self.connected = False
@@ -195,7 +195,7 @@ class EventMaster:
         logger.info("Action received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
         next_player_id = int(action["new_gs"]["next_player"]["id"])
-        next_player = list(filter(lambda p:p.id==next_player_id,players))[0]
+        next_player = next(list(filter(lambda p:p.id==next_player_id,players)))
 
         past_gs = self.__game_state.from_json(json.dumps(action["past_gs"]))
         past_gs.players = players

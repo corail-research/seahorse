@@ -1,7 +1,7 @@
 import copy
 import json
 from math import sqrt
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 
 from loguru import logger
 
@@ -153,7 +153,7 @@ class GameStateTictac(GameState):
                 else:
                     scores[player.get_id()] = 0.0
         return scores
-    
+
     def convert_light_action_to_action(self,data:Dict) -> Action:
         position = int(data["position"])
         logger.debug(f"Converting light action {data}")
@@ -206,6 +206,6 @@ class GameStateTictac(GameState):
         return { i:j for i,j in self.__dict__.items() if i!="_possible_actions"}
 
     @classmethod
-    def from_json(cls,data:str,*,next_player:PlayerTictac=None) -> Serializable:
+    def from_json(cls,data:str,*,next_player:Optional[PlayerTictac]) -> Serializable:
         d = json.loads(data)
         return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerTictac.from_json(json.dumps(x)) if not isinstance(x,str) else next_player for x in d["players"]],"next_player":next_player,"rep":BoardTictac.from_json(json.dumps(d["rep"]))})

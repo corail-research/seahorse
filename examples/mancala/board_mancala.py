@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+from typing import Optional
 
 from seahorse.game.game_layout.board import Board, Piece
 from seahorse.player.player import Player
@@ -19,7 +20,7 @@ class PieceMancala(Piece):
         value (int): The value of the piece.
     """
 
-    def __init__(self, value: int, piece_type: str= None, owner: Player=None, owner_id: int=-1) -> None:
+    def __init__(self, value: int, piece_type: str= None, owner: Optional[Player]=None, owner_id: int=-1) -> None:
         """
         Initializes a new instance of the PieceMancala class.
 
@@ -74,7 +75,7 @@ class BoardMancala(Board):
         dimensions (tuple): Dimensions of the board.
     """
 
-    def __init__(self, env=None) -> None:
+    def __init__(self, env:Optional[object]) -> None:
         """
         Initializes the BoardMancala object.
 

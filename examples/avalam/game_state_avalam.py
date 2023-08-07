@@ -1,6 +1,6 @@
 import copy
 import json
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Optional
 
 from board_avalam import BoardAvalam, PieceAvalam
 from player_avalam import PlayerAvalam
@@ -126,6 +126,6 @@ class GameStateAvalam(GameState):
         return json.dumps({ i:j for i,j in self.__dict__.items() if i!="_possible_actions" and i!= "max_tower"},default=self.sub_serialize())
 
     @classmethod
-    def from_json(cls,data:str,*,next_player:PlayerAvalam=None) -> Serializable:
+    def from_json(cls,data:str,*,next_player:Optional[PlayerAvalam]) -> Serializable:
         d = json.loads(data)
         return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerAvalam.from_json(x) if not isinstance(x,str) else next_player for x in d["players"]],"next_player":next_player,"rep":BoardAvalam.from_json(json.dumps(d["rep"]))})

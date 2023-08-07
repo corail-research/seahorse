@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from typing import Optional
 
 from board_mancala import BoardMancala
 from player_mancala import PlayerMancala
@@ -217,7 +218,7 @@ class GameStateMancala(GameState):
         return { i:j for i,j in self.__dict__.items() if i!="_possible_actions"}
 
     @classmethod
-    def from_json(cls,data:str,*,next_player:PlayerMancala=None) -> Serializable:
+    def from_json(cls,data:str,*,next_player:Optional[PlayerMancala]) -> Serializable:
         d = json.loads(data)
         return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerMancala.from_json(json.dumps(x)) if not isinstance(x,str) else next_player for x in d["players"]],"next_player":next_player,"rep":BoardMancala.from_json(json.dumps(d["rep"]))})
 

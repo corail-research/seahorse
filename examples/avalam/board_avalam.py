@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from seahorse.game.game_layout.board import Board, Piece
 from seahorse.utils.serializer import Serializable
@@ -20,7 +20,7 @@ class PieceAvalam(Piece):
         value (int): Value of the piece
     """
 
-    def __init__(self, piece_type: str, owner: Player=None, owner_id: int=-1, value: int=1) -> None:
+    def __init__(self, piece_type: str, owner: Optional[Player], owner_id: int=-1, value: int=1) -> None:
         """
         Initialize the PieceAvalam instance.
 
