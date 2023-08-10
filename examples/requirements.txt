@@ -1,0 +1,13 @@
+aiohttp==3.8.5
+aiosignal==1.3.1
+async-timeout==4.0.2
+attrs==23.1.0
+bidict==0.22.1
+charset-normalizer==3.2.0
+frozenlist==1.4.0
+idna==3.4
+multidict==6.0.4
+python-engineio==4.5.1
+python-socketio==5.8.0
+seahorse==0.0.1b1
+yarl==1.9.2

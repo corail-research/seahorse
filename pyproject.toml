@@ -2,12 +2,20 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.hatch.build]
+exclude = [
+  "examples",
+  "src/*.py",
+  "src/tournament",
+  "pkg/_compat.py"
+]
+
 [project]
-name = "coliseum"
+name = "seahorse"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 license = "MIT"
 keywords = []
 authors = [
@@ -16,23 +24,24 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = []
+dependencies = [
+  "aiohttp==3.8.5",
+  "python-socketio",
+  "python-engineio==4.5.1",
+  "python-socketio==5.8.0",
+  "loguru==0.7.0"
+]
 
 [project.urls]
-Documentation = "https://github.com/corail-research/coliseum#readme"
-Issues = "https://github.com/corail-research/coliseum/issues"
-Source = "https://github.com/corai-research/coliseum"
+Documentation = "https://github.com/corail-research/seahorse#readme"
+Issues = "https://github.com/corail-research/seahorse/issues"
+Source = "https://github.com/corai-research/seahorse"
 
 [tool.hatch.version]
-path = "src/coliseum/__about__.py"
+path = "src/seahorse/__about__.py"
 
 [tool.hatch.envs.default]
 dependencies = [
@@ -43,9 +52,9 @@ dependencies = [
 [tool.hatch.envs.default.scripts]
 gen-doc = [
           "rm -r docs",
-          "mkdir docs & pdoc coliseum -d=google -o docs/"
+          "mkdir docs & pdoc -html seahorse -o docs -d=google"
 ]
-serve-doc = "pdoc coliseum -d=google"
+serve-doc = "PYTHONPATH=. python3.11 -m pdoc seahorse -d=google"
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [
@@ -59,7 +68,7 @@ cov = [
 
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+python = ["3.9"]
 
 [tool.hatch.envs.lint]
 detached = true
@@ -69,7 +78,7 @@ dependencies = [
   "ruff>=0.0.243",
 ]
 [tool.hatch.envs.lint.scripts]
-typing = "mypy --install-types --non-interactive {args:src/coliseum tests}"
+typing = "mypy --install-types --non-interactive {args:src/seahorse tests}"
 style = [
   "ruff {args:.}",
   "black --check --diff {args:.}",
@@ -85,12 +94,12 @@ all = [
 ]
 
 [tool.black]
-target-version = ["py37"]
+target-version = ["py39"]
 line-length = 120
 skip-string-normalization = true
 
 [tool.ruff]
-target-version = "py37"
+target-version = "py39"
 line-length = 120
 select = [
   "A",
@@ -135,7 +144,7 @@ unfixable = [
 ]
 
 [tool.ruff.isort]
-known-first-party = ["coliseum"]
+known-first-party = ["seahorse"]
 
 [tool.ruff.flake8-tidy-imports]
 ban-relative-imports = "all"
@@ -145,16 +154,16 @@ ban-relative-imports = "all"
 "tests/**/*" = ["PLR2004", "S101", "TID252"]
 
 [tool.coverage.run]
-source_pkgs = ["coliseum", "tests"]
+source_pkgs = ["seahorse", "tests"]
 branch = true
 parallel = true
 omit = [
-  "src/coliseum/__about__.py",
+  "src/seahorse/__about__.py",
 ]
 
 [tool.coverage.paths]
-coliseum = ["src/coliseum", "*/coliseum/src/coliseum"]
-tests = ["tests", "*/coliseum/tests"]
+seahorse = ["src/seahorse", "*/seahorse/src/seahorse"]
+tests = ["tests", "*/seahorse/tests"]
 
 [tool.coverage.report]
 exclude_lines = [
