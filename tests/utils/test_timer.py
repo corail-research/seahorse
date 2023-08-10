@@ -21,50 +21,56 @@ class DummyClass(TimeMixin):
 
 class MixinTestCase(unittest.TestCase):
 
-    def test_time_mixin_init_object(self):
-        dummy = DummyClass()
-        assert dummy.dummy_attr == "bob"
+    def setUp(self):
+        self.dummy = DummyClass()
 
+    def test_time_mixin_init_object(self):
+        assert self.dummy.dummy_attr == "bob"
+
+    def test_timer_not_init(self):
+        self.assertRaises(TimerNotInitializedError, self.dummy.get_time_limit)
+        self.assertRaises(TimerNotInitializedError, self.dummy.get_remaining_time)
+        self.assertRaises(TimerNotInitializedError, self.dummy.start_timer)
+        self.assertRaises(TimerNotInitializedError, self.dummy.stop_timer)
+        self.assertRaises(TimerNotInitializedError, self.dummy.is_locked)
+        self.assertRaises(TimerNotInitializedError, self.dummy.is_running)
+        self.assertRaises(TimerNotInitializedError, self.dummy.get_last_timestamp)
     
     def test_time_mixin_init_timer(self):
-        dummy = DummyClass()
-        dummy.init_timer(10)
-        assert dummy.get_time_limit() == 10
-        assert dummy.get_remaining_time() == 10
-        assert dummy._timer_initialized
-        assert not dummy.is_locked()
-        assert not dummy.is_running()
+        self.dummy.init_timer(10)
+        assert self.dummy.get_time_limit() == 10
+        assert self.dummy.get_remaining_time() == 10
+        assert self.dummy._timer_initialized
+        assert not self.dummy.is_locked()
+        assert not self.dummy.is_running()
 
     def test_time_mixin_start_twice(self):
-        dummy = DummyClass()
-        dummy.init_timer(10)
-        dummy.start_timer()
-        self.assertRaises(AlreadyRunningError, dummy.start_timer)
+        self.dummy.init_timer(10)
+        self.dummy.start_timer()
+        self.assertRaises(AlreadyRunningError, self.dummy.start_timer)
 
     def test_time_mixin_stop_twice(self):
-        dummy = DummyClass()
-        dummy.init_timer(10)
-        dummy.start_timer()
-        dummy.stop_timer()
-        self.assertRaises(NotRunningError, dummy.stop_timer)
+        self.dummy.init_timer(10)
+        self.dummy.start_timer()
+        self.dummy.stop_timer()
+        self.assertRaises(NotRunningError, self.dummy.stop_timer)
 
     def test_time_lock(self):
-        dummy = DummyClass()
 
         def change_attr():
-            dummy.dummy_attr = "bob"
+            self.dummy.dummy_attr = "bob"
 
         def call_blocked_method():
-            return dummy.only_before_timeout()
+            return self.dummy.only_before_timeout()
 
-        dummy.init_timer(.5)
-        dummy.start_timer()
+        self.dummy.init_timer(.5)
+        self.dummy.start_timer()
 
         time.sleep(.1)
-        dummy.dummy_attr = "marcel"
+        self.dummy.dummy_attr = "marcel"
         assert call_blocked_method()
         time.sleep(.4)
 
         self.assertRaises(SeahorseTimeoutError, change_attr)
         self.assertRaises(SeahorseTimeoutError, call_blocked_method)
-        assert dummy.is_locked()
+        assert self.dummy.is_locked()
