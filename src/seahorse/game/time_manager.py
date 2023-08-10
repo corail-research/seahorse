@@ -15,7 +15,7 @@ from seahorse.utils.custom_exceptions import (
 class TimeMaster:
     __instance = None 
 
-    class Timer():
+    class Timer:
         def __init__(self,time_limit:float=1e9):
             self._time_limit = time_limit
             self._remaining_time = time_limit
