@@ -16,6 +16,7 @@ def run_multiple_games():
     for _ in range(1):
         player1 = AlphaPlayerTictac("X", name="louis")
         player2 = AlphaPlayerTictac("O", name="pierre")
+        #player2 = RemotePlayerProxy(mimics=PlayerTictac,piece_type="O",name="jean")
 
         list_players = [player1, player2]
         init_scores = {player1.get_id(): 0, player2.get_id(): 0}
@@ -25,7 +26,7 @@ def run_multiple_games():
 
         master = MasterTictac(
             name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_level="INFO", port=16001,
-            n_listeners=1,
+            n_listeners=0,
         )
         master.record_game()
 

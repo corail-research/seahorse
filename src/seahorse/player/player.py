@@ -5,7 +5,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
-from seahorse.game.timer import Timer
+from seahorse.game.time_manager import TimeMixin
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
 
-class Player(Serializable):
+class Player(Serializable,TimeMixin):
     """
     A base class representing a player in the game.
 
@@ -36,7 +36,7 @@ class Player(Serializable):
             self.id = builtins.id(self)
         else:
             self.id = id
-        self.timer = Timer(time_limit=time_limit)
+        self.init_timer(time_limit)
 
 
     def play(self, current_state: GameState) -> Action:

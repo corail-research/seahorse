@@ -16,7 +16,7 @@ class NotRunningError(Exception):
         super().__init__(message)
 
 
-class ColiseumTimeoutError(Exception):
+class SeahorseTimeoutError(Exception):
     """Thrown when trying to modify an expired element
     """
 
@@ -55,7 +55,7 @@ class StopAndStartError(Exception):
     """Thrown when trying to generate an action that's not permitted
     """
 
-    def __init__(self,  message: str = "The timer has been changed"):
+    def __init__(self,  message: str = "Timer was tampered with and exceeded the tolerancy set in GameMaster."):
         self.message = message
         super().__init__(message)
 

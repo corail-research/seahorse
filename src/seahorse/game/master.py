@@ -1,8 +1,10 @@
 import asyncio
+import copy
 import json
 from abc import abstractmethod
 from itertools import cycle
 import sys
+import time
 from typing import Dict, Iterable, List
 
 from loguru import logger
@@ -12,7 +14,7 @@ from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
-    ColiseumTimeoutError,
+    SeahorseTimeoutError,
     MethodNotImplementedError,
     StopAndStartError,
 )
@@ -51,6 +53,7 @@ class GameMaster:
                 to the playing order.
             log_level (str): The name of the log file.
         """
+        self.timetol = 1e-1
         self.name = name
         self.current_game_state = initial_game_state
         self.initial_game_state = initial_game_state
@@ -72,18 +75,25 @@ class GameMaster:
         next_player = self.current_game_state.get_next_player()
         possible_actions = self.current_game_state.get_possible_actions()
 
-        start = next_player.timer.start_timer()
-        logger.info(f"time : {next_player.timer._remaining_time}")
+        start = time.time()
+        next_player.start_timer()
+        logger.info(f"time : {next_player.get_remaining_time()}")
+
         if isinstance(next_player,EventSlave):
             action = await next_player.play(self.current_game_state)
         else:
             action = next_player.play(self.current_game_state)
-        next_player.timer.stop_timer()
 
-        if start != next_player.timer._last_timestamp :
+        next_player.stop_timer()
+        time.sleep(2)
+        next_player.start_timer()
+
+        tstp = time.time()
+        if abs((tstp-start)-(tstp-next_player.get_last_timestamp()))>self.timetol:
+            next_player.stop_timer()
             raise StopAndStartError()
-        if next_player.timer.is_finished() :
-            raise ColiseumTimeoutError()
+
+        next_player.stop_timer()
 
         if action not in possible_actions:
             raise ActionNotPermittedError()
@@ -102,17 +112,20 @@ class GameMaster:
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
         while not self.current_game_state.is_done():
-            # TODO try except is illegal, need to identify the exception we need to catch probably Timeout
+            try:
+                self.current_game_state = await self.step()
+            except SeahorseTimeoutError:
+                logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
+                temp_score = copy.copy(self.current_game_state.get_scores())
+                id_player_error = self.current_game_state.get_next_player().get_id()
+                temp_score.pop(id_player_error)
+                self.winner = self.compute_winner(temp_score)
+                self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
+                return self.winner
+            except StopAndStartError:
+                logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
 
-            self.current_game_state = await self.step()
 
-            #except Exception:
-                #temp_score = copy.copy(self.current_game_state.get_scores())
-                #id_player_error = self.current_game_state.get_next_player().get_id()
-                #temp_score.pop(id_player_error)
-                #self.winner = self.compute_winner(temp_score)
-                #self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
-                #return self.winner
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
             #print(self.current_game_state)
             await asyncio.sleep(.1)
