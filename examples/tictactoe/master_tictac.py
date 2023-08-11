@@ -19,8 +19,8 @@ class MasterTictac(GameMaster):
         log_level (str): The name of the log file.
     """
 
-    def __init__(self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_level: str, port: int = 8080, hostname: str = "localhost", n_listeners: int = 4) -> None:
-        super().__init__(name, initial_game_state, players_iterator, log_level, port, hostname, n_listeners=n_listeners)
+    def __init__(self, name: str, initial_game_state: GameState, players_iterator: Iterable[Player], log_level: str, port: int = 8080, hostname: str = "localhost") -> None:
+        super().__init__(name, initial_game_state, players_iterator, log_level, port, hostname)
 
     def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
         """

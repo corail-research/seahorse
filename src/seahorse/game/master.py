@@ -40,8 +40,7 @@ class GameMaster:
         players_iterator: Iterable[Player],
         log_level: str = "INFO",
         port: int =8080,
-        hostname: str ="localhost",
-        n_listeners: int =4
+        hostname: str ="localhost"
     ) -> None:
         """
         Initializes a new instance of the GameMaster class.
@@ -61,7 +60,7 @@ class GameMaster:
         self.log_level = log_level
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(n_listeners,initial_game_state.__class__,port=port,hostname=hostname)
+        self.emitter = EventMaster.get_instance(initial_game_state.__class__,port=port,hostname=hostname)
         logger.remove()
         logger.add(sys.stderr, level=log_level)
 
@@ -83,10 +82,6 @@ class GameMaster:
             action = await next_player.play(self.current_game_state)
         else:
             action = next_player.play(self.current_game_state)
-
-        next_player.stop_timer()
-        time.sleep(2)
-        next_player.start_timer()
 
         tstp = time.time()
         if abs((tstp-start)-(tstp-next_player.get_last_timestamp()))>self.timetol:
@@ -123,7 +118,7 @@ class GameMaster:
                 self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
                 return self.winner
             except StopAndStartError:
-                logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
+                logger.error(f"{self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
 
 
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
@@ -136,11 +131,11 @@ class GameMaster:
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         return self.winner
 
-    def record_game(self) -> None:
+    def record_game(self, listeners:List[EventSlave]=None) -> None:
         """
         Starts a game and broadcasts its successive states.
         """
-        self.emitter.start(self.play_game, self.players)
+        self.emitter.start(self.play_game, self.players+(listeners if listeners else []))
 
     def update_log(self) -> None:
         """
