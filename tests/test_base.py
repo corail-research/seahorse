@@ -75,14 +75,10 @@ class test_case(unittest.TestCase):
         assert self.current_gs.compute_next_player() == self.player2
         assert self.current_gs.get_player_score(self.player1) == 1
         self.board.env[(0, 1)] = self.piece1
+        possible_actions = self.current_gs.generate_possible_actions()
+        assert len(possible_actions) == 8
         self.board.env[(2, 1)] = self.piece2
         self.board.env[(2, 2)] = self.piece3
         possible_actions = self.current_gs.generate_possible_actions()
         assert len(possible_actions) == 6
-        #copy_rep = copy.deepcopy(self.current_gs.get_rep())
-        #good_next_rep = copy_rep.get_env()[(1, 1)] = Piece(piece_type="Added", owner=self.current_gs.get_next_player()) #sample(possible_actions, 1)[0].get_next_game_state().get_rep()
-        #assert Action(self.current_gs, Dummy_GameState(self.current_gs.get_scores(), self.current_gs.compute_next_player(), self.current_gs.players, copy.deepcopy(good_next_rep))) in possible_actions
-        #wrong_next_rep = copy.deepcopy(self.current_gs.get_rep()).get_env()[(0, 1)] = Piece(piece_type="Added", owner=self.current_gs.get_next_player())
-        #assert Action(self.current_gs, Dummy_GameState(self.current_gs.get_scores(), self.current_gs.compute_next_player(), self.current_gs.players, wrong_next_rep)) not in possible_actions
-        #wrong_next_player = Action(self.current_gs, Dummy_GameState(self.current_gs.get_scores(), self.player1, self.current_gs.players, wrong_next_rep))
-        #assert wrong_next_player not in possible_actions
+        
