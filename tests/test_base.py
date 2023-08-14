@@ -76,9 +76,8 @@ class test_case(unittest.TestCase):
         assert self.current_gs.get_player_score(self.player1) == 1
         self.board.env[(0, 1)] = self.piece1
         possible_actions = self.current_gs.generate_possible_actions()
-        assert len(possible_actions) == 8
+        assert len(possible_actions) == self.current_gs.get_rep().get_dimensions()[0]*self.current_gs.get_rep().get_dimensions()[1] - 1
         self.board.env[(2, 1)] = self.piece2
         self.board.env[(2, 2)] = self.piece3
         possible_actions = self.current_gs.generate_possible_actions()
-        assert len(possible_actions) == 6
-        
+        assert len(possible_actions) == self.current_gs.get_rep().get_dimensions()[0]*self.current_gs.get_rep().get_dimensions()[1] - 3
