@@ -1,13 +1,13 @@
 import builtins
 import os
 import subprocess
-from typing import Any, Coroutine
+from typing import Any, Coroutine, Optional
 
 from loguru import logger
 from seahorse.game.io_stream import EventMaster, EventSlave 
 
 class GUIClient(EventSlave):
-    def __init__(self, path:str=None) -> None:
+    def __init__(self, path:Optional[str]=None) -> None:
         self.id = builtins.id(self)
         self.wrapped_id = self.id
         self.path = path

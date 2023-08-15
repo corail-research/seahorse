@@ -6,7 +6,7 @@ import time
 from abc import abstractmethod
 from collections.abc import Iterable
 from itertools import cycle
-from typing import List
+from typing import List, Optional
 
 from loguru import logger
 
@@ -146,7 +146,7 @@ class GameMaster:
             logger.info(f"Winner - {player.get_name()}")
         return self.winner
 
-    def record_game(self, listeners:List[EventSlave]=None) -> None:
+    def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:
         """
         Starts a game and broadcasts its successive states.
         """

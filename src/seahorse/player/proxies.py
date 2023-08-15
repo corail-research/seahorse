@@ -1,7 +1,7 @@
 import json
 from argparse import Action
 from collections.abc import Coroutine
-from typing import Any
+from typing import Any, Optional
 
 from loguru import logger
 
@@ -135,7 +135,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
     """Proxy for interactive players, 
        inherits from `LocalPlayerProxy`
     """
-    def __init__(self, mimics: type[Player], gui_path:str=None, *args, **kwargs) -> None:
+    def __init__(self, mimics: type[Player], gui_path:Optional[str]=None, *args, **kwargs) -> None:
         """
 
         Args:
