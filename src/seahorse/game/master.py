@@ -1,11 +1,12 @@
 import asyncio
 import copy
 import json
-from abc import abstractmethod
-from itertools import cycle
 import sys
 import time
-from typing import Dict, Iterable, List
+from abc import abstractmethod
+from collections.abc import Iterable
+from itertools import cycle
+from typing import Dict, List
 
 from loguru import logger
 
@@ -14,8 +15,8 @@ from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
-    SeahorseTimeoutError,
     MethodNotImplementedError,
+    SeahorseTimeoutError,
     StopAndStartError,
 )
 
@@ -96,7 +97,7 @@ class GameMaster:
 
         return action.get_next_game_state()
 
-    async def play_game(self) -> List[Player]:
+    async def play_game(self) -> list[Player]:
         """
         Play the game.
 
@@ -168,14 +169,14 @@ class GameMaster:
         """
         return self.log_level
 
-    def get_winner(self) -> List[Player]:
+    def get_winner(self) -> list[Player]:
         """
         Returns:
             Player: The winner(s) of the game.
         """
         return self.winner
 
-    def get_scores(self) -> Dict[int, float]:
+    def get_scores(self) -> dict[int, float]:
         """
         Returns:
             Dict: The scores of the current state.
@@ -183,7 +184,7 @@ class GameMaster:
         return self.current_game_state.get_scores()
 
     @abstractmethod
-    def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
+    def compute_winner(self, scores: dict[int, float]) -> list[Player]:
         """
         Computes the winner(s) of the game based on the scores.
 

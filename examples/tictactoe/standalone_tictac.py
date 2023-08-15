@@ -2,6 +2,7 @@ import asyncio
 
 from alpha_player_tictac import MyPlayer as AlphaPlayerTictac
 from game_state_tictac import GameStateTictac
+
 from seahorse.player.proxies import LocalPlayerProxy
 
 player1 = LocalPlayerProxy(AlphaPlayerTictac("O", name="jean"),gs=GameStateTictac)

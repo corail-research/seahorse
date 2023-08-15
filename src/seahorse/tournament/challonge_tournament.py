@@ -22,7 +22,7 @@ class ChallongeTournament:
         log_level (str): The log file.
     """
 
-    def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_level: str|None) -> None:
+    def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_level: str|None, log_file: str = "log.txt") -> None:
         """
         Initializes a new instance of the ChallongeTournament class.
 
@@ -38,6 +38,7 @@ class ChallongeTournament:
         self.log_level = log_level
         self.user = None
         self.tournament = None
+        self.log_file = log_file
 
     async def create_tournament(self, tournament_name: str, tournament_url: str, csv_file: str, sep: str = ",") -> None:
         """
@@ -173,6 +174,9 @@ class ChallongeTournament:
         winner = stderr.decode("utf-8").split("\n")[-2].split(" - ")[-1]
         score = str(math.floor(float(score1))) + "-" + str(math.floor(float(score2))) + ","
         winner = str(winner)
+        with open(self.log_file,"a+") as f :
+            f.write(stderr.decode(encoding="utf-8"))
+        f.close()
         return score, winner
 
     async def play_match(self, match, port: int, rounds: int, folder_player: str) -> None:

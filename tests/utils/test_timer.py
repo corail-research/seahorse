@@ -4,8 +4,8 @@ import unittest
 from seahorse.game.time_manager import TimeMixin, timed_function
 from seahorse.utils.custom_exceptions import (
     AlreadyRunningError,
-    SeahorseTimeoutError,
     NotRunningError,
+    SeahorseTimeoutError,
     TimerNotInitializedError,
 )
 
@@ -25,7 +25,7 @@ class MixinTestCase(unittest.TestCase):
         dummy = DummyClass()
         assert dummy.dummy_attr == "bob"
 
-    
+
     def test_time_mixin_init_timer(self):
         dummy = DummyClass()
         dummy.init_timer(10)

@@ -14,7 +14,7 @@ class ExecMulti:
         num_player (int): The number of players in each match.
     """
 
-    def __init__(self, main_file: str) -> None:
+    def __init__(self, main_file: str, log_file: str = "log.txt") -> None:
         """
         Initializes a new instance of the ExecMulti class.
 
@@ -23,6 +23,7 @@ class ExecMulti:
         """
         self.main_file = main_file
         self.num_player = 2
+        self.log_file = log_file
 
     async def run_round(self, folder_players: str, name_player1: str, name_player2: str, port: int):
         """
@@ -42,8 +43,10 @@ class ExecMulti:
         else:
             cmd = "python3 " + self.main_file + ".py" + " " + folder_players + " " + name_player1 + " " + name_player2 + " " + str(port)
         process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
-        stdout, _ = await process.communicate()
-        #print(stdout)
+        stdout, stderr = await process.communicate()
+        with open(self.log_file,"a+") as f :
+            f.write(stderr.decode(encoding="utf-8"))
+        f.close()
 
     async def run_multiple_rounds(self, rounds: int, nb_process: int, swap: bool, folder_players: str, name_player1: str, name_player2: str, port: int = 8080):
         """

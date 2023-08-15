@@ -1,16 +1,18 @@
 import json
 
-from loguru import logger
 from alpha_player_tictac import MyPlayer as AlphaPlayerTictac
 from board_tictac import BoardTictac
 from game_state_tictac import GameStateTictac
+from loguru import logger
 from master_tictac import MasterTictac
 from player_tictac import PlayerTictac
+
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster
 from seahorse.player.player import Player
 from seahorse.player.proxies import InteractivePlayerProxy, LocalPlayerProxy, RemotePlayerProxy
+
 
 def run_multiple_games():
     for _ in range(1):

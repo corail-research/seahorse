@@ -20,7 +20,7 @@ class GameState(Serializable):
         rep (Representation): The representation of the game.
     """
 
-    def __init__(self, scores: Dict[int, Any], next_player: Player, players: List[Player], rep: Representation) -> None:
+    def __init__(self, scores: dict[int, Any], next_player: Player, players: list[Player], rep: Representation) -> None:
         """
         Initializes a new instance of the GameState class.
 
@@ -68,7 +68,7 @@ class GameState(Serializable):
         curr_id = self.players.index(current)
         return next(cycle(self.players[curr_id + 1 :] + self.players[:curr_id]))
 
-    def get_scores(self) -> Dict[int, float]:
+    def get_scores(self) -> dict[int, float]:
         """
         Returns the scores.
 
@@ -77,7 +77,7 @@ class GameState(Serializable):
         """
         return self.scores
 
-    def get_players(self) -> List[Player]:
+    def get_players(self) -> list[Player]:
         """
         Returns the list of players.
 
@@ -95,7 +95,7 @@ class GameState(Serializable):
         """
         return self.rep
 
-    def get_possible_actions(self) -> FrozenSet[Action]:
+    def get_possible_actions(self) -> frozenset[Action]:
         """
         Returns a copy of the possible actions from this state.
         The first call triggers the `generate_possible_actions` method.
@@ -125,7 +125,7 @@ class GameState(Serializable):
         return False
 
     @abstractmethod
-    def generate_possible_actions(self) -> Set[Action]:
+    def generate_possible_actions(self) -> set[Action]:
         """
         Generates a set of all possible actions from this game state.
 
@@ -138,7 +138,7 @@ class GameState(Serializable):
         raise MethodNotImplementedError()
 
     @abstractmethod
-    def compute_scores(self, next_rep: Representation) -> Dict[int, Any]:
+    def compute_scores(self, next_rep: Representation) -> dict[int, Any]:
         """
         Computes the scores of each player.
 

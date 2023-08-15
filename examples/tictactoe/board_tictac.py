@@ -14,7 +14,7 @@ class BoardTictac(Board):
         dimensions (list[int]): The dimensions of the board.
     """
 
-    def __init__(self, env: dict[Tuple[int], Piece], dim: list[int]) -> None:
+    def __init__(self, env: dict[tuple[int], Piece], dim: list[int]) -> None:
         """
         Initializes a new instance of the BoardTictac class.
 

@@ -1,10 +1,10 @@
 import sys
 
-from loguru import logger
-
 from board_tictac import BoardTictac
 from game_state_tictac import GameStateTictac
+from loguru import logger
 from master_tictac import MasterTictac
+
 from seahorse.player.proxies import LocalPlayerProxy
 
 if __name__ == "__main__":

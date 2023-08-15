@@ -1,6 +1,7 @@
 import json
 from argparse import Action
-from typing import Any, Coroutine, Type
+from collections.abc import Coroutine
+from typing import Any, Type
 
 from loguru import logger
 
@@ -79,7 +80,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         play(current_state: GameState) -> Action: Plays a move.
     """
 
-    def __init__(self, wrapped_player: Player,gs:Type=GameState) -> None:
+    def __init__(self, wrapped_player: Player,gs:type=GameState) -> None:
         """
         Initializes a new instance of the LocalPlayerProxy class.
 
