@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from itertools import cycle
-from typing import Any, Dict, FrozenSet, List, Set
+from typing import Any
 
 from seahorse.game.action import Action
 from seahorse.game.representation import Representation

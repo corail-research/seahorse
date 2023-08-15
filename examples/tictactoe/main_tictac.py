@@ -25,6 +25,6 @@ if __name__ == "__main__":
     initial_game_state = GameStateTictac(
         scores=init_scores, next_player=player1, players=list_players, rep=init_rep)
     master = MasterTictac(
-        name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_level="INFO", port=port, n_listeners=0,
+        name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_level="INFO", port=port
     )
     master.record_game()

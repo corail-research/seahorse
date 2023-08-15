@@ -24,4 +24,4 @@ jobs:
       - name: Lint with ruff
         run: |
           # default set of ruff rules with GitHub Annotations
-          ruff --format=github --ignore=I001,W291,E501,S311,A002,FBT001 --target-version=py37 src
+          ruff --format=github --ignore=I001,W291,E501,S311,A002,FBT001,S603,S606,S607 --target-version=py37 src

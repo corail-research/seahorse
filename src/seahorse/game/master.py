@@ -6,7 +6,7 @@ import time
 from abc import abstractmethod
 from collections.abc import Iterable
 from itertools import cycle
-from typing import Dict, List
+from typing import List, Optional
 
 from loguru import logger
 
@@ -41,8 +41,7 @@ class GameMaster:
         players_iterator: Iterable[Player],
         log_level: str = "INFO",
         port: int =8080,
-        hostname: str ="localhost",
-        n_listeners: int =4
+        hostname: str ="localhost"
     ) -> None:
         """
         Initializes a new instance of the GameMaster class.
@@ -62,7 +61,7 @@ class GameMaster:
         self.log_level = log_level
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(n_listeners,initial_game_state.__class__,port=port,hostname=hostname)
+        self.emitter = EventMaster.get_instance(initial_game_state.__class__,port=port,hostname=hostname)
         logger.remove()
         logger.add(sys.stderr, level=log_level)
 
@@ -114,21 +113,12 @@ class GameMaster:
             try:
                 logger.info(f"Player to play : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
-            except SeahorseTimeoutError:
-                logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
-                temp_score = copy.copy(self.current_game_state.get_scores())
-                id_player_error = self.current_game_state.get_next_player().get_id()
-                temp_score.pop(id_player_error)
-                self.winner = self.compute_winner(temp_score)
-                self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
-                scores = self.get_scores()
-                for key in scores.keys() :
-                    logger.info(f"{key} - {scores[key]}")
-                for player in self.get_winner() :
-                    logger.info(f"Winner - {player.get_name()}")
-                return self.winner
-            except StopAndStartError:
-                logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
+            except (SeahorseTimeoutError,StopAndStartError) as e:
+                if isinstance(e,SeahorseTimeoutError):
+                    logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
+                else:
+                    logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
+
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 id_player_error = self.current_game_state.get_next_player().get_id()
                 temp_score.pop(id_player_error)
@@ -156,11 +146,11 @@ class GameMaster:
             logger.info(f"Winner - {player.get_name()}")
         return self.winner
 
-    def record_game(self) -> None:
+    def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:
         """
         Starts a game and broadcasts its successive states.
         """
-        self.emitter.start(self.play_game, self.players)
+        self.emitter.start(self.play_game, self.players+(listeners if listeners else []))
 
     def update_log(self) -> None:
         """
