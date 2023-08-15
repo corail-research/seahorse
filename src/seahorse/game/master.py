@@ -75,9 +75,9 @@ class GameMaster:
         next_player = self.current_game_state.get_next_player()
         possible_actions = self.current_game_state.get_possible_actions()
 
-        start = time.time()
-        next_player.start_timer()
-        logger.info(f"time : {next_player.get_remaining_time()}")
+        # start = time.time()
+        # next_player.start_timer()
+        # logger.info(f"time : {next_player.get_remaining_time()}")
 
         if isinstance(next_player,EventSlave):
             action = await next_player.play(self.current_game_state)
@@ -85,11 +85,11 @@ class GameMaster:
             action = next_player.play(self.current_game_state)
 
         tstp = time.time()
-        if abs((tstp-start)-(tstp-next_player.get_last_timestamp()))>self.timetol:
-            next_player.stop_timer()
-            raise StopAndStartError()
+        # if abs((tstp-start)-(tstp-next_player.get_last_timestamp()))>self.timetol:
+        #     next_player.stop_timer()
+        #     raise StopAndStartError()
 
-        next_player.stop_timer()
+        # next_player.stop_timer()
 
         if action not in possible_actions:
             raise ActionNotPermittedError()
