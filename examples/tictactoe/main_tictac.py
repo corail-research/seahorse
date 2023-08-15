@@ -36,6 +36,7 @@ if __name__=="__main__":
     parser.add_argument("-p","--port",required=False,type=int, default=16001)
     parser.add_argument("-g","--gui",required=False,type=int, default=0)
     parser.add_argument("-gd","--gui_dist",required=False,type=int, default=0)
+    parser.add_argument("-gp","--gui_path",required=False,type=str, default="./GUI/index.html")
     parser.add_argument("-r","--record",action="store_true",default=False)
     parser.add_argument("-l","--log",required=False,choices=["DEBUG","INFO"], default="DEBUG")
     parser.add_argument("list_players",nargs="*")
@@ -47,13 +48,10 @@ if __name__=="__main__":
     port = vars(args).get("port")
     gui = vars(args).get("gui")
     gui_dist = vars(args).get("gui_dist")
+    gui_path = vars(args).get("gui_path")
     record = vars(args).get("record")
     log_level = vars(args).get("log")
     list_players = vars(args).get("list_players")
-    
-    print(type, nb_players, address, port, gui, list_players)
-    
-    gui_path =  "./GUI/index.html"
     
     if type == "local" :
         player1_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
