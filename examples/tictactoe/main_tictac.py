@@ -38,7 +38,7 @@ if __name__=="__main__":
     parser.add_argument("-gd","--gui_dist",required=False,type=int, default=0)
     parser.add_argument("-gp","--gui_path",required=False,type=str, default="./GUI/index.html")
     parser.add_argument("-r","--record",action="store_true",default=False)
-    parser.add_argument("-l","--log",required=False,choices=["DEBUG","INFO"], default="DEBUG")
+    parser.add_argument("-l","--log",required=False,choices=["DEBUG","INFO"], default="INFO")
     parser.add_argument("list_players",nargs="*")
     args=parser.parse_args()
     

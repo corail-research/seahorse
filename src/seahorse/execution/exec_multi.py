@@ -38,10 +38,10 @@ class ExecMulti:
         Returns:
             None
         """
-        if platform == "win32":
-            cmd = "py " + self.main_file + ".py" + " " + folder_players + " " + name_player1 + " " + name_player2 + " " + str(port)
-        else:
-            cmd = "python3 " + self.main_file + ".py" + " " + folder_players + " " + name_player1 + " " + name_player2 + " " + str(port)
+        if platform == "win32" :
+            cmd = "python " + self.main_file + ".py" + " -t local -p " + str(port) + " " + name_player1 + " " + name_player2
+        else :
+            cmd = "python3 " + self.main_file + ".py" + " -t local -p " + str(port) + " " + name_player1 + " " + name_player2
         process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
         with open(self.log_file,"a+") as f :
