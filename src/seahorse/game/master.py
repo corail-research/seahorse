@@ -84,10 +84,6 @@ class GameMaster:
         else:
             action = next_player.play(self.current_game_state)
 
-        next_player.stop_timer()
-        time.sleep(2)
-        next_player.start_timer()
-
         tstp = time.time()
         if abs((tstp-start)-(tstp-next_player.get_last_timestamp()))>self.timetol:
             next_player.stop_timer()

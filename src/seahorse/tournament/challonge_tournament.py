@@ -168,9 +168,11 @@ class ChallongeTournament:
             cmd = "python3 " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
         process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
-        list_score_winner = stdout.decode("utf-8").split("\n")[-2].split(",")
-        score = str(math.floor(float(list_score_winner[0]))) + "-" + str(math.floor(float(list_score_winner[1]))) + ","
-        winner = str(list_score_winner[2])
+        score1 = stderr.decode("utf-8").split("\n")[-4].split(" - ")[-1]
+        score2 = stderr.decode("utf-8").split("\n")[-3].split(" - ")[-1]
+        winner = stderr.decode("utf-8").split("\n")[-2].split(" - ")[-1]
+        score = str(math.floor(float(score1))) + "-" + str(math.floor(float(score2))) + ","
+        winner = str(winner)
         return score, winner
 
     async def play_match(self, match, port: int, rounds: int, folder_player: str) -> None:

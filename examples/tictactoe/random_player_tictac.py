@@ -32,8 +32,5 @@ class MyPlayer(PlayerTictac):
             Action: The selected action.
         """
         possible_actions = current_state.generate_possible_actions()
-
-        if kwargs:
-            pass
-
+        
         return random.choice(list(possible_actions))
