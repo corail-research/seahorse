@@ -36,4 +36,6 @@ class MasterTictac(GameMaster):
         max_val = max(scores.values())
         players_id = [key for key in scores if scores[key] == max_val]
         winners = [player for player in self.players if player.get_id() in players_id]
+        if len(winners) > 1 :
+            winners = [winners[0]]
         return winners

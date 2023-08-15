@@ -28,7 +28,3 @@ if __name__ == "__main__":
         name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_level="INFO", port=port, n_listeners=0,
     )
     master.record_game()
-    scores = master.get_scores()
-    for key in scores.keys() :
-        logger.info(f"{scores[key]}")
-    logger.info(f"{master.get_winner()[0].get_name()}")

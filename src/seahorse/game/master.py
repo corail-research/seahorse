@@ -108,8 +108,11 @@ class GameMaster:
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
+        for player in self.get_game_state().get_players() :
+            logger.info(f"Player : {player.get_name()} - {player.get_id()}")
         while not self.current_game_state.is_done():
             try:
+                logger.info(f"Player to play : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
             except SeahorseTimeoutError:
                 logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
@@ -118,10 +121,25 @@ class GameMaster:
                 temp_score.pop(id_player_error)
                 self.winner = self.compute_winner(temp_score)
                 self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
+                scores = self.get_scores()
+                for key in scores.keys() :
+                    logger.info(f"{key} - {scores[key]}")
+                for player in self.get_winner() :
+                    logger.info(f"Winner - {player.get_name()}")
                 return self.winner
             except StopAndStartError:
                 logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
-
+                temp_score = copy.copy(self.current_game_state.get_scores())
+                id_player_error = self.current_game_state.get_next_player().get_id()
+                temp_score.pop(id_player_error)
+                self.winner = self.compute_winner(temp_score)
+                self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
+                scores = self.get_scores()
+                for key in scores.keys() :
+                    logger.info(f"{key} - {scores[key]}")
+                for player in self.get_winner() :
+                    logger.info(f"Winner - {player.get_name()}")
+                return self.winner
 
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
             #print(self.current_game_state)
@@ -131,6 +149,11 @@ class GameMaster:
                 json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
             )
         self.winner = self.compute_winner(self.current_game_state.get_scores())
+        scores = self.get_scores()
+        for key in scores.keys() :
+                    logger.info(f"{key} - {scores[key]}")
+        for player in self.get_winner() :
+            logger.info(f"Winner - {player.get_name()}")
         return self.winner
 
     def record_game(self) -> None:

@@ -1,0 +1,152 @@
+2023-08-15 10:18:13.669 | DEBUG    | seahorse.game.time_manager:register_timer:108 - registering 4299128400
+2023-08-15 10:18:13.669 | INFO     | seahorse.game.time_manager:is_locked:97 - time :
+2023-08-15 10:18:13.669 | DEBUG    | seahorse.game.time_manager:register_timer:108 - registering 4299151824
+2023-08-15 10:18:13.669 | INFO     | seahorse.game.time_manager:is_locked:97 - time :
+2023-08-15 10:18:13.676 | INFO     | seahorse.game.io_stream:_wait_for_connexion:237 - Waiting for listeners; 0 out of 0 are connected.
+2023-08-15 10:18:13.676 | INFO     | seahorse.game.io_stream:stop:268 - Starting match
+2023-08-15 10:18:13.676 | INFO     | seahorse.game.master:play_game:112 - Player : random_player_tictac - 4299128400
+2023-08-15 10:18:13.676 | INFO     | seahorse.game.master:play_game:112 - Player : alpha_player_tictac - 4299151824
+2023-08-15 10:18:13.676 | INFO     | seahorse.game.master:play_game:115 - Player to play : random_player_tictac - 4299128400
+2023-08-15 10:18:13.676 | INFO     | seahorse.game.master:step:81 - time : 999999.9999990463
+2023-08-15 10:18:13.676 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ X _ 
+_ _ _ 
+_ _ _ 
+
+2023-08-15 10:18:13.778 | INFO     | seahorse.game.master:play_game:115 - Player to play : alpha_player_tictac - 4299151824
+2023-08-15 10:18:13.778 | INFO     | seahorse.game.master:step:81 - time : 999999.9999969006
+2023-08-15 10:18:14.293 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+O X _ 
+_ _ _ 
+_ _ _ 
+
+2023-08-15 10:18:14.394 | INFO     | seahorse.game.master:play_game:115 - Player to play : random_player_tictac - 4299128400
+2023-08-15 10:18:14.394 | INFO     | seahorse.game.master:step:81 - time : 999999.9997909069
+2023-08-15 10:18:14.395 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+O X _ 
+_ _ _ 
+X _ _ 
+
+2023-08-15 10:18:14.496 | INFO     | seahorse.game.master:play_game:115 - Player to play : alpha_player_tictac - 4299151824
+2023-08-15 10:18:14.499 | INFO     | seahorse.game.master:step:81 - time : 999999.485421896
+2023-08-15 10:18:14.587 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+O X _ 
+_ O _ 
+X _ _ 
+
+2023-08-15 10:18:14.688 | INFO     | seahorse.game.master:play_game:115 - Player to play : random_player_tictac - 4299128400
+2023-08-15 10:18:14.688 | INFO     | seahorse.game.master:step:81 - time : 999999.9993188381
+2023-08-15 10:18:14.689 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+O X _ 
+_ O _ 
+X X _ 
+
+2023-08-15 10:18:14.791 | INFO     | seahorse.game.master:play_game:115 - Player to play : alpha_player_tictac - 4299151824
+2023-08-15 10:18:14.791 | INFO     | seahorse.game.master:step:81 - time : 999999.397100687
+2023-08-15 10:18:14.795 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+O X _ 
+_ O _ 
+X X O 
+
+2023-08-15 10:18:14.896 | INFO     | seahorse.game.master:play_game:154 - 4299128400 - 0.0
+2023-08-15 10:18:14.896 | INFO     | seahorse.game.master:play_game:154 - 4299151824 - 1.0
+2023-08-15 10:18:14.896 | INFO     | seahorse.game.master:play_game:156 - Winner - alpha_player_tictac
+2023-08-15 10:18:15.356 | DEBUG    | seahorse.game.time_manager:register_timer:108 - registering 4304289360
+2023-08-15 10:18:15.356 | INFO     | seahorse.game.time_manager:is_locked:97 - time :
+2023-08-15 10:18:15.356 | DEBUG    | seahorse.game.time_manager:register_timer:108 - registering 4304312784
+2023-08-15 10:18:15.356 | INFO     | seahorse.game.time_manager:is_locked:97 - time :
+2023-08-15 10:18:15.362 | INFO     | seahorse.game.io_stream:_wait_for_connexion:237 - Waiting for listeners; 0 out of 0 are connected.
+2023-08-15 10:18:15.362 | INFO     | seahorse.game.io_stream:stop:268 - Starting match
+2023-08-15 10:18:15.363 | INFO     | seahorse.game.master:play_game:112 - Player : alpha_player_tictac - 4304289360
+2023-08-15 10:18:15.363 | INFO     | seahorse.game.master:play_game:112 - Player : random_player_tictac - 4304312784
+2023-08-15 10:18:15.363 | INFO     | seahorse.game.master:play_game:115 - Player to play : alpha_player_tictac - 4304289360
+2023-08-15 10:18:15.363 | INFO     | seahorse.game.master:step:81 - time : 999999.9999983311
+2023-08-15 10:18:17.689 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ _ X 
+_ _ _ 
+_ _ _ 
+
+2023-08-15 10:18:17.791 | INFO     | seahorse.game.master:play_game:115 - Player to play : random_player_tictac - 4304312784
+2023-08-15 10:18:17.791 | INFO     | seahorse.game.master:step:81 - time : 999999.9999961853
+2023-08-15 10:18:17.791 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ _ X 
+_ O _ 
+_ _ _ 
+
+2023-08-15 10:18:17.893 | INFO     | seahorse.game.master:play_game:115 - Player to play : alpha_player_tictac - 4304289360
+2023-08-15 10:18:17.895 | INFO     | seahorse.game.master:step:81 - time : 999997.6736803055
+2023-08-15 10:18:18.043 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ X X 
+_ O _ 
+_ _ _ 
+
+2023-08-15 10:18:18.144 | INFO     | seahorse.game.master:play_game:115 - Player to play : random_player_tictac - 4304312784
+2023-08-15 10:18:18.144 | INFO     | seahorse.game.master:step:81 - time : 999999.9995141029
+2023-08-15 10:18:18.145 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ X X 
+_ O O 
+_ _ _ 
+
+2023-08-15 10:18:18.247 | INFO     | seahorse.game.master:play_game:115 - Player to play : alpha_player_tictac - 4304289360
+2023-08-15 10:18:18.248 | INFO     | seahorse.game.master:step:81 - time : 999997.5258841515
+2023-08-15 10:18:18.270 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+X X X 
+_ O O 
+_ _ _ 
+
+2023-08-15 10:18:18.372 | INFO     | seahorse.game.master:play_game:154 - 4304289360 - 1.0
+2023-08-15 10:18:18.372 | INFO     | seahorse.game.master:play_game:154 - 4304312784 - 0.0
+2023-08-15 10:18:18.372 | INFO     | seahorse.game.master:play_game:156 - Winner - alpha_player_tictac
+2023-08-15 10:18:18.940 | DEBUG    | seahorse.game.time_manager:register_timer:108 - registering 4368662096
+2023-08-15 10:18:18.940 | INFO     | seahorse.game.time_manager:is_locked:97 - time :
+2023-08-15 10:18:18.940 | DEBUG    | seahorse.game.time_manager:register_timer:108 - registering 4368685520
+2023-08-15 10:18:18.940 | INFO     | seahorse.game.time_manager:is_locked:97 - time :
+2023-08-15 10:18:18.946 | INFO     | seahorse.game.io_stream:_wait_for_connexion:237 - Waiting for listeners; 0 out of 0 are connected.
+2023-08-15 10:18:18.946 | INFO     | seahorse.game.io_stream:stop:268 - Starting match
+2023-08-15 10:18:18.947 | INFO     | seahorse.game.master:play_game:112 - Player : random_player_tictac - 4368662096
+2023-08-15 10:18:18.947 | INFO     | seahorse.game.master:play_game:112 - Player : alpha_player_tictac - 4368685520
+2023-08-15 10:18:18.947 | INFO     | seahorse.game.master:play_game:115 - Player to play : random_player_tictac - 4368662096
+2023-08-15 10:18:18.947 | INFO     | seahorse.game.master:step:81 - time : 999999.9999990463
+2023-08-15 10:18:18.947 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ _ _ 
+_ _ _ 
+X _ _ 
+
+2023-08-15 10:18:19.048 | INFO     | seahorse.game.master:play_game:115 - Player to play : alpha_player_tictac - 4368685520
+2023-08-15 10:18:19.049 | INFO     | seahorse.game.master:step:81 - time : 999999.9999969006
+2023-08-15 10:18:19.554 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ _ _ 
+_ O _ 
+X _ _ 
+
+2023-08-15 10:18:19.655 | INFO     | seahorse.game.master:play_game:115 - Player to play : random_player_tictac - 4368662096
+2023-08-15 10:18:19.655 | INFO     | seahorse.game.master:step:81 - time : 999999.9997887611
+2023-08-15 10:18:19.656 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ _ _ 
+_ O X 
+X _ _ 
+
+2023-08-15 10:18:19.757 | INFO     | seahorse.game.master:play_game:115 - Player to play : alpha_player_tictac - 4368685520
+2023-08-15 10:18:19.759 | INFO     | seahorse.game.master:step:81 - time : 999999.4951241016
+2023-08-15 10:18:19.839 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ O _ 
+_ O X 
+X _ _ 
+
+2023-08-15 10:18:19.941 | INFO     | seahorse.game.master:play_game:115 - Player to play : random_player_tictac - 4368662096
+2023-08-15 10:18:19.941 | INFO     | seahorse.game.master:step:81 - time : 999999.9993138313
+2023-08-15 10:18:19.941 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ O _ 
+_ O X 
+X _ X 
+
+2023-08-15 10:18:20.043 | INFO     | seahorse.game.master:play_game:115 - Player to play : alpha_player_tictac - 4368685520
+2023-08-15 10:18:20.044 | INFO     | seahorse.game.master:step:81 - time : 999999.4149684906
+2023-08-15 10:18:20.049 | INFO     | seahorse.game.master:play_game:144 - Current game state: 
+_ O _ 
+_ O X 
+X O X 
+
+2023-08-15 10:18:20.151 | INFO     | seahorse.game.master:play_game:154 - 4368662096 - 0.0
+2023-08-15 10:18:20.152 | INFO     | seahorse.game.master:play_game:154 - 4368685520 - 1.0
+2023-08-15 10:18:20.153 | INFO     | seahorse.game.master:play_game:156 - Winner - alpha_player_tictac
