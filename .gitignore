@@ -135,3 +135,4 @@ src/*.py
 sandbox/
 
 *.json
+log.txt
