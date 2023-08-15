@@ -1,6 +1,7 @@
 import random
 
 from player_tictac import PlayerTictac
+
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 
@@ -32,8 +33,5 @@ class MyPlayer(PlayerTictac):
             Action: The selected action.
         """
         possible_actions = current_state.generate_possible_actions()
-
-        if kwargs:
-            pass
 
         return random.choice(list(possible_actions))

@@ -7,13 +7,14 @@ from loguru import logger
 
 from seahorse.utils.custom_exceptions import (
     AlreadyRunningError,
-    SeahorseTimeoutError,
     NotRunningError,
+    SeahorseTimeoutError,
     TimerNotInitializedError,
 )
 
+
 class TimeMaster:
-    __instance = None 
+    __instance = None
 
     class Timer:
         def __init__(self,time_limit:float=1e9):
@@ -99,7 +100,7 @@ class TimeMaster:
     @staticmethod
     def get_instance()->"TimeMaster":
         if TimeMaster.__instance is None:
-            TimeMaster.__instance=TimeMaster() 
+            TimeMaster.__instance=TimeMaster()
         return TimeMaster.__instance
 
     @classmethod

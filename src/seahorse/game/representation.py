@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from typing import Any, Dict
+from typing import Any
 
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
@@ -13,7 +13,7 @@ class Representation(Serializable):
         env (dict): The dictionary of the current state.
     """
 
-    def __init__(self, env: Dict) -> None:
+    def __init__(self, env: dict) -> None:
         """
         Initializes a new instance of the Representation class.
 
@@ -22,7 +22,7 @@ class Representation(Serializable):
         """
         self.env = env
 
-    def get_env(self) -> Dict:
+    def get_env(self) -> dict:
         """
         Gets the dictionary of the environment.
 

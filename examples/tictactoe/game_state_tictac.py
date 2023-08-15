@@ -3,10 +3,10 @@ import json
 from math import sqrt
 from typing import Dict, List, Optional, Set
 
-from loguru import logger
-
 from board_tictac import BoardTictac
+from loguru import logger
 from player_tictac import PlayerTictac
+
 from seahorse.game.action import Action
 from seahorse.game.game_layout.board import Piece
 from seahorse.game.game_state import GameState
@@ -26,7 +26,7 @@ class GameStateTictac(GameState):
         rep (BoardTictac): The representation of the game.
     """
 
-    def __init__(self, scores: Dict, next_player: Player, players: List[Player], rep: BoardTictac, *_, **__) -> None:
+    def __init__(self, scores: dict, next_player: Player, players: list[Player], rep: BoardTictac, *_, **__) -> None:
         """
         Initializes a new instance of the GameStateTictac class.
 
@@ -59,7 +59,7 @@ class GameStateTictac(GameState):
             return True
         return False
 
-    def generate_possible_actions(self) -> Set[Action]:
+    def generate_possible_actions(self) -> set[Action]:
         """
         Generates possible actions.
 
@@ -89,7 +89,7 @@ class GameStateTictac(GameState):
         }
         return poss_actions
 
-    def compute_scores(self, representation: Representation) -> Dict[int, float]:
+    def compute_scores(self, representation: Representation) -> dict[int, float]:
         """
         Computes the score of each player in a list.
 
@@ -154,7 +154,7 @@ class GameStateTictac(GameState):
                     scores[player.get_id()] = 0.0
         return scores
 
-    def convert_light_action_to_action(self,data:Dict) -> Action:
+    def convert_light_action_to_action(self,data:dict) -> Action:
         position = int(data["position"])
         logger.debug(f"Converting light action {data}")
         i = position//3
