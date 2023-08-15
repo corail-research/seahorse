@@ -3,6 +3,9 @@ $(document).ready(function () {
     var index = -1;
     const logElement = document.getElementById("log");
     const socket = io("ws://localhost:16001");
+
+    socket.on("connect", () => {socket.emit("identify",JSON.stringify({"identifier": "__GUI__"+Date.now()}))});
+
     socket.on("play", (...args) => {
         json = JSON.parse(args[0]);
             if (json.rep && json.rep.env){

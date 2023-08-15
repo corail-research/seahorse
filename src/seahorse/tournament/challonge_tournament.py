@@ -22,7 +22,7 @@ class ChallongeTournament:
         log_level (str): The log file.
     """
 
-    def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_level: str|None) -> None:
+    def __init__(self, id_challonge: str, keypass_challonge: str, game_name: str, log_level: str|None, log_file: str = "log.txt") -> None:
         """
         Initializes a new instance of the ChallongeTournament class.
 
@@ -38,6 +38,7 @@ class ChallongeTournament:
         self.log_level = log_level
         self.user = None
         self.tournament = None
+        self.log_file = log_file
 
     async def create_tournament(self, tournament_name: str, tournament_url: str, csv_file: str, sep: str = ",") -> None:
         """
@@ -168,9 +169,14 @@ class ChallongeTournament:
             cmd = "python3 " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
         process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
-        list_score_winner = stdout.decode("utf-8").split("\n")[-2].split(",")
-        score = str(math.floor(float(list_score_winner[0]))) + "-" + str(math.floor(float(list_score_winner[1]))) + ","
-        winner = str(list_score_winner[2])
+        score1 = stderr.decode("utf-8").split("\n")[-4].split(" - ")[-1]
+        score2 = stderr.decode("utf-8").split("\n")[-3].split(" - ")[-1]
+        winner = stderr.decode("utf-8").split("\n")[-2].split(" - ")[-1]
+        score = str(math.floor(float(score1))) + "-" + str(math.floor(float(score2))) + ","
+        winner = str(winner)
+        with open(self.log_file,"a+") as f :
+            f.write(stderr.decode(encoding="utf-8"))
+        f.close()
         return score, winner
 
     async def play_match(self, match, port: int, rounds: int, folder_player: str) -> None:

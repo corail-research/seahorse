@@ -38,7 +38,7 @@ dependencies = [
 [project.urls]
 Documentation = "https://github.com/corail-research/seahorse#readme"
 Issues = "https://github.com/corail-research/seahorse/issues"
-Source = "https://github.com/corai-research/seahorse"
+Source = "https://github.com/corail-research/seahorse"
 
 [tool.hatch.version]
 path = "src/seahorse/__about__.py"

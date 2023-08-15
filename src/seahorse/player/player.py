@@ -92,4 +92,4 @@ class Player(Serializable,TimeMixin):
         Returns:
             str: The string representation.
         """
-        return f"Player {self.get_name()} has ID {self.get_id()}."
+        return f"Player {self.get_name()}({self.get_id()})"

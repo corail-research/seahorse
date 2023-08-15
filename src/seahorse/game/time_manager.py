@@ -7,13 +7,14 @@ from loguru import logger
 
 from seahorse.utils.custom_exceptions import (
     AlreadyRunningError,
-    SeahorseTimeoutError,
     NotRunningError,
+    SeahorseTimeoutError,
     TimerNotInitializedError,
 )
 
+
 class TimeMaster:
-    __instance = None 
+    __instance = None
 
     class Timer:
         def __init__(self,time_limit:float=1e9):
@@ -93,13 +94,13 @@ class TimeMaster:
             Returns:
                 bool: `True` if expired `False` otherwise
             """
-            logger.info("time :", self.get_remaining_time())
+            logger.info(f"time : {self.get_remaining_time()}")
             return self.get_remaining_time() <= 0
 
     @staticmethod
     def get_instance()->"TimeMaster":
         if TimeMaster.__instance is None:
-            TimeMaster.__instance=TimeMaster() 
+            TimeMaster.__instance=TimeMaster()
         return TimeMaster.__instance
 
     @classmethod
@@ -134,7 +135,7 @@ class TimeMixin:
             x.set_time_limit(10)
             x.start_timer()
             time.sleep(11)
-            x.myattr=5  # raises ColiseumTimeoutException
+            x.myattr=5  # raises SeahorseTimeoutException
 
     ```
     """
@@ -157,7 +158,8 @@ class TimeMixin:
         Raises:
             AlreadyRunningException: when trying to start twice.
         """
-
+        if TimeMaster.get_timer(self) is None:
+            raise TimerNotInitializedError
         return TimeMaster.get_timer(self).start_timer()
 
     def is_running(self) -> bool:
@@ -167,12 +169,16 @@ class TimeMixin:
         Returns:
             bool: `True` if the timer is running, `False` otherwise
         """
+        if TimeMaster.get_timer(self) is None:
+            raise TimerNotInitializedError
         return TimeMaster.get_timer(self).is_running()
 
     def get_time_limit(self):
         """
         Get the limit set in `set_time_limit()`
         """
+        if TimeMaster.get_timer(self) is None:
+            raise TimerNotInitializedError
         return TimeMaster.get_timer(self).get_time_limit()
 
     def get_remaining_time(self) -> float:
@@ -181,6 +187,8 @@ class TimeMixin:
         Returns:
             float: the remaining time
         """
+        if TimeMaster.get_timer(self) is None:
+            raise TimerNotInitializedError
         return TimeMaster.get_timer(self).get_remaining_time()
 
     def get_last_timestamp(self) -> float:
@@ -189,6 +197,8 @@ class TimeMixin:
         Returns:
             float: the timestamp
         """
+        if TimeMaster.get_timer(self) is None:
+            raise TimerNotInitializedError
         return TimeMaster.get_timer(self).get_last_timestamp()
 
     def stop_timer(self) -> float:
@@ -200,6 +210,8 @@ class TimeMixin:
         Returns:
             float: remaining time
         """
+        if TimeMaster.get_timer(self) is None:
+            raise TimerNotInitializedError
         return TimeMaster.get_timer(self).stop_timer()
 
 
@@ -209,6 +221,8 @@ class TimeMixin:
         Returns:
             bool: `True` if expired `False` otherwise
         """
+        if TimeMaster.get_timer(self) is None:
+            raise TimerNotInitializedError
         return TimeMaster.get_timer(self).is_locked()
 
     def __setattr__(self, __name: str, value: Any) -> None:

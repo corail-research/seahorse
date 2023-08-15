@@ -3,6 +3,7 @@ from itertools import cycle
 from typing import Tuple
 
 from player_tictac import PlayerTictac
+
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 
@@ -54,7 +55,7 @@ class MyPlayer(PlayerTictac):
             return -1
         return 0
 
-    def max_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> Tuple[float, Action]:
+    def max_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> tuple[float, Action]:
         """
         Performs the max-value step of the alpha-beta algorithm.
 
@@ -80,7 +81,7 @@ class MyPlayer(PlayerTictac):
                 return v, move
         return v, move
 
-    def min_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> Tuple[float, Action]:
+    def min_value(self, current_state: GameState, alpha: int, beta: int, depth: int, cutoff: int) -> tuple[float, Action]:
         """
         Performs the min-value step of the alpha-beta algorithm.
 

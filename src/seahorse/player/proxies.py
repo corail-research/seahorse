@@ -1,12 +1,14 @@
 import json
 from argparse import Action
-from typing import Any, Coroutine, Type
+from collections.abc import Coroutine
+from typing import Any, Optional
 
 from loguru import logger
 
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
 from seahorse.player.player import Player
+from seahorse.utils.gui_client import GUIClient
 from seahorse.utils.serializer import Serializable
 
 
@@ -47,7 +49,7 @@ class RemotePlayerProxy(Serializable,EventSlave):
 
     async def listen(self,**_) -> Coroutine[Any, Any, None]:
         """
-        Listens for events.
+        Fires up the listening process
 
         Returns:
             Coroutine: A coroutine object.
@@ -79,7 +81,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         play(current_state: GameState) -> Action: Plays a move.
     """
 
-    def __init__(self, wrapped_player: Player,gs:Type=GameState) -> None:
+    def __init__(self, wrapped_player: Player,gs:type=GameState) -> None:
         """
         Initializes a new instance of the LocalPlayerProxy class.
 
@@ -130,9 +132,20 @@ class LocalPlayerProxy(Serializable,EventSlave):
         return self.wrapped_player.to_json()
 
 class InteractivePlayerProxy(LocalPlayerProxy):
-    def __init__(self, mimics: type[Player], *args, **kwargs) -> None:
+    """Proxy for interactive players, 
+       inherits from `LocalPlayerProxy`
+    """
+    def __init__(self, mimics: type[Player], gui_path:Optional[str]=None, *args, **kwargs) -> None:
+        """
+
+        Args:
+            mimics (type[Player]): A wrapped player, the internal logic will be overridden by an interactive one
+            gui_path (str, optional): If the interaction is supposed to happen on the host machine, provide a GUI path to start it up. Defaults to None.
+        """
         super().__init__(mimics, *args, **kwargs)
         self.wrapped_player.player_type = "interactive"
+        self.path = gui_path
+        self.sid = None
 
     async def play(self, current_state: GameState) -> Action:
         while True:
@@ -143,3 +156,8 @@ class InteractivePlayerProxy(LocalPlayerProxy):
             else:
                 await EventMaster.get_instance().sio.emit("ActionNotPermitted",None)
         return action
+
+    async def listen(self, master_address, *, keep_alive: bool) -> None:
+        await super().listen(master_address, keep_alive=keep_alive)
+        await GUIClient(path=self.path).listen()
+

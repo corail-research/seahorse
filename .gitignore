@@ -133,3 +133,6 @@ dmypy.json
 docs
 src/*.py
 sandbox/
+
+*.json
+log.txt

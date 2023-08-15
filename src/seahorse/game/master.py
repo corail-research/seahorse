@@ -1,11 +1,12 @@
 import asyncio
 import copy
 import json
-from abc import abstractmethod
-from itertools import cycle
 import sys
 import time
-from typing import Dict, Iterable, List
+from abc import abstractmethod
+from collections.abc import Iterable
+from itertools import cycle
+from typing import List, Optional
 
 from loguru import logger
 
@@ -14,8 +15,8 @@ from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
-    SeahorseTimeoutError,
     MethodNotImplementedError,
+    SeahorseTimeoutError,
     StopAndStartError,
 )
 
@@ -40,8 +41,7 @@ class GameMaster:
         players_iterator: Iterable[Player],
         log_level: str = "INFO",
         port: int =8080,
-        hostname: str ="localhost",
-        n_listeners: int =4
+        hostname: str ="localhost"
     ) -> None:
         """
         Initializes a new instance of the GameMaster class.
@@ -61,7 +61,7 @@ class GameMaster:
         self.log_level = log_level
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
-        self.emitter = EventMaster.get_instance(n_listeners,initial_game_state.__class__,port=port,hostname=hostname)
+        self.emitter = EventMaster.get_instance(initial_game_state.__class__,port=port,hostname=hostname)
         logger.remove()
         logger.add(sys.stderr, level=log_level)
 
@@ -84,10 +84,6 @@ class GameMaster:
         else:
             action = next_player.play(self.current_game_state)
 
-        next_player.stop_timer()
-        time.sleep(2)
-        next_player.start_timer()
-
         tstp = time.time()
         if abs((tstp-start)-(tstp-next_player.get_last_timestamp()))>self.timetol:
             next_player.stop_timer()
@@ -100,7 +96,7 @@ class GameMaster:
 
         return action.get_next_game_state()
 
-    async def play_game(self) -> List[Player]:
+    async def play_game(self) -> list[Player]:
         """
         Play the game.
 
@@ -111,20 +107,29 @@ class GameMaster:
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
+        for player in self.get_game_state().get_players() :
+            logger.info(f"Player : {player.get_name()} - {player.get_id()}")
         while not self.current_game_state.is_done():
             try:
+                logger.info(f"Player to play : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
-            except SeahorseTimeoutError:
-                logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
+            except (SeahorseTimeoutError,StopAndStartError) as e:
+                if isinstance(e,SeahorseTimeoutError):
+                    logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
+                else:
+                    logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
+
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 id_player_error = self.current_game_state.get_next_player().get_id()
                 temp_score.pop(id_player_error)
                 self.winner = self.compute_winner(temp_score)
                 self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
+                scores = self.get_scores()
+                for key in scores.keys() :
+                    logger.info(f"{key} - {scores[key]}")
+                for player in self.get_winner() :
+                    logger.info(f"Winner - {player.get_name()}")
                 return self.winner
-            except StopAndStartError:
-                logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
-
 
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
             #print(self.current_game_state)
@@ -134,13 +139,18 @@ class GameMaster:
                 json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
             )
         self.winner = self.compute_winner(self.current_game_state.get_scores())
+        scores = self.get_scores()
+        for key in scores.keys() :
+                    logger.info(f"{key} - {scores[key]}")
+        for player in self.get_winner() :
+            logger.info(f"Winner - {player.get_name()}")
         return self.winner
 
-    def record_game(self) -> None:
+    def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:
         """
         Starts a game and broadcasts its successive states.
         """
-        self.emitter.start(self.play_game, self.players)
+        self.emitter.start(self.play_game, self.players+(listeners if listeners else []))
 
     def update_log(self) -> None:
         """
@@ -172,14 +182,14 @@ class GameMaster:
         """
         return self.log_level
 
-    def get_winner(self) -> List[Player]:
+    def get_winner(self) -> list[Player]:
         """
         Returns:
             Player: The winner(s) of the game.
         """
         return self.winner
 
-    def get_scores(self) -> Dict[int, float]:
+    def get_scores(self) -> dict[int, float]:
         """
         Returns:
             Dict: The scores of the current state.
@@ -187,7 +197,7 @@ class GameMaster:
         return self.current_game_state.get_scores()
 
     @abstractmethod
-    def compute_winner(self, scores: Dict[int, float]) -> List[Player]:
+    def compute_winner(self, scores: dict[int, float]) -> list[Player]:
         """
         Computes the winner(s) of the game based on the scores.
 
