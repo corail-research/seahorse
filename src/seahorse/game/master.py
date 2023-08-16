@@ -2,7 +2,6 @@ import asyncio
 import copy
 import json
 import sys
-import time
 from abc import abstractmethod
 from collections.abc import Iterable
 from itertools import cycle
@@ -84,7 +83,7 @@ class GameMaster:
         else:
             action = next_player.play(self.current_game_state)
 
-        tstp = time.time()
+        # tstp = time.time()
         # if abs((tstp-start)-(tstp-next_player.get_last_timestamp()))>self.timetol:
         #     next_player.stop_timer()
         #     raise StopAndStartError()
