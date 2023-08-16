@@ -164,7 +164,7 @@ class ChallongeTournament:
             tuple[str, str]: A tuple containing the score and the winner.
         """
         if platform == "win32" :
-            cmd = "python " + self.game_name + ".py" + " -t local -p " + str(port) + " " + name1 + " " + name2
+            cmd = "python " + self.game_name + ".py" + " -t local -p " + str(port) + " " + folder_player+name1 + " " + folder_player+name2
         else :
             cmd = "python3 " + self.game_name + ".py" + " -t local -p " + str(port) + " " + name1 + " " + name2
         process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
@@ -172,7 +172,7 @@ class ChallongeTournament:
         score1 = stderr.decode("utf-8").split("\n")[-4].split(" - ")[-1]
         score2 = stderr.decode("utf-8").split("\n")[-3].split(" - ")[-1]
         winner = stderr.decode("utf-8").split("\n")[-2].split(" - ")[-1]
-        score = str(math.floor(float(score1))) + "-" + str(math.floor(float(score2))) + ","
+        score = str(math.floor(abs(float(score1)))) + "-" + str(math.floor(abs(float(score2)))) + ","
         winner = str(winner)
         with open(self.log_file,"a+") as f :
             f.write(stderr.decode(encoding="utf-8"))
