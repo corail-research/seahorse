@@ -24,7 +24,7 @@ def run_multiple_games():
                     else '/'.join(["file://"]+os.path.abspath(__file__).split("/")[:-1]+["/GUI/index.html"]) 
         
         player1 = InteractivePlayerProxy(AlphaPlayerTictac("X", name="louis"),gui_path=gui_path)
-        player2 = LocalPlayerProxy(AlphaPlayerTictac("O", name="pierre"))
+        player2 = InteractivePlayerProxy(AlphaPlayerTictac("O", name="pierre"),gui_path=gui_path)
         #player2 = RemotePlayerProxy(mimics=PlayerTictac,piece_type="O",name="jean")
 
         list_players = [player1, player2]
