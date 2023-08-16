@@ -1,8 +1,9 @@
 import argparse
 import asyncio
 import os
-from os.path import basename, splitext
+from os.path import basename, splitext, dirname
 import platform
+import sys
 from board_tictac import BoardTictac
 from player_tictac import PlayerTictac
 from master_tictac import MasterTictac
@@ -54,21 +55,31 @@ if __name__=="__main__":
     list_players = vars(args).get("list_players")
     
     if type == "local" :
+        folder = dirname(list_players[0])
+        sys.path.append(folder)
         player1_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
+        folder = dirname(list_players[1])
+        sys.path.append(folder)
         player2_class = __import__(splitext(basename(list_players[1]))[0], fromlist=[None])
         player1 = player1_class.MyPlayer("X", name=splitext(basename(list_players[0]))[0])
         player2 = player2_class.MyPlayer("O", name=splitext(basename(list_players[1]))[0])
         play(player1=player1, player2=player2, log_level=log_level, port=port, gui=gui, gui_dist=gui_dist, gui_path=gui_path, record=record)
     elif type == "remote" :
+        folder = dirname(list_players[0])
+        sys.path.append(folder)
         player1_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
         player1 = LocalPlayerProxy(player1_class.MyPlayer("X", name=splitext(basename(list_players[0]))[0]),gs=GameStateTictac)
         player2 = RemotePlayerProxy(mimics=PlayerTictac,piece_type="O",name=splitext(basename(list_players[1]))[0])
         play(player1=player1, player2=player2, log_level=log_level, port=port, gui=gui, gui_dist=gui_dist, gui_path=gui_path, record=record)
     elif type == "standalone" :
+        folder = dirname(list_players[0])
+        sys.path.append(folder)
         player2_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
         player2 = LocalPlayerProxy(player2_class.MyPlayer("O", name=splitext(basename(list_players[0]))[0]),gs=GameStateTictac)
         asyncio.new_event_loop().run_until_complete(player2.listen(keep_alive=True,master_address=f"http://{address}:{port}"))
     elif type == "humvscomp" :
+        folder = dirname(list_players[0])
+        sys.path.append(folder)
         player1_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
         player1 = InteractivePlayerProxy(PlayerTictac("X", name="bob"),gui_path=gui_path,gs=GameStateTictac)
         player2 = LocalPlayerProxy(player1_class.MyPlayer("O", name=splitext(basename(list_players[0]))[0]),gs=GameStateTictac)
