@@ -113,9 +113,11 @@ class GameMaster:
             try:
                 logger.info(f"Player to play : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
-            except (SeahorseTimeoutError,StopAndStartError) as e:
+            except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
+                elif isinstance(e,ActionNotPermittedError) :
+                    logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
                 else:
                     logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
 
