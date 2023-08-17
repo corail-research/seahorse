@@ -193,6 +193,10 @@ class ChallongeTournament:
             None
         """
         if match.completed_at is None :
+            print(list(await self.tournament.get_participants()))
+            print(match.__dict__)
+            print(match.player2_id)
+            print(match.player1_id)
             p1 = await self.tournament.get_participant(match.player1_id)
             p2 = await self.tournament.get_participant(match.player2_id)
             already_played = 0
@@ -234,9 +238,12 @@ class ChallongeTournament:
         """
         if self.tournament is not None :
             await self.tournament.start()
-            matches = await self.tournament.get_matches()
+            await self.tournament.update_tournament_type(challonge.TournamentType.round_robin) 
+            matches = await self.tournament.get_matches(True)
+            print(matches)
             dict_round = {}
             for match in matches :
+                print(match)
                 if dict_round.get(match.round,False) :
                     dict_round[match.round] += [match]
                 else :
