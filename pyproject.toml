@@ -47,18 +47,10 @@ path = "src/seahorse/__about__.py"
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
-  "pdoc",
-  "split",
-  "achallonge",
-  "aiohttp>=3.8.5",
-  "nest_asyncio"
+  "pdoc"
 ]
 [tool.hatch.envs.default.scripts]
-gen-doc = [
-          "rm -r docs",
-          "mkdir docs & pdoc -html seahorse -o docs -d=google"
-]
-serve-doc = "PYTHONPATH=. python3.11 -m pdoc seahorse -d=google"
+serve-doc = "mkdocs serve"
 test = "pytest {args:tests}"
 test-cov = "coverage run -m pytest {args:tests}"
 cov-report = [
@@ -72,7 +64,7 @@ cov = [
 
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.9"]
+python = ["3.9","3.10","3.11"]
 
 [tool.hatch.envs.lint]
 detached = true
