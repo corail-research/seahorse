@@ -39,6 +39,7 @@ class ChallongeTournament:
         self.user = None
         self.tournament = None
         self.log_file = log_file
+        self.created = False
 
     async def create_tournament(self, tournament_name: str, tournament_url: str, csv_file: str, sep: str = ",") -> None:
         """
@@ -60,6 +61,7 @@ class ChallongeTournament:
             for line in spamreader :
                 for name in line :
                     await self.tournament.add_participant(str(name))
+        self.created = True
 
     async def connect_tournament(self, tournament_name: str) -> None:
         """
@@ -193,10 +195,6 @@ class ChallongeTournament:
             None
         """
         if match.completed_at is None :
-            print(list(await self.tournament.get_participants()))
-            print(match.__dict__)
-            print(match.player2_id)
-            print(match.player1_id)
             p1 = await self.tournament.get_participant(match.player1_id)
             p2 = await self.tournament.get_participant(match.player2_id)
             already_played = 0
@@ -218,7 +216,10 @@ class ChallongeTournament:
                     scores += self.invert_score(score)
                     winners.append(self.get_participant_winner(winner, p1, p2))
                 await match.report_live_scores(scores[:-1])
-            await match.report_winner(max(winners,key=winners.count),scores[:-1])
+            if match.group_id is not None :
+                await match._report(scores[:-1], max(winners,key=winners.count).group_player_ids[0])
+            else :
+                await match._report(scores[:-1], max(winners,key=winners.count).id)
             await match.unmark_as_underway()
 
     async def run(self, folder_player: str, rounds: int = 1, nb_process: int = 2) -> None:
@@ -237,22 +238,26 @@ class ChallongeTournament:
             NoTournamentFailError: If there is no tournament.
         """
         if self.tournament is not None :
-            await self.tournament.start()
-            await self.tournament.update_tournament_type(challonge.TournamentType.round_robin) 
-            matches = await self.tournament.get_matches(True)
-            print(matches)
+            if self.created :
+                await self.tournament.start()
+            matches = await self.tournament.get_matches()
             dict_round = {}
             for match in matches :
-                print(match)
-                if dict_round.get(match.round,False) :
-                    dict_round[match.round] += [match]
+                if match.group_id is None :
+                    if dict_round.get(match.round,False) :
+                        dict_round[match.round] += [match]
+                    else :
+                        dict_round[match.round] = [match]
+                elif dict_round.get(match.group_id,False) :
+                    dict_round[match.group_id] += [match]
                 else :
-                    dict_round[match.round] = [match]
-            for key in sorted(dict_round.keys()) :
+                    dict_round[match.group_id] = [match]
+            for key in dict_round.keys() :
                 port = 16000
                 for matches in list(chop(nb_process, dict_round[key])) :
                     list_jobs_routines = [asyncio.create_task(self.play_match(match, port+i, rounds, folder_player)) for i, match in enumerate(matches)]
                     await asyncio.gather(*list_jobs_routines)
-            await self.tournament.finalize()
+            if self.created :
+                await self.tournament.finalize()
         else :
             raise NoTournamentFailError()
