@@ -98,7 +98,7 @@ class ChallongeTournament:
             return match.scores_csv
         return match.scores_csv + ","
 
-    def retrieve_winners(self, scores: str, p1, p2) -> list :
+    def retrieve_winners(self, scores: str, p1, p2, minormax: str) -> list :
         """
         Retrieves the winners from the scores.
 
@@ -116,10 +116,16 @@ class ChallongeTournament:
         list_scores = scores[:-1].split(",")
         for score in list_scores:
             s1, s2 = score.split("-")
-            if s1 >= s2 :
-                result.append(p1)
-            else :
-                result.append(p2)
+            if minormax == "max" :
+                if s1 > s2 :
+                    result.append(p1)
+                elif s1 < s2 :
+                    result.append(p2)
+            elif minormax == "min" :
+                if s1 > s2 :
+                    result.append(p2)
+                elif s1 < s2 :
+                    result.append(p1)
         return result
 
     def invert_score(self, score: str) -> str:
@@ -181,7 +187,7 @@ class ChallongeTournament:
         f.close()
         return score, winner
 
-    async def play_match(self, match, port: int, rounds: int, folder_player: str) -> None:
+    async def play_match(self, match, port: int, rounds: int, folder_player: str, minormax: str) -> None:
         """
         Plays a match of the tournament.
 
@@ -204,7 +210,7 @@ class ChallongeTournament:
                 winners = []
             else :
                 scores = self.retrieve_scores(match)
-                winners = self.retrieve_winners(scores, p1, p2)
+                winners = self.retrieve_winners(scores, p1, p2, minormax)
                 already_played = len(winners)
             for r in range(already_played, rounds) :
                 if r % 2 == 0 :
@@ -222,7 +228,7 @@ class ChallongeTournament:
                 await match._report(scores[:-1], max(winners,key=winners.count).id)
             await match.unmark_as_underway()
 
-    async def run(self, folder_player: str, rounds: int = 1, nb_process: int = 2) -> None:
+    async def run(self, folder_player: str, rounds: int = 1, nb_process: int = 2, minormax: str = "max") -> None:
         """
         Runs the tournament.
 
@@ -255,7 +261,7 @@ class ChallongeTournament:
             for key in dict_round.keys() :
                 port = 16000
                 for matches in list(chop(nb_process, dict_round[key])) :
-                    list_jobs_routines = [asyncio.create_task(self.play_match(match, port+i, rounds, folder_player)) for i, match in enumerate(matches)]
+                    list_jobs_routines = [asyncio.create_task(self.play_match(match, port+i, rounds, folder_player, minormax)) for i, match in enumerate(matches)]
                     await asyncio.gather(*list_jobs_routines)
             if self.created :
                 await self.tournament.finalize()
