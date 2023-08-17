@@ -25,7 +25,7 @@ class ExecMulti:
         self.num_player = 2
         self.log_file = log_file
 
-    async def run_round(self, folder_players: str, name_player1: str, name_player2: str, port: int):
+    async def run_round(self, folder_players: str, name_player1: str, name_player2: str, port: int, recordjs: bool):
         """
         Runs a single round of the game.
 
@@ -39,16 +39,22 @@ class ExecMulti:
             None
         """
         if platform == "win32" :
-            cmd = "python " + self.main_file + ".py" + " -t local -p " + str(port) + " " + folder_players+name_player1 + " " + folder_players+name_player2
+            cmd = "python " + self.main_file + ".py" + " -t local"
+            if recordjs :
+                cmd += " --record"
+            cmd += " -p " + str(port) + " " + folder_players+name_player1 + " " + folder_players+name_player2
         else :
-            cmd = "python3 " + self.main_file + ".py" + " -t local -p " + str(port) + " " + folder_players+name_player1 + " " + folder_players+name_player2
+            cmd = "python3 " + self.main_file + ".py" + " -t local"
+            if recordjs :
+                cmd += " --record"
+            cmd += " -p " + str(port) + " " + folder_players+name_player1 + " " + folder_players+name_player2
         process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
         with open(self.log_file,"a+") as f :
             f.write(stderr.decode(encoding="utf-8"))
         f.close()
 
-    async def run_multiple_rounds(self, rounds: int, nb_process: int, swap: bool, folder_players: str, name_player1: str, name_player2: str, port: int = 8080):
+    async def run_multiple_rounds(self, rounds: int, nb_process: int, swap: bool, folder_players: str, name_player1: str, name_player2: str, port: int = 8080, *, recordjs: bool = False):
         """
         Runs multiple rounds of the game.
 
@@ -77,10 +83,10 @@ class ExecMulti:
                 else:
                     p1 = name_player1
                     p2 = name_player2
-                list_jobs_routines.append(asyncio.create_task(self.run_round(folder_players, p1, p2, port+add)))
+                list_jobs_routines.append(asyncio.create_task(self.run_round(folder_players, p1, p2, port+add, recordjs)))
             await asyncio.gather(*list_jobs_routines)
 
-    async def run_match(self, rounds_by_match: int, swap: bool, folder_players: str, name_player1: str, name_player2: str, port: int):
+    async def run_match(self, rounds_by_match: int, swap: bool, folder_players: str, name_player1: str, name_player2: str, port: int, recordjs: bool):
         """
         Runs a single match of the game.
 
@@ -95,9 +101,9 @@ class ExecMulti:
         Returns:
             None
         """
-        await self.run_multiple_rounds(rounds=rounds_by_match, nb_process=1, swap=swap, folder_players=folder_players, name_player1=name_player1, name_player2=name_player2, port=port)
+        await self.run_multiple_rounds(rounds=rounds_by_match, nb_process=1, swap=swap, folder_players=folder_players, name_player1=name_player1, name_player2=name_player2, port=port, recordjs=recordjs)
 
-    async def run_multiple_matches(self, rounds_by_match: int, nb_process: int, swap: bool, folder_players: str, csv_file: str, sep: str = ",", port: int = 8080):
+    async def run_multiple_matches(self, rounds_by_match: int, nb_process: int, swap: bool, folder_players: str, csv_file: str, sep: str = ",", port: int = 8080, *, recordjs: bool = False):
         """
         Runs multiple matches of the game.
 
@@ -130,5 +136,5 @@ class ExecMulti:
             for chunk in list(chop(nb_process, match_table)):
                 list_jobs_routines = []
                 for add, match in enumerate(chunk):
-                    list_jobs_routines.append(asyncio.create_task(self.run_match(rounds_by_match, swap, folder_players, match[0], match[1], port+add)))
+                    list_jobs_routines.append(asyncio.create_task(self.run_match(rounds_by_match, swap, folder_players, match[0], match[1], port+add, recordjs)))
                 await asyncio.gather(*list_jobs_routines)
