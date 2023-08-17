@@ -47,7 +47,11 @@ path = "src/seahorse/__about__.py"
 dependencies = [
   "coverage[toml]>=6.5",
   "pytest",
-  "pdoc"
+  "pdoc",
+  "split",
+  "achallonge",
+  "aiohttp>=3.8.5",
+  "nest_asyncio"
 ]
 [tool.hatch.envs.default.scripts]
 gen-doc = [
