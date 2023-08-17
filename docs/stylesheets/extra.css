@@ -1,0 +1,27 @@
+@font-face {
+  font-family: "Frankfurt";
+  src: url('assets/fonts/frankfurt.ttf') format('truetype');
+}
+:root {
+    --md-primary-fg-color:        #1cacd1;
+    --md-primary-fg-color--light: #1a82b9;
+    --md-primary-fg-color--dark:  #e17990;
+  }
+
+.md-logo img{
+  height: 2.1rem !important;
+  transform: translate(57px,-8px) scale(1.2);
+}
+.md-header__topic:first-child {
+  font-family: 'Frankfurt';
+  text-transform: uppercase;
+  font-weight: 200;
+  font-size: 2em;
+}
+.supporter-showcase{
+  height: 100px;
+}
+.supporter-showcase .supporter-img{
+  width:50%;
+  display: block;
+}

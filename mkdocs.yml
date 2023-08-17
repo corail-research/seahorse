@@ -1,0 +1,24 @@
+site_name: Seahorse
+theme:
+  name: material
+  logo: assets/seahorse.png
+extra_css:
+  - stylesheets/extra.css
+plugins:
+  - search
+  - gen-files:
+      scripts:
+        - gen_ref_pages.py
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+
+markdown_extensions: 
+  - attr_list
+  - md_in_html
+  - tables
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji 
+      emoji_generator: !!python/name:materialx.emoji.to_svg
