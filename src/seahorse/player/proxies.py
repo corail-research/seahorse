@@ -1,6 +1,7 @@
 import json
 from argparse import Action
 from collections.abc import Coroutine
+import time
 from typing import Any, Optional
 
 from loguru import logger
@@ -32,6 +33,7 @@ class RemotePlayerProxy(Serializable,EventSlave):
         """
         self.mimics = mimics(*args, **kwargs)
         self.activate(wrapped_id=self.mimics.get_id())
+        self.id = self.mimics.id
         self.sid = None
 
     @remote_action("turn")
@@ -149,7 +151,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
 
     async def play(self, current_state: GameState) -> Action:
         while True:
-            data = json.loads(await EventMaster.get_instance().wait_for_event("interact"))
+            data = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
             action = current_state.convert_light_action_to_action(data)
             if action in current_state.get_possible_actions():
                 break
@@ -159,5 +161,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
 
     async def listen(self, master_address, *, keep_alive: bool) -> None:
         await super().listen(master_address, keep_alive=keep_alive)
-        await GUIClient(path=self.path).listen()
+        embedded_client = GUIClient(path=self.path)
+        await embedded_client.listen()
+        self.sid = embedded_client.sid
 

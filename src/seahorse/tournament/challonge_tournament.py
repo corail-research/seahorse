@@ -39,6 +39,7 @@ class ChallongeTournament:
         self.user = None
         self.tournament = None
         self.log_file = log_file
+        self.created = False
 
     async def create_tournament(self, tournament_name: str, tournament_url: str, csv_file: str, sep: str = ",") -> None:
         """
@@ -60,6 +61,7 @@ class ChallongeTournament:
             for line in spamreader :
                 for name in line :
                     await self.tournament.add_participant(str(name))
+        self.created = True
 
     async def connect_tournament(self, tournament_name: str) -> None:
         """
@@ -96,7 +98,7 @@ class ChallongeTournament:
             return match.scores_csv
         return match.scores_csv + ","
 
-    def retrieve_winners(self, scores: str, p1, p2) -> list :
+    def retrieve_winners(self, scores: str, p1, p2, minormax: str) -> list :
         """
         Retrieves the winners from the scores.
 
@@ -114,10 +116,16 @@ class ChallongeTournament:
         list_scores = scores[:-1].split(",")
         for score in list_scores:
             s1, s2 = score.split("-")
-            if s1 >= s2 :
-                result.append(p1)
-            else :
-                result.append(p2)
+            if minormax == "max" :
+                if s1 > s2 :
+                    result.append(p1)
+                elif s1 < s2 :
+                    result.append(p2)
+            elif minormax == "min" :
+                if s1 > s2 :
+                    result.append(p2)
+                elif s1 < s2 :
+                    result.append(p1)
         return result
 
     def invert_score(self, score: str) -> str:
@@ -164,22 +172,22 @@ class ChallongeTournament:
             tuple[str, str]: A tuple containing the score and the winner.
         """
         if platform == "win32" :
-            cmd = "py " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
+            cmd = "python " + self.game_name + ".py" + " -t local -p " + str(port) + " " + folder_player+name1 + " " + folder_player+name2
         else :
-            cmd = "python3 " + self.game_name + ".py" + " " + folder_player + " " + name1 + " " + name2 + " " + str(port)
+            cmd = "python3 " + self.game_name + ".py" + " -t local -p " + str(port) + " " + name1 + " " + name2
         process = await asyncio.create_subprocess_shell(cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
         stdout, stderr = await process.communicate()
         score1 = stderr.decode("utf-8").split("\n")[-4].split(" - ")[-1]
         score2 = stderr.decode("utf-8").split("\n")[-3].split(" - ")[-1]
         winner = stderr.decode("utf-8").split("\n")[-2].split(" - ")[-1]
-        score = str(math.floor(float(score1))) + "-" + str(math.floor(float(score2))) + ","
+        score = str(math.floor(abs(float(score1)))) + "-" + str(math.floor(abs(float(score2)))) + ","
         winner = str(winner)
         with open(self.log_file,"a+") as f :
             f.write(stderr.decode(encoding="utf-8"))
         f.close()
         return score, winner
 
-    async def play_match(self, match, port: int, rounds: int, folder_player: str) -> None:
+    async def play_match(self, match, port: int, rounds: int, folder_player: str, minormax: str) -> None:
         """
         Plays a match of the tournament.
 
@@ -202,7 +210,7 @@ class ChallongeTournament:
                 winners = []
             else :
                 scores = self.retrieve_scores(match)
-                winners = self.retrieve_winners(scores, p1, p2)
+                winners = self.retrieve_winners(scores, p1, p2, minormax)
                 already_played = len(winners)
             for r in range(already_played, rounds) :
                 if r % 2 == 0 :
@@ -214,10 +222,13 @@ class ChallongeTournament:
                     scores += self.invert_score(score)
                     winners.append(self.get_participant_winner(winner, p1, p2))
                 await match.report_live_scores(scores[:-1])
-            await match.report_winner(max(winners,key=winners.count),scores[:-1])
+            if match.group_id is not None :
+                await match._report(scores[:-1], max(winners,key=winners.count).group_player_ids[0])
+            else :
+                await match._report(scores[:-1], max(winners,key=winners.count).id)
             await match.unmark_as_underway()
 
-    async def run(self, folder_player: str, rounds: int = 1, nb_process: int = 2) -> None:
+    async def run(self, folder_player: str, rounds: int = 1, nb_process: int = 2, minormax: str = "max") -> None:
         """
         Runs the tournament.
 
@@ -233,19 +244,26 @@ class ChallongeTournament:
             NoTournamentFailError: If there is no tournament.
         """
         if self.tournament is not None :
-            await self.tournament.start()
+            if self.created :
+                await self.tournament.start()
             matches = await self.tournament.get_matches()
             dict_round = {}
             for match in matches :
-                if dict_round.get(match.round,False) :
-                    dict_round[match.round] += [match]
+                if match.group_id is None :
+                    if dict_round.get(match.round,False) :
+                        dict_round[match.round] += [match]
+                    else :
+                        dict_round[match.round] = [match]
+                elif dict_round.get(match.group_id,False) :
+                    dict_round[match.group_id] += [match]
                 else :
-                    dict_round[match.round] = [match]
-            for key in sorted(dict_round.keys()) :
+                    dict_round[match.group_id] = [match]
+            for key in dict_round.keys() :
                 port = 16000
                 for matches in list(chop(nb_process, dict_round[key])) :
-                    list_jobs_routines = [asyncio.create_task(self.play_match(match, port+i, rounds, folder_player)) for i, match in enumerate(matches)]
+                    list_jobs_routines = [asyncio.create_task(self.play_match(match, port+i, rounds, folder_player, minormax)) for i, match in enumerate(matches)]
                     await asyncio.gather(*list_jobs_routines)
-            await self.tournament.finalize()
+            if self.created :
+                await self.tournament.finalize()
         else :
             raise NoTournamentFailError()

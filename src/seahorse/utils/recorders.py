@@ -1,5 +1,6 @@
 import builtins
 import json
+import random
 import time
 
 from seahorse.game.io_stream import EventSlave
@@ -11,7 +12,7 @@ class StateRecorder(EventSlave):
 
     def __init__(self) -> None:
         super().__init__() 
-        self.identifier = "__REC__"+str(int(time.time()*100))
+        self.identifier = "__REC__"+str(int(time.time()*1000000-random.randint(1,1000000)))
         self.id = builtins.id(self)
         self.wrapped_id = self.id
         self.sid = None

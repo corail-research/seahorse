@@ -105,8 +105,8 @@ class TimeMaster:
 
     @classmethod
     def register_timer(cls: "TimeMaster", linked_instance: Any, time_limit:float=1e9):
-        logger.debug(f"registering {linked_instance.__dict__.get('id',builtins.id(linked_instance))}")
-        cls.get_instance().__time_register[linked_instance.__dict__.get("id",builtins.id(linked_instance))]=TimeMaster.Timer(time_limit)
+        pid = linked_instance.__dict__.get("id",builtins.id(linked_instance))
+        cls.get_instance().__time_register[pid]=cls.get_instance().__time_register.get(pid,TimeMaster.Timer(time_limit))
 
     @classmethod
     def get_timer(cls: "TimeMaster", linked_instance: Any)-> Timer:

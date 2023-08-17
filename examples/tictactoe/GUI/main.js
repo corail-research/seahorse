@@ -2,30 +2,7 @@ $(document).ready(function () {
     var steps = [];
     var index = -1;
     const logElement = document.getElementById("log");
-    const socket = io("ws://localhost:16001");
 
-    socket.on("connect", () => {socket.emit("identify",JSON.stringify({"identifier": "__GUI__"+Date.now()}))});
-
-    socket.on("play", (...args) => {
-        json = JSON.parse(args[0]);
-            if (json.rep && json.rep.env){
-                board = [] 
-                for(var i=0;i<json.rep.dim[0];i++){
-                  board.push([])
-                  for (var _=0;_<json.rep.dim[1];_++)board[i].push('_')
-                }
-                for (const [key, value] of Object.entries(json.rep.env)) {
-                  coord = key.replace(")","").replace("(","").replace(" ","").split(',')
-                  board[coord[0]][coord[1]] = value.piece_type
-                }
-                steps.push(board);
-                index = steps.length - 1;
-                printBoard(board);
-            }
-            console.log(json)
-
-
-        });
     
         const canvas = document.getElementById('canvas');
       
@@ -97,6 +74,47 @@ $(document).ready(function () {
             printBoard(steps[index]);
         }
     });
+
+    connect_handler = ()=>{
+      const socket = io("ws://"+$("#hostname")[0].value+":"+$("#port")[0].value+"");
+
+      socket.on("connect", () => {
+        socket.emit("identify",JSON.stringify({"identifier": "__GUI__"+Date.now()}));
+        $("#status")[0].innerHTML = 'Connected';
+        $("#status")[0].style = 'color:green';
+        $("#connect").unbind();
+      });
+
+      socket.on("disconnect", () => {
+        socket.emit("identify",JSON.stringify({"identifier": "__GUI__"+Date.now()}));
+        $("#status")[0].innerHTML = 'Disconnected';
+        $("#status")[0].style = 'color:red';
+        $("#connect").click(connect_handler);
+      });
+  
+      socket.on("play", (...args) => {
+          json = JSON.parse(args[0]);
+              if (json.rep && json.rep.env){
+                  board = [] 
+                  for(var i=0;i<json.rep.dim[0];i++){
+                    board.push([])
+                    for (var _=0;_<json.rep.dim[1];_++)board[i].push('_')
+                  }
+                  for (const [key, value] of Object.entries(json.rep.env)) {
+                    coord = key.replace(")","").replace("(","").replace(" ","").split(',')
+                    board[coord[0]][coord[1]] = value.piece_type
+                  }
+                  steps.push(board);
+                  index = steps.length - 1;
+                  printBoard(board);
+              }
+              console.log(json)
+  
+  
+      });
+    }
+
+    $("#connect").click(connect_handler);
 
     printBoard(null);
     });

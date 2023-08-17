@@ -6,7 +6,7 @@ import json
 from collections import deque
 import time
 import re
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, Coroutine
 
 import socketio
 from aiohttp import web
@@ -187,9 +187,10 @@ class EventMaster:
                     del self.__identified_clients[self.__sid2ident[sid]]
 
             @self.sio.on("*")
-            async def catch_all(event,_,data):
-                self.__events[event] = self.__events.get(event,deque())
-                self.__events[event].appendleft(data)
+            async def catch_all(event,sid,data):
+                self.__events[sid] = self.__events.get(sid,{})
+                self.__events[sid][event] = self.__events[sid].get(event,deque())
+                self.__events[sid][event].appendleft((time.time(),data))
 
             @self.sio.on("action")
             async def handle_play(sid,data):
@@ -236,11 +237,23 @@ class EventMaster:
 
         return Action(past_gs,new_gs)
 
-    async def wait_for_event(self,label):
-        while not len(self.__events.get(label,[])):
+    async def wait_for_event(self,sid:int,label:str,*,flush_until:float | None=None) -> Coroutine:
+        """Waits for an aribtrary event emitted by the connection identified by `sid`
+           and labeled with `label`.
+           One might want to ignore all events before a particular timestamp given in `flush_until`
+
+        Args:
+            sid (int): a socketio connexion identifier
+            label (str): the event to wait for
+            flush_until (float, optional): The timestamp treshold. Defaults to None.
+
+        Returns:
+            Coroutine: a promise yielding the data associated to the event 
+        """
+        while not len(self.__events.get(sid,{}).get(label,[])):
             await asyncio.sleep(.1)
-        data = self.__events[label].pop()
-        return data
+        ts,data = self.__events[sid][label].pop()
+        return data if (not flush_until) or ts>=flush_until else await self.wait_for_event(sid,label,flush_until=flush_until)
 
     async def wait_for_identified_client(self,name:str,local_id:int) -> str:
         """ Waits for an identified client (a player typically)
@@ -267,6 +280,8 @@ class EventMaster:
 
     def start(self, task: Callable[[None], None], listeners: list[EventSlave]) -> None:
         """
+            This method is blocking.
+
             Starts an emitting sequence and runs a tasks that embeds
             calls to `EventMaster.__instance.sio.emit()`
 
