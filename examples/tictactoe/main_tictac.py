@@ -12,14 +12,14 @@ from seahorse.player.proxies import InteractivePlayerProxy, LocalPlayerProxy, Re
 from seahorse.utils.gui_client import GUIClient
 from seahorse.utils.recorders import StateRecorder
 
-def play(player1, player2, log_level, port, gui, gui_dist, gui_path, record) :
+def play(player1, player2, log_level, port, gui, gui_dist, gui_path, record, address) :
     list_players = [player1, player2]
     init_scores = {player1.get_id(): 0, player2.get_id(): 0}
     init_rep = BoardTictac(env={}, dim=[3, 3])
     initial_game_state = GameStateTictac(
         scores=init_scores, next_player=player1, players=list_players, rep=init_rep)
     master = MasterTictac(
-        name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_level=log_level, port=port,
+        name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_level=log_level, port=port, hostname=address
     )
     listeners = [GUIClient(path=gui_path)]*gui+[GUIClient()]*gui_dist
     if record :
@@ -63,14 +63,14 @@ if __name__=="__main__":
         player2_class = __import__(splitext(basename(list_players[1]))[0], fromlist=[None])
         player1 = player1_class.MyPlayer("X", name=splitext(basename(list_players[0]))[0])
         player2 = player2_class.MyPlayer("O", name=splitext(basename(list_players[1]))[0])
-        play(player1=player1, player2=player2, log_level=log_level, port=port, gui=gui, gui_dist=gui_dist, gui_path=gui_path, record=record)
+        play(player1=player1, player2=player2, log_level=log_level, port=port, gui=gui, gui_dist=gui_dist, gui_path=gui_path, record=record, address=address)
     elif type == "remote" :
         folder = dirname(list_players[0])
         sys.path.append(folder)
         player1_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
         player1 = LocalPlayerProxy(player1_class.MyPlayer("X", name=splitext(basename(list_players[0]))[0]),gs=GameStateTictac)
         player2 = RemotePlayerProxy(mimics=PlayerTictac,piece_type="O",name=splitext(basename(list_players[1]))[0])
-        play(player1=player1, player2=player2, log_level=log_level, port=port, gui=gui, gui_dist=gui_dist, gui_path=gui_path, record=record)
+        play(player1=player1, player2=player2, log_level=log_level, port=port, gui=gui, gui_dist=gui_dist, gui_path=gui_path, record=record, address=address)
     elif type == "standalone" :
         folder = dirname(list_players[0])
         sys.path.append(folder)
@@ -83,9 +83,9 @@ if __name__=="__main__":
         player1_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
         player1 = InteractivePlayerProxy(PlayerTictac("X", name="bob"),gui_path=gui_path,gs=GameStateTictac)
         player2 = LocalPlayerProxy(player1_class.MyPlayer("O", name=splitext(basename(list_players[0]))[0]),gs=GameStateTictac)
-        play(player1=player1, player2=player2, log_level=log_level, port=port, gui=0, gui_dist=gui_dist, gui_path=gui_path, record=record)
+        play(player1=player1, player2=player2, log_level=log_level, port=port, gui=0, gui_dist=gui_dist, gui_path=gui_path, record=record, address=address)
     elif type == "humvshum" :
         player1 = InteractivePlayerProxy(PlayerTictac("X", name="bob"),gui_path=gui_path,gs=GameStateTictac)
         player2 = InteractivePlayerProxy(PlayerTictac("O", name="alice"),gs=GameStateTictac)
-        play(player1=player1, player2=player2, log_level=log_level, port=port, gui=0, gui_dist=gui_dist, gui_path=gui_path, record=record)
+        play(player1=player1, player2=player2, log_level=log_level, port=port, gui=0, gui_dist=gui_dist, gui_path=gui_path, record=record, address=address)
         
