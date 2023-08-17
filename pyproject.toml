@@ -28,11 +28,14 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
-  "aiohttp==3.8.5",
   "python-socketio",
   "python-engineio==4.5.1",
   "python-socketio==5.8.0",
-  "loguru==0.7.0"
+  "loguru==0.7.0",
+  "achallonge",
+  "split",
+  "nest_asyncio",
+  "aiohttp>=3.8.5"
 ]
 
 [project.urls]
