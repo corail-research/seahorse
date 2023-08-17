@@ -10,6 +10,9 @@ exclude = [
   "pkg/_compat.py"
 ]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [project]
 name = "seahorse"
 dynamic = ["version"]
@@ -32,10 +35,11 @@ dependencies = [
   "python-engineio==4.5.1",
   "python-socketio==5.8.0",
   "loguru==0.7.0",
-  "achallonge",
+  "achallonge @ git+https://github.com/l9kd1/achallonge.git@master",
   "split",
   "nest_asyncio",
-  "aiohttp>=3.8.5"
+  "aiohttp>=3.8.5",
+  "asyncio"
 ]
 
 [project.urls]
