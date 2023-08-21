@@ -35,11 +35,11 @@ We strongly encourage the use of a virtual environment:
 We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.
 
 <div class="horizontal-container"> 
-<p><img align="left" alt="Image title" src="./assets/lgillon.png" width="121"></p> 
-<p><img align="left" alt="Image title" src="./assets/tjacquet.jpg" width="121"></p> 
-<p><img align="left" alt="Image title" src="./assets/qcappart.jpg" width="121"></p> 
-<p><img align="left" alt="Image title" src="./assets/aguichard.jpeg" width="121"></p> 
-<p><img align="left" alt="Image title" src="./assets/lgrumiaux.jpg" width="121"></p> 
+<p><img align="left" alt="Image title" src="./docs/assets/lgillon.png" width="121"></p> 
+<p><img align="left" alt="Image title" src="./docs/assets/tjacquet.jpg" width="121"></p> 
+<p><img align="left" alt="Image title" src="./docs/assets/qcappart.jpg" width="121"></p> 
+<p><img align="left" alt="Image title" src="./docs/assets/aguichard.jpeg" width="121"></p> 
+<p><img align="left" alt="Image title" src="./docs/assets/lgrumiaux.jpg" width="121"></p> 
 </div>
 
 ---------------------------------
