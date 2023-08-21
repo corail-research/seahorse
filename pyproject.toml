@@ -19,7 +19,7 @@ dynamic = ["version"]
 description = ''
 readme = "README.md"
 requires-python = ">=3.9"
-license = "MIT"
+license = "BSD-3"
 keywords = []
 authors = [
   { name = "Corail-research-group", email = "" },

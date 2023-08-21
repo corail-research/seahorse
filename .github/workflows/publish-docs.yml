@@ -1,5 +1,11 @@
-name: publish-docs 
-on: [push]
+name: Docs
+on:
+  push:
+    branches:
+      - main
+    tags:        
+      - '*'
+
 permissions:
   contents: write
 jobs:

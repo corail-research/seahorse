@@ -1,42 +1,50 @@
-<p align="center"><img width="70%" src="assets/logo_seahorse.png" /></p>
+<p align="center"><img width="70%" src="./docs/assets/logo_seahorse.png" /></p>
 
 
 [![PyPI - Version](https://img.shields.io/pypi/v/seahorse.svg)](https://pypi.org/project/seahorse)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/seahorse.svg)](https://pypi.org/project/seahorse)
 
------
+# A handy package for kickstarting AI contests
 
+We proudly provide a Python framework that makes the building of an environment for adversarial agents easy ! 
 
-**Table of Contents**
+A lot of fun functionalities are provided an easily usable out of the box ! 
 
-- [Guidelines](#installation)
-- [Installation](#installation)
-- [License](#license)
-
-## Contributing guidelines
-
-### Dev packages info
-
-- Docstring VSCode package : [autodocstring](https://marketplace.visualstudio.com/items?itemName=njpwerner.autodocstring)
-- Package backend : [hatch](https://hatch.pypa.io/)
-- Docs with [pdoc](https://pdoc.dev/): 
-  - (Re)generate docs `hatch env run gen-doc`
-  - See doc without generating static `hatch env run serve-doc`
-
-### Contributing
-
-> *A Foolish Consistency is the Hobgoblin of Little Minds* - Ralph Waldo Emerson
-
-- Please make a branch, a PR and wait for your code to be reviewed.
-- **[WARN]** please use `[ctrl]+[shift]+F` on you edited files before committing to comply with most of [PEP8](https://peps.python.org/pep-0008/)'s rules. 
-
+ - Implementing a new game setup from scratch ? **Painless !**
+ - Playing against remote agents ? **Easy !** 
+ - Generating and collecting data about played games ? **Worriless !**
+ - Organizing a contest for a large range of agents ? **Quick and reliable !**
 
 ## Installation
+The package is publicly available on PyPI.
 
-```console
-pip install seahorse
+We strongly encourage the use of a virtual environment:
+
+```
+    $ python3 -m venv venv
+
+    $ source venv/bin/[activate|Activate.ps1]
+
+    (venv)$ pip install seahorse
+
 ```
 
-## License
+## Running the example
 
-`seahorse` is distributed under the terms of the [MIT](https://spdx.org/licenses/MIT.html) license.
+## Main contributors
+We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.
+
+<div class="horizontal-container"> 
+<p><img align="left" alt="Image title" src="./assets/lgillon.png" width="121"></p> 
+<p><img align="left" alt="Image title" src="./assets/tjacquet.jpg" width="121"></p> 
+<p><img align="left" alt="Image title" src="./assets/qcappart.jpg" width="121"></p> 
+<p><img align="left" alt="Image title" src="./assets/aguichard.jpeg" width="121"></p> 
+<p><img align="left" alt="Image title" src="./assets/lgrumiaux.jpg" width="121"></p> 
+</div>
+
+---------------------------------
+
+<div class="horizontal-container"> <p><img align="left" alt="Image title" src="./docs/assets/corail-logo.png" width="400"></p> <p><img align="left" alt="Image title" src="./docs/assets/logo_poly.png" width="160"></p>  </div>
+
+---------------------------------
+`seahorse` is distributed under the termes of the <a href="https://opensource.org/license/bsd-3-clause/">BSD-3 License</a>.

@@ -86,7 +86,6 @@ $(document).ready(function () {
       });
 
       socket.on("disconnect", () => {
-        socket.emit("identify",JSON.stringify({"identifier": "__GUI__"+Date.now()}));
         $("#status")[0].innerHTML = 'Disconnected';
         $("#status")[0].style = 'color:red';
         $("#connect").click(connect_handler);
