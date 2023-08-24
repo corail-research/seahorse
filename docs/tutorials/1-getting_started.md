@@ -10,6 +10,6 @@ A graphic interface should then appear in your browser.
 |:-:|:-:|:-:|
 |![](../assets/tictac_init.png)|![](../assets/tictac_state.png)|![](../assets/tictac_final.png)|
 
-seahorse has a multi-level log system which enables users to easily tack information.
+seahorse is the perfect framework to facilitate the implementation of adversarial agents. It helps developper to focus only on the very specific mecanic of the environment in which their agent will evolve. You don't lose time on game logic or execution facilities anymore. It has several features which includes for example a multi-level log system, a game recorder, a responsive GUI,.
 
 ![](../assets/logs.png)
