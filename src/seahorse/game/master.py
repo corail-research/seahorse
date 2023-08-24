@@ -16,6 +16,7 @@ from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
     MethodNotImplementedError,
+    PlayerDuplicateError,
     SeahorseTimeoutError,
     StopAndStartError,
 )
@@ -56,8 +57,15 @@ class GameMaster:
         self.timetol = 1e-1
         self.name = name
         self.current_game_state = initial_game_state
-        self.initial_game_state = initial_game_state
         self.players = initial_game_state.players
+        player_names = list(map(lambda x:x.name,self.players))
+        if len(set(player_names))<len(self.players):
+            logger.error(f'Multiple players have the same name this is not allowed.')
+            logger.error(f'Please rename your players such that there is no duplicate in the following list: ')
+            logger.error(f'{player_names}')
+            raise PlayerDuplicateError()
+
+
         self.log_level = log_level
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
@@ -94,6 +102,7 @@ class GameMaster:
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
+        action.past_gs=None
         return action.get_next_game_state()
 
     async def play_game(self) -> list[Player]:
@@ -111,7 +120,7 @@ class GameMaster:
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
         while not self.current_game_state.is_done():
             try:
-                logger.info(f"Player to play : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
+                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
@@ -131,21 +140,25 @@ class GameMaster:
                     logger.info(f"{key} - {scores[key]}")
                 for player in self.get_winner() :
                     logger.info(f"Winner - {player.get_name()}")
+
                 return self.winner
 
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
-            #print(self.current_game_state)
-            await asyncio.sleep(.1)
+
             await self.emitter.sio.emit(
                 "play",
                 json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
             )
+        
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         scores = self.get_scores()
         for key in scores.keys() :
                     logger.info(f"{key} - {scores[key]}")
         for player in self.get_winner() :
             logger.info(f"Winner - {player.get_name()}")
+
+        await self.emitter.sio.emit('done',json.dumps(self.get_scores()))
+
         return self.winner
 
     def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:

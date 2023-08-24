@@ -305,6 +305,7 @@ class EventMaster:
         async def stop():
 
             # Waiting for all
+            logger.info(f"Waiting for listeners {self.__n_clients_connected} out of {self.expected_clients} are connected.")
             for x in slaves:
                 await x.listen(master_address=f"http://{self.hostname}:{self.port!s}", keep_alive=False)
 

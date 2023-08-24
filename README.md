@@ -3,6 +3,10 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/seahorse.svg)](https://pypi.org/project/seahorse)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/seahorse.svg)](https://pypi.org/project/seahorse)
+![License](https://img.shields.io/github/license/corail-research/seahorse)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/corail-research/seahorse/python-testing.yml)
+
+
 
 # A handy package for kickstarting AI contests
 
@@ -34,7 +38,7 @@ We strongly encourage the use of a virtual environment:
 ## Main contributors
 We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.
 
-<div class="horizontal-container"> 
+<div class="horizontal-container" style="display:inline-block; width:100%;"> 
 <p><img align="left" alt="Image title" src="./docs/assets/lgillon.png" width="121"></p> 
 <p><img align="left" alt="Image title" src="./docs/assets/tjacquet.jpg" width="121"></p> 
 <p><img align="left" alt="Image title" src="./docs/assets/qcappart.jpg" width="121"></p> 
@@ -44,7 +48,8 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
 
 ---------------------------------
 
-<div class="horizontal-container"> <p><img align="left" alt="Image title" src="./docs/assets/corail-logo.png" width="400"></p> <p><img align="left" alt="Image title" src="./docs/assets/logo_poly.png" width="160"></p>  </div>
+<div class="horizontal-container" style="display:inline-block; width:100%"> <p><img align="left" alt="Image title" src="./docs/assets/corail-logo.png" width="400"></p> <p><img align="left" alt="Image title" src="./docs/assets/logo_poly.png" width="160"></p>  </div>
 
 ---------------------------------
-`seahorse` is distributed under the termes of the <a href="https://opensource.org/license/bsd-3-clause/">BSD-3 License</a>.
+
+`seahorse` is distributed under the termes of the <a href="https://opensource.org/license/bsd-3-clause/" target="blank_">3-Clause BSD License</a>.
