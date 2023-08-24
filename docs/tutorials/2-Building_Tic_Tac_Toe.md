@@ -53,6 +53,7 @@ class BoardTictac(Board):
 
 ## Describing a generic game state
 We need to describe a specific state of the game in an appropriate way. To do so, we will inherit from  [game.GameState](../../reference/seahorse/game/game_state/).
+
 ```py 
 import copy
 import json
@@ -82,7 +83,9 @@ class GameStateTictac(GameState):
         return self.num_pieces
 
 ```
+
 Let's start with the first function. It determines if the current game is finished (i.e. if all the cases are full or a player has won in our cases).
+
 ```py
     def is_done(self) -> bool:
 
@@ -90,7 +93,9 @@ Let's start with the first function. It determines if the current game is finish
             return True
         return False
 ```
+
 We now need to implement the logic of the game, i.e. we need to determine which actions are possible.
+
 ```py
     def generate_possible_actions(self) -> set[Action]:
         list_rep = []
@@ -116,7 +121,9 @@ We now need to implement the logic of the game, i.e. we need to determine which 
         }
         return poss_actions
 ```
+
 As for many games, a score will be involved. In tic-tac-toe, a player simply has a score of 1 if he succeeded to align three of its pieces, 0 otherwise.
+
 ```py
     def compute_scores(self, representation: Representation) -> dict[int, float]:
 
@@ -175,7 +182,9 @@ As for many games, a score will be involved. In tic-tac-toe, a player simply has
                     scores[player.get_id()] = 0.0
         return scores
 ``` 
+
 It is finally useful to know if a specific game state is a winning state or not.   
+
 ```py
     def has_won(self) -> bool:
         dim = self.get_num_pieces()
@@ -203,7 +212,9 @@ It is finally useful to know if a specific game state is a winning state or not.
                 return True
         return False
 ```
+
 Others functions are also there for convenience.
+
 ```py
     def __str__(self) -> str:
         if not self.is_done():
@@ -238,7 +249,6 @@ Others functions are also there for convenience.
         })
 
 ```
-
 
 ## Building a game master
 
@@ -278,6 +288,7 @@ class MasterTictac(GameMaster):
 
 ## Creating your first player
 We define a first class which will contain general methods useful to every type of players.
+
 ```py
 import json
 
@@ -303,7 +314,9 @@ class PlayerTictac(Player):
         return PlayerTictac(**json.loads(data))
 
 ```
+
 Now, we will first try to do a basic random player. 
+
 ```py
 
 import random
@@ -343,7 +356,6 @@ class MyPlayer(PlayerTictac):
         possible_actions = current_state.generate_possible_actions()
 
         return random.choice(list(possible_actions))
-
 ```
 
 Of course more complex (and intelligent !) players are possible. To check your general understanding of the package, it would be interesting to implement an agent based on an alpha-beta algorithm.
@@ -393,8 +405,11 @@ if __name__=="__main__":
     player2 = player2_class.MyPlayer("O", name=splitext(basename(list_players[1]))[0])
     play(player1=player1, player2=player2, log_level="INFO", port=16001, gui=1, gui_path=os.path.join("GUI","index.html"), address="localhost")
 ```
+
 We can duplicate our random player class in two different python files which do not have the same name. We call them player1 and player2. We can finally do the command line:
+
 ```shell
 python main.py player1.py player2.py
 ```
+
 Your first game is launched !
