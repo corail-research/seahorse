@@ -3,9 +3,13 @@ https://squidfunk.github.io/mkdocs-material/reference/diagrams/
 classDiagram
 
   GameState *--  Action
-  Action *--  GameState
+  Action *--"2"  GameState
   GameMaster *-- GameState
-  GameState *-- Representation
+  GameState *--"1" Representation
+  Representation <|-- Board
+  Board *-- Piece
+  GameMaster *-- Player
+  GameState *-- Player
   
   class GameState{
     +Representation rep
@@ -15,12 +19,7 @@ classDiagram
     +list[Action] _possible_actions
     +GameState(scores, next_player, players, rep)  
     +get_player_score(player) float
-    +get_next_player() Player
     +compute_next_player() Player
-    +get_scores() dict[int, Any]
-    +get_players() list[Player]
-    +get_rep() Representation
-    +get_possible_actions() frozenset[Action]
     +check_action(action) bool
     +generate_possible_actions()* Set[Action]
     +compute_scores(next_rep)* dict[int, Any]
@@ -47,17 +46,30 @@ classDiagram
     +play_game() list[Player]
     +record_game(listeners)
     +update_log()
-    +get_name() String
-    +get_game_state() GameState
-    +get_winner() Player
-    +get_scores() dict[int, Any]
     +compute_winner(scores)* list[Player] 
   }
 
   class Representation{
     +Dict env
     +Representation(env)
-    +get_env() Dict
     +find(to_find) Any
+  }
+
+  class Board{
+    +list[int] dimensions
+    +get_pieces_player(owner) tuple[int, list[Piece]]
+  }
+
+  class Piece{
+    +str piece_type
+    +int owner_id
+  }
+
+  class Player{
+    +int id
+    +str name
+    +Player(name, id, time_limit)
+    +play(game_state) Action
+    +compute_action(...)* Action
   }
 ```

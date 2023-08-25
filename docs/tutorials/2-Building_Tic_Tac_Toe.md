@@ -52,11 +52,13 @@ class BoardTictac(Board):
 ```
 
 ## Describing a generic game state
+We need to describe a specific state of the game in an appropriate way. To do so, we will inherit from  [game.GameState](../../reference/seahorse/game/game_state/).
+
 ```py 
 import copy
 import json
 from math import sqrt
-from typing import Dict, List, Optional, Set
+from typing import Optional
 
 from board_tictac import BoardTictac
 from loguru import logger
@@ -80,12 +82,21 @@ class GameStateTictac(GameState):
     def get_num_pieces(self) -> int:
         return self.num_pieces
 
+```
+
+Let's start with the first function. It determines if the current game is finished (i.e. if all the cases are full or a player has won in our cases).
+
+```py
     def is_done(self) -> bool:
 
         if len(self.rep.get_env().keys()) == self.num_pieces or self.has_won():
             return True
         return False
+```
 
+We now need to implement the logic of the game, i.e. we need to determine which actions are possible.
+
+```py
     def generate_possible_actions(self) -> set[Action]:
         list_rep = []
         current_rep = self.get_rep()
@@ -109,7 +120,11 @@ class GameStateTictac(GameState):
             for valid_next_rep in list_rep
         }
         return poss_actions
+```
 
+As for many games, a score will be involved. In tic-tac-toe, a player simply has a score of 1 if he succeeded to align three of its pieces, 0 otherwise.
+
+```py
     def compute_scores(self, representation: Representation) -> dict[int, float]:
 
         scores = {}
@@ -166,18 +181,11 @@ class GameStateTictac(GameState):
                 else:
                     scores[player.get_id()] = 0.0
         return scores
+``` 
 
-    def convert_light_action_to_action(self,data:dict) -> Action:
-        position = int(data["position"])
-        logger.debug(f"Converting light action {data}")
-        i = position//3
-        j = position%3
-        logger.debug(f"{i}{j}")
-        for action in self.get_possible_actions():
-            if action.get_next_game_state().get_rep().get_env().get((i,j),None) is not None:
-                return action
-        return None
+It is finally useful to know if a specific game state is a winning state or not.   
 
+```py
     def has_won(self) -> bool:
         dim = self.get_num_pieces()
         env = self.rep.get_env()
@@ -203,7 +211,11 @@ class GameStateTictac(GameState):
             if len(set(line)) == 1 and len(line) == int(sqrt(dim)):
                 return True
         return False
+```
 
+Others functions are also there for convenience.
+
+```py
     def __str__(self) -> str:
         if not self.is_done():
             return super().__str__()
@@ -212,6 +224,17 @@ class GameStateTictac(GameState):
     def to_json(self) -> dict:
         return { i:j for i,j in self.__dict__.items() if i!="_possible_actions"}
 
+    def convert_light_action_to_action(self,data:dict) -> Action:
+        position = int(data["position"])
+        logger.debug(f"Converting light action {data}")
+        i = position//3
+        j = position%3
+        logger.debug(f"{i}{j}")
+        for action in self.get_possible_actions():
+            if action.get_next_game_state().get_rep().get_env().get((i,j),None) is not None:
+                return action
+        return None
+        
     @classmethod
     def from_json(cls,data:str,*,next_player:Optional[PlayerTictac]=None) -> Serializable:
         d = json.loads(data)
@@ -226,7 +249,6 @@ class GameStateTictac(GameState):
         })
 
 ```
-
 
 ## Building a game master
 
@@ -265,6 +287,7 @@ class MasterTictac(GameMaster):
 ```
 
 ## Creating your first player
+We define a first class which will contain general methods useful to every type of players.
 
 ```py
 import json
@@ -292,9 +315,101 @@ class PlayerTictac(Player):
 
 ```
 
-## Bringing it all together
+Now, we will first try to do a basic random player. 
 
 ```py
 
+import random
 
+from player_tictac import PlayerTictac
+
+from seahorse.game.action import Action
+from seahorse.game.game_state import GameState
+
+
+class MyPlayer(PlayerTictac):
+    """
+    A player class for Tic Tac Toe that selects moves randomly.
+    """
+
+    def __init__(self, piece_type: str, name: str = "bob") -> None:
+        """
+        Initializes a new instance of the RandomPlayerTictac class.
+
+        Args:
+            piece_type (str): The type of the player's game piece.
+            name (str): The name of the player.
+        """
+        super().__init__(piece_type, name)
+
+    def compute_action(self, current_state: GameState, **kwargs) -> Action:
+        """
+        Implements the logic of the player by randomly selecting a feasible move.
+
+        Args:
+            current_state (GameState): The current game state.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            Action: The selected action.
+        """
+        possible_actions = current_state.generate_possible_actions()
+
+        return random.choice(list(possible_actions))
 ```
+
+Of course more complex (and intelligent !) players are possible. To check your general understanding of the package, it would be interesting to implement an agent based on an alpha-beta algorithm.
+
+## Bringing it all together
+Now that we have all our class and methods, we can launch locally tic-tac-toe with the help of a very simple parser in a main file.
+
+```py
+import argparse
+import os
+from os.path import basename, splitext, dirname
+import sys
+from board_tictac import BoardTictac
+from master_tictac import MasterTictac
+from game_state_tictac import GameStateTictac
+from seahorse.utils.gui_client import GUIClient
+
+def play(player1, player2, log_level, port, gui, gui_path, address) :
+    list_players = [player1, player2]
+    init_scores = {player1.get_id(): 0, player2.get_id(): 0}
+    init_rep = BoardTictac(env={}, dim=[3, 3])
+    initial_game_state = GameStateTictac(
+        scores=init_scores, next_player=player1, players=list_players, rep=init_rep)
+    master = MasterTictac(
+        name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_level=log_level, port=port, hostname=address
+    )
+    listeners = [GUIClient(path=gui_path)]*gui
+    master.record_game(listeners=listeners)
+
+if __name__=="__main__":
+    parser = argparse.ArgumentParser(
+                        prog="Launcher",
+                        description="What the program does",
+                        epilog="Text at the bottom of help")
+    parser.add_argument("list_players",nargs="*")
+    args=parser.parse_args()
+
+    list_players = vars(args).get("list_players")
+
+    folder = dirname(list_players[0])
+    sys.path.append(folder)
+    player1_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
+    folder = dirname(list_players[1])
+    sys.path.append(folder)
+    player2_class = __import__(splitext(basename(list_players[1]))[0], fromlist=[None])
+    player1 = player1_class.MyPlayer("X", name=splitext(basename(list_players[0]))[0])
+    player2 = player2_class.MyPlayer("O", name=splitext(basename(list_players[1]))[0])
+    play(player1=player1, player2=player2, log_level="INFO", port=16001, gui=1, gui_path=os.path.join("GUI","index.html"), address="localhost")
+```
+
+We can duplicate our random player class in two different python files which do not have the same name. We call them player1 and player2. We can finally do the command line:
+
+```shell
+python main.py player1.py player2.py
+```
+
+Your first game is launched !
