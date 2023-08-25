@@ -17,7 +17,7 @@ class Action(Serializable):
         new_gs (GameState): The new game state.
     """
 
-    def __init__(self, past_gs: GameState, new_gs: GameState) -> None:
+    def __init__(self, current_game_state: GameState, next_game_state: GameState) -> None:
         """
         Initializes a new instance of the Action class.
 
@@ -25,8 +25,8 @@ class Action(Serializable):
             past_gs (GameState): The past game state.
             new_gs (GameState): The new game state.
         """
-        self.past_gs = past_gs
-        self.new_gs = new_gs
+        self.current_game_state = current_game_state
+        self.next_game_state = next_game_state
 
     def get_current_game_state(self) -> GameState:
         """
@@ -35,7 +35,7 @@ class Action(Serializable):
         Returns:
             GameState: The past game state.
         """
-        return self.past_gs
+        return self.current_game_state
 
     def get_next_game_state(self) -> GameState:
         """
@@ -44,7 +44,7 @@ class Action(Serializable):
         Returns:
             GameState: The new game state.
         """
-        return self.new_gs
+        return self.next_game_state
 
     def __hash__(self) -> int:
         return hash((hash(self.get_next_game_state()), hash(self.get_current_game_state())))

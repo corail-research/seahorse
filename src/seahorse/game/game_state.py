@@ -123,6 +123,10 @@ class GameState(Serializable):
         if action in self.get_possible_actions():
             return True
         return False
+    
+    @abstractmethod
+    def convert_light_action_to_action(self,data) ->  Action :
+        raise MethodNotImplementedError()
 
     @abstractmethod
     def generate_possible_actions(self) -> set[Action]:

@@ -1,14 +1,15 @@
 import json
-from argparse import Action
 from collections.abc import Coroutine
 import time
 from typing import Any, Optional
 
 from loguru import logger
+from seahorse.game.action import Action
 
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
 from seahorse.player.player import Player
+from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.gui_client import GUIClient
 from seahorse.utils.serializer import Serializable
 
@@ -152,7 +153,12 @@ class InteractivePlayerProxy(LocalPlayerProxy):
     async def play(self, current_state: GameState) -> Action:
         while True:
             data = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
-            action = current_state.convert_light_action_to_action(data)
+            try:
+                action = current_state.convert_light_action_to_action(data)
+            except MethodNotImplementedError as _:
+                #TODO: handle this case
+                action = Action.from_json(data)
+
             if action in current_state.get_possible_actions():
                 break
             else:
