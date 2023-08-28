@@ -1,4 +1,3 @@
-import asyncio
 import copy
 import json
 import sys
@@ -58,11 +57,11 @@ class GameMaster:
         self.name = name
         self.current_game_state = initial_game_state
         self.players = initial_game_state.players
-        player_names = list(map(lambda x:x.name,self.players))
+        player_names = [x.name for x in self.players]
         if len(set(player_names))<len(self.players):
-            logger.error(f'Multiple players have the same name this is not allowed.')
-            logger.error(f'Please rename your players such that there is no duplicate in the following list: ')
-            logger.error(f'{player_names}')
+            logger.error("Multiple players have the same name this is not allowed.")
+            logger.error("Please rename your players such that there is no duplicate in the following list: ")
+            logger.error(f"{player_names}")
             raise PlayerDuplicateError()
 
 
@@ -140,6 +139,8 @@ class GameMaster:
                     logger.info(f"{key} - {scores[key]}")
                 for player in self.get_winner() :
                     logger.info(f"Winner - {player.get_name()}")
+                
+                await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
 
                 return self.winner
 
@@ -149,7 +150,7 @@ class GameMaster:
                 "play",
                 json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
             )
-        
+
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         scores = self.get_scores()
         for key in scores.keys() :
@@ -157,7 +158,7 @@ class GameMaster:
         for player in self.get_winner() :
             logger.info(f"Winner - {player.get_name()}")
 
-        await self.emitter.sio.emit('done',json.dumps(self.get_scores()))
+        await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
 
         return self.winner
 

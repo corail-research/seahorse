@@ -2,7 +2,7 @@
 
 # A handy package for kickstarting AI contests
 
-We proudly provide a Python framework that makes the building of an environment for adversarial agents easy ! 
+We proudly provide a Python framework that makes the building of an environment for adversarial search agents easy ! 
 
 A lot of fun functionalities are provided an easily usable out of the box ! 
 
@@ -26,6 +26,13 @@ We strongly encourage the use of a virtual environment:
 ```
 
 ## Running the example
+An example implementation featuring the famous game of *tic-tac-toe* is available on the github repository under the branch with its name:
+
+```shell
+git clone https://github.com/corail-research/seahorse/ \
+--branch tictactoe \
+--single-branch tictactoe
+```
 
 ## Main contributors
 We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.

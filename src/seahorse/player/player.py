@@ -5,7 +5,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
-from seahorse.game.time_manager import TimeMixin
+from seahorse.game.time_manager import TimeMixin, timed_function
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
 
@@ -39,6 +39,7 @@ class Player(Serializable,TimeMixin):
         self.init_timer(time_limit)
 
 
+    @timed_function
     def play(self, current_state: GameState) -> Action:
         """
         Implements the player's logic and calls compute_action with minimal information.
