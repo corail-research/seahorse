@@ -40,7 +40,6 @@ class MixinTestCase(unittest.TestCase):
         self.dummy.init_timer(10)
         assert self.dummy.get_time_limit() == 10
         assert self.dummy.get_remaining_time() == 10
-        assert self.dummy._timer_initialized
         assert not self.dummy.is_locked()
         assert not self.dummy.is_running()
 
