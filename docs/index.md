@@ -6,6 +6,10 @@
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/corail-research/seahorse/python-testing.yml)
 ![GitHub stars](https://img.shields.io/github/stars/corail-research/seahorse)
 ![GitHub contributors](https://img.shields.io/github/contributors/corail-research/seahorse)
+
+<a class="github-button" href="https://github.com/corail-research/seahorse/archive/HEAD.zip" data-size="large" data-icon="octicon-download" aria-label="Download corail-research/seahorse on GitHub">Download</a>
+<a class="github-button" data-icon="octicon-star" href="https://github.com/corail-research/seahorse" data-size="large" data-show-count="true" aria-label="Star corail-research/seahorse on GitHub">Stars</a>
+<a class="github-button" data-icon="octicon-issue-opened" href="https://github.com/corail-research/seahorse/issues" data-size="large" data-show-count="true" aria-label="Issue corail-research/seahorse on GitHub">Issue</a>
 # A handy package for kickstarting AI contests
 
 We proudly provide a Python framework that makes the building of an environment for adversarial search agents easy! 
@@ -54,15 +58,15 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
     <div class="card">
     <img class="face" src="./assets/qcappart.jpg" alt="Avatar" style="width:100%">
     <div class="container">
-        <h4><b>Quentin Cappart</b></h4>
-        <p>Professor</p>
+        <h4><b>Quentin <br>Cappart</b></h4>
+        <p>Professor & team lead</p>
         <a href="https://www.linkedin.com/in/quentin-cappart/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
     </div>
     </div>
     <div class="card">
     <img class="face" src="./assets/aguichard.jpeg" alt="Avatar" style="width:100%">
     <div class="container">
-        <h4><b>Amaury Guichard</b></h4>
+        <h4><b>Amaury <br>Guichard</b></h4>
         <p>UX Design & architecture</p>
         <a href="https://www.linkedin.com/in/amaury-guichard-a558b617a/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
     </div>
@@ -70,7 +74,7 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
     <div class="card">
     <img class="face" src="./assets/lgrumiaux.jpg" alt="Avatar" style="width:100%">
     <div class="container">
-        <h4><b>Loïc Grumiaux</b></h4>
+        <h4><b>Loïc <br>Grumiaux</b></h4>
         <p>Networking & DevOps</p>
         <a href="https://www.linkedin.com/in/loïc-grumiaux-76b77121b" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
     </div>
@@ -78,7 +82,7 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
     <div class="card">
     <img class="face" src="./assets/tjacquet.jpg" alt="Avatar" style="width:100%">
     <div class="container">
-        <h4><b>Thomas Jacquet</b></h4>
+        <h4><b>Thomas <br>Jacquet</b></h4>
         <p>Algorithms & architecture</p>
         <a href="https://www.linkedin.com/in/thomas-jacquet/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
     </div>
@@ -86,7 +90,7 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
     <div class="card">
     <img class="face" src="./assets/lgillon.png" alt="Avatar" style="width:100%;object-position: 100% 0;">
     <div class="container">
-        <h4><b>Louis Gillon</b></h4>
+        <h4><b>Louis <br>Gillon</b></h4>
         <p>Architecture & parallelization</p>
         <a href="https://www.linkedin.com/in/louis-gillon-281a8a161/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
     </div>
