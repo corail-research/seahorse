@@ -139,7 +139,7 @@ class GameMaster:
                     logger.info(f"{key} - {scores[key]}")
                 for player in self.get_winner() :
                     logger.info(f"Winner - {player.get_name()}")
-                
+
                 await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
 
                 return self.winner
