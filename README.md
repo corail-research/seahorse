@@ -1,11 +1,11 @@
 <p align="center"><img width="70%" src="./docs/assets/logo_seahorse.png" /></p>
 
-
 [![PyPI - Version](https://img.shields.io/pypi/v/seahorse.svg)](https://pypi.org/project/seahorse)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/seahorse.svg)](https://pypi.org/project/seahorse)
 ![License](https://img.shields.io/github/license/corail-research/seahorse)
 ![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/corail-research/seahorse/python-testing.yml)
-
+![GitHub stars](https://img.shields.io/github/stars/corail-research/seahorse)
+![GitHub contributors](https://img.shields.io/github/contributors/corail-research/seahorse)
 
 
 # A handy package for kickstarting AI contests
@@ -33,7 +33,8 @@ We strongly encourage the use of a virtual environment:
 
 ```
 
-## Running the example
+## Documentation 
+Our full documentation and a series of tutorials are available on <a href="https://corail-research.github.io/seahorse/" target="blank">corail-research.io</a>.
 
 ## Main contributors
 We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.
