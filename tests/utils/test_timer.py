@@ -73,3 +73,6 @@ class MixinTestCase(unittest.TestCase):
         self.assertRaises(SeahorseTimeoutError, change_attr)
         self.assertRaises(SeahorseTimeoutError, call_blocked_method)
         assert self.dummy.is_locked()
+
+    def tearDown(self) -> None:
+        self.dummy = None
