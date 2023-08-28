@@ -1,8 +1,12 @@
-<p align="center"><img width="70%" src="./docs/assets/logo_seahorse.png" /></p>
-
+<p align="center"><img width="70%" src="https://raw.githubusercontent.com/corail-research/seahorse/main/assets/logo_seahorse.png" /></p>
 
 [![PyPI - Version](https://img.shields.io/pypi/v/seahorse.svg)](https://pypi.org/project/seahorse)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/seahorse.svg)](https://pypi.org/project/seahorse)
+![License](https://img.shields.io/github/license/corail-research/seahorse)
+![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/corail-research/seahorse/python-testing.yml)
+![GitHub stars](https://img.shields.io/github/stars/corail-research/seahorse)
+![GitHub contributors](https://img.shields.io/github/contributors/corail-research/seahorse)
+
 
 # A handy package for kickstarting AI contests
 
@@ -29,22 +33,16 @@ We strongly encourage the use of a virtual environment:
 
 ```
 
-## Running the example
+## Documentation 
+Our full documentation and a series of tutorials are available on <a href="https://corail-research.github.io/seahorse/" target="blank">corail-research.io</a>.
 
 ## Main contributors
 We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.
+Checkout our [lab's page](https://corail-research.github.io/team/) for more information.
 
-<div class="horizontal-container"> 
-<p><img align="left" alt="Image title" src="./docs/assets/lgillon.png" width="121"></p> 
-<p><img align="left" alt="Image title" src="./docs/assets/tjacquet.jpg" width="121"></p> 
-<p><img align="left" alt="Image title" src="./docs/assets/qcappart.jpg" width="121"></p> 
-<p><img align="left" alt="Image title" src="./docs/assets/aguichard.jpeg" width="121"></p> 
-<p><img align="left" alt="Image title" src="./docs/assets/lgrumiaux.jpg" width="121"></p> 
-</div>
+## License
 
----------------------------------
+`seahorse` is distributed under the termes of the <a href="https://opensource.org/license/bsd-3-clause/" target="blank_">3-Clause BSD License</a>.
 
-<div class="horizontal-container"> <p><img align="left" alt="Image title" src="./docs/assets/corail-logo.png" width="400"></p> <p><img align="left" alt="Image title" src="./docs/assets/logo_poly.png" width="160"></p>  </div>
-
----------------------------------
-`seahorse` is distributed under the termes of the <a href="https://opensource.org/license/bsd-3-clause/">BSD-3 License</a>.
+<div class="horizontal-container" style="display:inline-block; width:100%"> <p><img src="https://raw.githubusercontent.com/corail-research/seahorse/main/docs/assets/corail-logo.png" width=400/><img src="https://raw.githubusercontent.com/corail-research/seahorse/main/docs/assets/logo_poly.png" width=150/></p>
+</p>  </div>

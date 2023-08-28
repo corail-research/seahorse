@@ -15,6 +15,14 @@ class NotRunningError(Exception):
         self.message = message
         super().__init__(message)
 
+class PlayerDuplicateError(Exception):
+    """Thrown when trying to stop somethin twice
+    """
+
+    def __init__(self,  message: str = "Duplicates in the players list."):
+        self.message = message
+        super().__init__(message)
+
 
 class SeahorseTimeoutError(Exception):
     """Thrown when trying to modify an expired element

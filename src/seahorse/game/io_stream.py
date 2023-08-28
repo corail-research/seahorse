@@ -195,7 +195,11 @@ class EventMaster:
             @self.sio.on("action")
             async def handle_play(sid,data):
                 # TODO : cope with race condition "action" before "identify"
-                self.__identified_clients[self.__sid2ident[sid]]["incoming"].appendleft(data)
+                try:
+                    self.__identified_clients[self.__sid2ident[sid]]["incoming"].appendleft(data)
+                # Plainly throw away packets that belong to disconnected clients
+                except KeyError:
+                    pass
 
             @self.sio.on("identify")
             async def handle_identify(sid,data):
@@ -219,7 +223,16 @@ class EventMaster:
             # Setting the singleton instance
             EventMaster.__instance = self
 
-    async def wait_for_next_play(self,sid,players:list) -> Action:
+    async def wait_for_next_play(self,sid:int,players:list) -> Action:
+        """Waiting for the next play action, this function is blocking
+
+        Args:
+            sid (int): sid corresponding to the player to wait for
+            players (list): the list of players
+
+        Returns:
+            Action: returns the received action
+        """
         # TODO revise sanity checks to avoid critical errors
         logger.info(f"Waiting for next play from {self.__sid2ident[sid]}")
         while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
@@ -305,6 +318,7 @@ class EventMaster:
         async def stop():
 
             # Waiting for all
+            logger.info(f"Waiting for listeners {self.__n_clients_connected} out of {self.expected_clients} are connected.")
             for x in slaves:
                 await x.listen(master_address=f"http://{self.hostname}:{self.port!s}", keep_alive=False)
 

@@ -8,6 +8,8 @@ theme:
   - navigation.footer
 extra_css:
   - stylesheets/extra.css
+extra_javascript:
+  - https://buttons.github.io/buttons.js
 plugins:
   - search
   - gen-files:

@@ -150,7 +150,6 @@ class TimeMixin:
             time_limit (int): max time before locking all methods of the class
         """
         TimeMaster.register_timer(self,time_limit)
-        self._timer_initialized = True
 
     def start_timer(self) -> float:
         """Starts the timer
@@ -235,7 +234,7 @@ class TimeMixin:
 
         """
         try:
-            if hasattr(self,"_timer_initialized") and self.is_locked():
+            if TimeMaster.get_timer(self) and self.is_locked():
                 raise SeahorseTimeoutError()
             else:
                 self.__dict__[__name] = value
@@ -258,12 +257,10 @@ def timed_function(fun):
     """
     @functools.wraps(fun)
     def wrapper(self, *args, **kwargs):
-        if not hasattr(self,"_timer_initialized"):
-            raise TimerNotInitializedError()
-        if not hasattr(self,"get_time_limit"):
-            msg = "Using @timed_func within a object that is not timed.\n Please use TimeMixin."
-            raise Exception(msg)
+        r = fun(self, *args, **kwargs)
+        if TimeMaster.get_timer(self) is None:
+            raise TimerNotInitializedError
         elif(self.is_locked()):
             raise SeahorseTimeoutError()
-        return fun(self, *args, **kwargs)
+        return r
     return wrapper

@@ -1,14 +1,15 @@
 import json
-from argparse import Action
 from collections.abc import Coroutine
 import time
 from typing import Any, Optional
 
 from loguru import logger
+from seahorse.game.action import Action
 
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
 from seahorse.player.player import Player
+from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.gui_client import GUIClient
 from seahorse.utils.serializer import Serializable
 
@@ -137,7 +138,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
     """Proxy for interactive players, 
        inherits from `LocalPlayerProxy`
     """
-    def __init__(self, mimics: type[Player], gui_path:Optional[str]=None, *args, **kwargs) -> None:
+    def __init__(self, mimics: Player, gui_path:Optional[str]=None, *args, **kwargs) -> None:
         """
 
         Args:
@@ -147,12 +148,20 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         super().__init__(mimics, *args, **kwargs)
         self.wrapped_player.player_type = "interactive"
         self.path = gui_path
+        self.shared_sid = None
         self.sid = None
 
     async def play(self, current_state: GameState) -> Action:
+        if self.shared_sid and not self.sid:
+            self.sid=self.shared_sid.sid
         while True:
             data = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
-            action = current_state.convert_light_action_to_action(data)
+            try:
+                action = current_state.convert_light_action_to_action(data)
+            except MethodNotImplementedError:
+                #TODO: handle this case
+                action = Action.from_json(data)
+
             if action in current_state.get_possible_actions():
                 break
             else:
@@ -160,8 +169,12 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         return action
 
     async def listen(self, master_address, *, keep_alive: bool) -> None:
-        await super().listen(master_address, keep_alive=keep_alive)
-        embedded_client = GUIClient(path=self.path)
-        await embedded_client.listen()
-        self.sid = embedded_client.sid
+        if not self.shared_sid:
+            await super().listen(master_address, keep_alive=keep_alive)
+            embedded_client = GUIClient(path=self.path)
+            await embedded_client.listen()
+            self.sid = embedded_client.sid
+
+    def share_sid(self,proxy:"InteractivePlayerProxy"):
+        self.shared_sid=proxy
 

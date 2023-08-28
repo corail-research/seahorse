@@ -125,6 +125,10 @@ class GameState(Serializable):
         return False
 
     @abstractmethod
+    def convert_light_action_to_action(self,data) ->  Action :
+        raise MethodNotImplementedError()
+
+    @abstractmethod
     def generate_possible_actions(self) -> set[Action]:
         """
         Generates a set of all possible actions from this game state.
