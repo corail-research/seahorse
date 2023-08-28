@@ -1,4 +1,4 @@
-<p align="center"><img width="70%" src="https://raw.githubusercontent.com/corail-research/seahorse/main/assets/logo_seahorse.png" /></p>
+<img width="70%" src="https://raw.githubusercontent.com/corail-research/seahorse/main/assets/logo_seahorse.png" />
 
 [![PyPI - Version](https://img.shields.io/pypi/v/seahorse.svg)](https://pypi.org/project/seahorse)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/seahorse.svg)](https://pypi.org/project/seahorse)
@@ -34,7 +34,7 @@ We strongly encourage the use of a virtual environment:
 ```
 
 ## Documentation 
-Our full documentation and a series of tutorials are available on <a href="https://corail-research.github.io/seahorse/" target="blank">corail-research.io</a>.
+Our full documentation and a series of tutorials are available on <a href="https://corail-research.github.io/seahorse/" target="blank">corail-research.github.io</a>.
 
 ## Main contributors
 We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.
