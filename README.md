@@ -38,19 +38,10 @@ Our full documentation and a series of tutorials are available on <a href="https
 
 ## Main contributors
 We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.
+Checkout our [lab's page](https://corail-research.github.io/team/) for more information.
 
-<div class="horizontal-container" style="display:inline-block; width:100%;"> 
-<p><img align="left" alt="Image title" src="./docs/assets/lgillon.png" width="121"></p> 
-<p><img align="left" alt="Image title" src="./docs/assets/tjacquet.jpg" width="121"></p> 
-<p><img align="left" alt="Image title" src="./docs/assets/qcappart.jpg" width="121"></p> 
-<p><img align="left" alt="Image title" src="./docs/assets/aguichard.jpeg" width="121"></p> 
-<p><img align="left" alt="Image title" src="./docs/assets/lgrumiaux.jpg" width="121"></p> 
-</div>
-
----------------------------------
-
-<div class="horizontal-container" style="display:inline-block; width:100%"> <p><img align="left" alt="Image title" src="./docs/assets/corail-logo.png" width="400"></p> <p><img align="left" alt="Image title" src="./docs/assets/logo_poly.png" width="160"></p>  </div>
-
----------------------------------
+## License
 
 `seahorse` is distributed under the termes of the <a href="https://opensource.org/license/bsd-3-clause/" target="blank_">3-Clause BSD License</a>.
+
+<div class="horizontal-container" style="display:inline-block; width:100%"> <p><img align="left" alt="Image title" src="./docs/assets/corail-logo.png" width="400"></p> <p><img align="left" alt="Image title" src="./docs/assets/logo_poly.png" width="160"></p>  </div>
