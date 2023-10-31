@@ -148,7 +148,7 @@ class EventMaster:
             self.hostname = hostname
 
             # Standard python-socketio server
-            self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True, cors_allowed_origins="*")
+            self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True, cors_allowed_origins="*", ping_timeout=1e6)
             self.app = web.Application()
 
             # Starting asyncio stuff
@@ -239,12 +239,12 @@ class EventMaster:
             await asyncio.sleep(.1)
         logger.info("Action received")
         action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
-        next_player_id = int(action["new_gs"]["next_player"]["id"])
+        next_player_id = int(action["next_game_state"]["next_player"]["id"])
         next_player = next(iter(list(filter(lambda p:p.id==next_player_id,players))))
 
-        past_gs = self.__game_state.from_json(json.dumps(action["past_gs"]))
+        past_gs = self.__game_state.from_json(json.dumps(action["current_game_state"]))
         past_gs.players = players
-        new_gs = self.__game_state.from_json(json.dumps(action["new_gs"]),next_player=next_player)
+        new_gs = self.__game_state.from_json(json.dumps(action["next_game_state"]),next_player=next_player)
         new_gs.players = players
 
 
