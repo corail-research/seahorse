@@ -143,7 +143,7 @@ class GameMaster:
                 id_player_error = self.current_game_state.get_next_player().get_id()
                 temp_score.pop(id_player_error)
                 self.winner = self.compute_winner(temp_score)
-                self.current_game_state.get_scores()[id_player_error] = 1000
+                self.current_game_state.get_scores()[id_player_error] = -1000
                 scores = self.get_scores()
                 for key in scores.keys() :
                     verdict_scores[int(id2player[key].split('_')[-1])-1]=-scores[key]
@@ -152,7 +152,7 @@ class GameMaster:
                     logger.info(f"Winner - {player.get_name()}")
 
                 await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
-                logger.verdict(f'{verdict_scores[::-1]}')
+                logger.verdict(f"{verdict_scores[::-1]}")
                 return self.winner
 
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
@@ -171,7 +171,7 @@ class GameMaster:
             logger.info(f"Winner - {player.get_name()}")
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
-        logger.verdict(f'{verdict_scores[::-1]}')
+        logger.verdict(f"{verdict_scores[::-1]}")
         return self.winner
 
     def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:
