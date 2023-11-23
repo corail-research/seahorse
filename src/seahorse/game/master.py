@@ -144,7 +144,7 @@ class GameMaster:
                 temp_score.pop(id_player_error)
                 self.winner = self.compute_winner(temp_score)
                 self.current_game_state.get_scores()[id_player_error] = -3
-                other_player = [player for player in self.current_game_state.get_players() if player.get_id()!=id_player_error][0]
+                other_player = [player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error][0]
                 self.current_game_state.get_scores()[other_player] = 0
                 scores = self.get_scores()
                 for key in scores.keys():
