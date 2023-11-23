@@ -152,7 +152,7 @@ class GameMaster:
                     logger.info(f"Winner - {player.get_name()}")
 
                 await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
-                logger.success(f"{verdict_scores[::-1]}")
+                logger.info(f"{verdict_scores[::-1]}")
                 await logger.complete()
                 return self.winner
 
@@ -172,7 +172,7 @@ class GameMaster:
             logger.info(f"Winner - {player.get_name()}")
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
-        logger.success(f"{verdict_scores[::-1]}")
+        logger.info(f"{verdict_scores[::-1]}")
         await logger.complete()
         return self.winner
 
