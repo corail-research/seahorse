@@ -143,7 +143,9 @@ class GameMaster:
                 id_player_error = self.current_game_state.get_next_player().get_id()
                 temp_score.pop(id_player_error)
                 self.winner = self.compute_winner(temp_score)
-                self.current_game_state.get_scores()[id_player_error] = -1000
+                self.current_game_state.get_scores()[id_player_error] = -3
+                other_player = [player for player in self.current_game_state.get_players() if player.get_id()!=id_player_error][0]
+                self.current_game_state.get_scores()[other_player] = 0
                 scores = self.get_scores()
                 for key in scores.keys() :
                     verdict_scores[int(id2player[key].split('_')[-1])-1]=-scores[key]
