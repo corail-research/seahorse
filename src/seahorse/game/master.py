@@ -152,9 +152,7 @@ class GameMaster:
                     logger.info(f"Winner - {player.get_name()}")
 
                 await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
-                print(verdict_scores)
-                logger.info(f"{verdict_scores[::-1]}")
-                logger.complete()
+                logger.verdict(f"{verdict_scores[::-1]}")
                 return self.winner
 
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
@@ -173,9 +171,7 @@ class GameMaster:
             logger.info(f"Winner - {player.get_name()}")
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
-        print(verdict_scores)
-        logger.info(f"{verdict_scores[::-1]}")
-        logger.complete()
+        logger.verdict(f"{verdict_scores[::-1]}")
         return self.winner
 
     def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:
