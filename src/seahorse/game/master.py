@@ -147,7 +147,8 @@ class GameMaster:
                 other_player = [player for player in self.current_game_state.get_players() if player.get_id()!=id_player_error][0]
                 self.current_game_state.get_scores()[other_player] = 0
                 scores = self.get_scores()
-                for key in scores.keys() :
+                for key in scores.keys():
+                    print(key)
                     verdict_scores[int(id2player[key].split('_')[-1])-1]=-scores[key]
                     logger.info(f"{id2player[key]}:{scores[key]}")
                 for player in self.get_winner() :
