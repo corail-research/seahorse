@@ -73,7 +73,7 @@ class GameMaster:
 
         from functools import partialmethod
 
-        logger.level("VERDICT", no=15, icon="x", color="<blue>")
+        logger.level("VERDICT", no=33, icon="x", color="<blue>")
         logger.__class__.verdict = partialmethod(logger.__class__.log, "VERDICT")
 
         logger.add(sys.stderr, level=log_level)
