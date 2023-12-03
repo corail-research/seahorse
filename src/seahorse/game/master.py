@@ -54,6 +54,7 @@ class GameMaster:
             log_level (str): The name of the log file.
         """
         self.timetol = 1e-1
+        self.recorded_plays = []
         self.name = name
         self.current_game_state = initial_game_state
         self.players = initial_game_state.players
@@ -122,6 +123,7 @@ class GameMaster:
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
+        self.recorded_plays.append(self.current_game_state)
         id2player={}
         verdict_scores=[-1e9,-1e9]
         for player in self.get_game_state().get_players() :
@@ -131,6 +133,7 @@ class GameMaster:
             try:
                 logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
+                self.recorded_plays.append(self.current_game_state)
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
@@ -155,6 +158,8 @@ class GameMaster:
 
                 await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
                 logger.verdict(f"{verdict_scores[::-1]}")
+                with open(self.players[0].name+'_'+self.players[-1].name+'_'+str(time.time())+".json","w+") as f:
+                    f.write(json.dumps(self.recorded_plays),default=lambda x:x.to_json())
                 return self.winner
 
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
@@ -174,6 +179,8 @@ class GameMaster:
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
         logger.verdict(f"{verdict_scores[::-1]}")
+        with open(self.players[0].name+'_'+self.players[-1].name+'_'+str(time.time())+".json","w+") as f:
+            f.write(json.dumps(self.recorded_plays,default=lambda x:x.to_json()))
         return self.winner
 
     def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:
