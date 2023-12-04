@@ -123,7 +123,7 @@ class GameMaster:
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
-        self.recorded_plays.append(self.current_game_state)
+        self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
         id2player={}
         verdict_scores=[-1e9,-1e9]
         for player in self.get_game_state().get_players() :
@@ -133,7 +133,7 @@ class GameMaster:
             try:
                 logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
-                self.recorded_plays.append(self.current_game_state)
+                self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
