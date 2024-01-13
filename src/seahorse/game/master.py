@@ -110,6 +110,7 @@ class GameMaster:
 
         action.current_game_state._possible_actions=None
         action.current_game_state=None
+        action.next_game_state._possible_actions=None
         return action.get_next_game_state()
 
     async def play_game(self) -> list[Player]:
