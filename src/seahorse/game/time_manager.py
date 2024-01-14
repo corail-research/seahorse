@@ -3,8 +3,6 @@ import functools
 import time
 from typing import Any
 
-from loguru import logger
-
 from seahorse.utils.custom_exceptions import (
     AlreadyRunningError,
     NotRunningError,

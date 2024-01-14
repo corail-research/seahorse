@@ -148,18 +148,18 @@ class GameMaster:
                 temp_score.pop(id_player_error)
                 self.winner = self.compute_winner(temp_score)
                 self.current_game_state.get_scores()[id_player_error] = -3
-                other_player = [player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error][0]
+                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error]))
                 self.current_game_state.get_scores()[other_player] = 0
                 scores = self.get_scores()
                 for key in scores.keys():
-                    verdict_scores[int(id2player[key].split('_')[-1])-1]=-scores[key]
+                    verdict_scores[int(id2player[key].split("_")[-1])-1]=-scores[key]
                     logger.info(f"{id2player[key]}:{scores[key]}")
                 for player in self.get_winner() :
                     logger.info(f"Winner - {player.get_name()}")
 
                 await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
                 logger.verdict(f"{verdict_scores[::-1]}")
-                with open(self.players[0].name+'_'+self.players[-1].name+'_'+str(time.time())+".json","w+") as f:
+                with open(self.players[0].name+"_"+self.players[-1].name+"_"+str(time.time())+".json","w+") as f:
                     f.write(json.dumps(self.recorded_plays),default=lambda x:x.to_json())
                 return self.winner
 
@@ -173,14 +173,14 @@ class GameMaster:
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         scores = self.get_scores()
         for key in scores.keys() :
-                verdict_scores[int(id2player[key].split('_')[-1])-1]=-scores[key]
+                verdict_scores[int(id2player[key].split("_")[-1])-1]=-scores[key]
                 logger.info(f"{id2player[key]}:{(scores[key])}")
         for player in self.get_winner() :
             logger.info(f"Winner - {player.get_name()}")
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
         logger.verdict(f"{verdict_scores[::-1]}")
-        with open(self.players[0].name+'_'+self.players[-1].name+'_'+str(time.time())+".json","w+") as f:
+        with open(self.players[0].name+"_"+self.players[-1].name+"_"+str(time.time())+".json","w+") as f:
             f.write(json.dumps(self.recorded_plays,default=lambda x:x.to_json()))
         return self.winner
 
