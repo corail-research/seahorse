@@ -54,6 +54,7 @@ class GameMaster:
             log_level (str): The name of the log file.
         """
         self.timetol = 1e-1
+        self.recorded_plays = []
         self.name = name
         self.current_game_state = initial_game_state
         self.players = initial_game_state.players
@@ -70,6 +71,12 @@ class GameMaster:
         next(self.players_iterator)
         self.emitter = EventMaster.get_instance(initial_game_state.__class__,port=port,hostname=hostname)
         logger.remove()
+
+        from functools import partialmethod
+
+        logger.level("VERDICT", no=33, icon="x", color="<blue>")
+        logger.__class__.verdict = partialmethod(logger.__class__.log, "VERDICT")
+
         logger.add(sys.stderr, level=log_level)
 
     async def step(self) -> GameState:
@@ -103,6 +110,7 @@ class GameMaster:
 
         action.current_game_state._possible_actions=None
         action.current_game_state=None
+        action.next_game_state._possible_actions=None
         return action.get_next_game_state()
 
     async def play_game(self) -> list[Player]:
@@ -116,12 +124,17 @@ class GameMaster:
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
+        self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
+        id2player={}
+        verdict_scores=[-1e9,-1e9]
         for player in self.get_game_state().get_players() :
+            id2player[player.get_id()]=player.get_name()
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
         while not self.current_game_state.is_done():
             try:
                 logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
+                self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
@@ -134,15 +147,20 @@ class GameMaster:
                 id_player_error = self.current_game_state.get_next_player().get_id()
                 temp_score.pop(id_player_error)
                 self.winner = self.compute_winner(temp_score)
-                self.current_game_state.get_scores()[id_player_error] = float(sys.maxsize)
+                self.current_game_state.get_scores()[id_player_error] = -3
+                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error]))
+                self.current_game_state.get_scores()[other_player] = 0
                 scores = self.get_scores()
-                for key in scores.keys() :
-                    logger.info(f"{key} - {scores[key]}")
+                for key in scores.keys():
+                    verdict_scores[int(id2player[key].split("_")[-1])-1]=-scores[key]
+                    logger.info(f"{id2player[key]}:{scores[key]}")
                 for player in self.get_winner() :
                     logger.info(f"Winner - {player.get_name()}")
 
                 await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
-
+                logger.verdict(f"{verdict_scores[::-1]}")
+                with open(self.players[0].name+"_"+self.players[-1].name+"_"+str(time.time())+".json","w+") as f:
+                    f.write(json.dumps(self.recorded_plays),default=lambda x:x.to_json())
                 return self.winner
 
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
@@ -155,12 +173,15 @@ class GameMaster:
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         scores = self.get_scores()
         for key in scores.keys() :
-                    logger.info(f"{key} - {scores[key]}")
+                verdict_scores[int(id2player[key].split("_")[-1])-1]=-scores[key]
+                logger.info(f"{id2player[key]}:{(scores[key])}")
         for player in self.get_winner() :
             logger.info(f"Winner - {player.get_name()}")
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
-
+        logger.verdict(f"{verdict_scores[::-1]}")
+        with open(self.players[0].name+"_"+self.players[-1].name+"_"+str(time.time())+".json","w+") as f:
+            f.write(json.dumps(self.recorded_plays,default=lambda x:x.to_json()))
         return self.winner
 
     def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:

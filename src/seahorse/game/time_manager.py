@@ -3,8 +3,6 @@ import functools
 import time
 from typing import Any
 
-from loguru import logger
-
 from seahorse.utils.custom_exceptions import (
     AlreadyRunningError,
     NotRunningError,
@@ -94,7 +92,7 @@ class TimeMaster:
             Returns:
                 bool: `True` if expired `False` otherwise
             """
-            logger.info(f"time : {self.get_remaining_time()}")
+            #logger.info(f"time : {self.get_remaining_time()}")
             return self.get_remaining_time() <= 0
 
     @staticmethod
