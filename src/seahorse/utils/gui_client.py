@@ -1,6 +1,7 @@
 import builtins
 import os
 import subprocess
+import platform
 from typing import Any, Coroutine, Optional
 
 from loguru import logger
@@ -19,7 +20,12 @@ class GUIClient(EventSlave):
             os.startfile(url)
         except AttributeError:
             try:
-                subprocess.call(["open", url])
+                if platform.system() == "Linux":
+                    subprocess.call(["xdg-open", url])
+                elif platform.system() == "Darwin":
+                    subprocess.call(["open", url])
+                else:
+                    raise Exception("Unexpected platform")
             except Exception:
                 logger.debug("Could not open URL")
 
