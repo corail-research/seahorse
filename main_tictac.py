@@ -86,7 +86,7 @@ if __name__=="__main__":
         sys.path.append(folder)
         player1_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
         player1 = LocalPlayerProxy(player1_class.MyPlayer("X", name=splitext(basename(list_players[0]))[0]+"_local_1"),gs=GameStateTictac)
-        player2 = RemotePlayerProxy(mimics=PlayerTictac,piece_type="O",name="_remote")
+        player2 = RemotePlayerProxy(mimics=PlayerTictac,piece_type="O",name="_remote_2")
         if address=='localhost':
             logger.warning('Using `localhost` with `host_game` mode, if both players are on different machines')
             logger.warning('use ipconfig/ifconfig to get your external ip and specity this with -a')
@@ -95,7 +95,7 @@ if __name__=="__main__":
         folder = dirname(list_players[0])
         sys.path.append(folder)
         player2_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
-        player2 = LocalPlayerProxy(player2_class.MyPlayer("O", name="_remote"),gs=GameStateTictac)
+        player2 = LocalPlayerProxy(player2_class.MyPlayer("O", name="_remote_2"),gs=GameStateTictac)
         if address=='localhost':
             logger.warning('Using `localhost` with `connect` mode, if both players are on different machines')
             logger.warning('use ipconfig/ifconfig to get your external ip and specity this with -a')
