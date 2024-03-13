@@ -90,7 +90,7 @@ if __name__=="__main__":
         if address=='localhost':
             logger.warning('Using `localhost` with `host_game` mode, if both players are on different machines')
             logger.warning('use ipconfig/ifconfig to get your external ip and specity this with -a')
-        play(player1=player1, player2=player2, log_level=log_level, port=port, address=address, gui=int(gui)+1, record=record, gui_path=gui_path)
+        play(player1=player1, player2=player2, log_level=log_level, port=port, address=address, gui=int(gui), record=record, gui_path=gui_path)
     elif type == "connect" :
         folder = dirname(list_players[0])
         sys.path.append(folder)
