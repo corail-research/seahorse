@@ -104,11 +104,11 @@ if __name__=="__main__":
         folder = dirname(list_players[0])
         sys.path.append(folder)
         player1_class = __import__(splitext(basename(list_players[0]))[0], fromlist=[None])
-        player1 = InteractivePlayerProxy(PlayerTictac("X", name="bob"),gui_path=gui_path,gs=GameStateTictac)
-        player2 = LocalPlayerProxy(player1_class.MyPlayer("O", name=splitext(basename(list_players[0]))[0]),gs=GameStateTictac)
+        player1 = InteractivePlayerProxy(PlayerTictac("X", name="bob_1"),gui_path=gui_path,gs=GameStateTictac)
+        player2 = LocalPlayerProxy(player1_class.MyPlayer("O", name=splitext(basename(list_players[0]))[0]+"_2"),gs=GameStateTictac)
         play(player1=player1, player2=player2, log_level=log_level, port=port, address=address, gui=False, record=record, gui_path=gui_path)
     elif type == "human_vs_human" :
-        player1 = InteractivePlayerProxy(PlayerTictac("X", name="bob"),gui_path=gui_path,gs=GameStateTictac)
-        player2 = InteractivePlayerProxy(PlayerTictac("O", name="alice"),gui_path=gui_path,gs=GameStateTictac)
+        player1 = InteractivePlayerProxy(PlayerTictac("X", name="bob_1"),gui_path=gui_path,gs=GameStateTictac)
+        player2 = InteractivePlayerProxy(PlayerTictac("O", name="alice_2"),gui_path=gui_path,gs=GameStateTictac)
         play(player1=player1, player2=player2, log_level=log_level, port=port, address=address, gui=False, record=record, gui_path=gui_path)
         
