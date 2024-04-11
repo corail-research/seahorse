@@ -60,7 +60,7 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
     <div class="container">
         <h4><b>Quentin <br>Cappart</b></h4>
         <p>Professor & team lead</p>
-        <a href="https://www.linkedin.com/in/quentin-cappart/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
+        <a href="https://www.linkedin.com/in/quentin-cappart/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
     </div>
     </div>
     <div class="card">
@@ -68,7 +68,7 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
     <div class="container">
         <h4><b>Amaury <br>Guichard</b></h4>
         <p>UX Design & architecture</p>
-        <a href="https://www.linkedin.com/in/amaury-guichard-a558b617a/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
+        <a href="https://www.linkedin.com/in/amaury-guichard-a558b617a/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
     </div>
     </div>
     <div class="card">
@@ -76,7 +76,7 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
     <div class="container">
         <h4><b>Loïc <br>Grumiaux</b></h4>
         <p>Networking & DevOps</p>
-        <a href="https://www.linkedin.com/in/loïc-grumiaux-76b77121b" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
+        <a href="https://www.linkedin.com/in/loïc-grumiaux-76b77121b" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
     </div>
     </div>
     <div class="card">
@@ -84,7 +84,7 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
     <div class="container">
         <h4><b>Thomas <br>Jacquet</b></h4>
         <p>Algorithms & architecture</p>
-        <a href="https://www.linkedin.com/in/thomas-jacquet/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
+        <a href="https://www.linkedin.com/in/thomas-jacquet/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
     </div>
     </div>
     <div class="card">
@@ -92,7 +92,7 @@ We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Pol
     <div class="container">
         <h4><b>Louis <br>Gillon</b></h4>
         <p>Architecture & parallelization</p>
-        <a href="https://www.linkedin.com/in/louis-gillon-281a8a161/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/.icons/simple/linkedin.svg"></span></div></a>
+        <a href="https://www.linkedin.com/in/louis-gillon-281a8a161/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
     </div>
     </div>
 </div>
