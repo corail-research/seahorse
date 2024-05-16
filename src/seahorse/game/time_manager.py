@@ -250,6 +250,7 @@ def timed_function(fun):
         Exception: _description_
         SeahorseTimeoutError: _description_
 
+
     Returns:
         Callable[...]: wrapper
     """
