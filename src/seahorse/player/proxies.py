@@ -8,6 +8,7 @@ from seahorse.game.action import Action
 
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
+from seahorse.game.light_action import LightAction
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.gui_client import GUIClient
@@ -157,12 +158,14 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         while True:
             data = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
             try:
-                action = current_state.convert_light_action_to_action(data)
+
+                action = LightAction(data).get_heavy_action(current_state)
+
             except MethodNotImplementedError:
                 #TODO: handle this case
                 action = Action.from_json(data)
 
-            if action in current_state.get_possible_actions():
+            if action in current_state.get_possible_heavy_actions():
                 break
             else:
                 await EventMaster.get_instance().sio.emit("ActionNotPermitted",None)

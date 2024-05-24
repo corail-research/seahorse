@@ -10,7 +10,9 @@ from typing import List, Optional
 from loguru import logger
 
 from seahorse.game.game_state import GameState
+from seahorse.game.heavy_action import HeavyAction
 from seahorse.game.io_stream import EventMaster, EventSlave
+from seahorse.game.light_action import LightAction
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
@@ -90,7 +92,8 @@ class GameMaster:
             GamseState : The new game_state.
         """
         next_player = self.current_game_state.get_next_player()
-        possible_actions = self.current_game_state.get_possible_actions()
+
+        possible_actions = self.current_game_state.get_possible_heavy_actions()
 
         start = time.time()
         # next_player.start_timer()
@@ -111,6 +114,7 @@ class GameMaster:
 
         # next_player.stop_timer()
 
+        action = action.get_heavy_action(self.current_game_state)
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
@@ -126,6 +130,7 @@ class GameMaster:
         Returns:
             Iterable[Player]: The winner(s) of the game.
         """
+        time_start = time.time()
         await self.emitter.sio.emit(
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
