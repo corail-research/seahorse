@@ -3,6 +3,8 @@ from itertools import cycle
 from typing import Any
 
 from seahorse.game.action import Action
+from seahorse.game.heavy_action import HeavyAction
+from seahorse.game.light_action import LightAction
 from seahorse.game.representation import Representation
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
@@ -34,7 +36,8 @@ class GameState(Serializable):
         self.next_player = next_player
         self.players = players
         self.rep = rep
-        self._possible_actions = None
+        self._possible_light_actions = None
+        self._possible_heavy_actions = None
 
     def get_player_score(self, player: Player) -> float:
         """
@@ -95,10 +98,25 @@ class GameState(Serializable):
         """
         return self.rep
 
-    def get_possible_actions(self) -> frozenset[Action]:
+    def get_possible_light_actions(self) -> frozenset[LightAction]:
         """
-        Returns a copy of the possible actions from this state.
-        The first call triggers the `generate_possible_actions` method.
+        Returns a copy of the possible light actions from this state.
+        The first call triggers the `generate_possible_light_actions` method.
+
+        Returns:
+            FrozenSet[LightAction]: The possible actions.
+        """
+        # Lazy loading
+        if self.is_done():
+            return frozenset()
+        if self._possible_light_actions is None:
+            self._possible_light_actions = frozenset(self.generate_possible_light_actions())
+        return self._possible_light_actions
+    
+    def get_possible_heavy_actions(self) -> frozenset[HeavyAction]:
+        """
+        Returns a copy of the possible heavy actions from this state.
+        The first call triggers the `generate_possible_heavy_actions` method.
 
         Returns:
             FrozenSet[Action]: The possible actions.
@@ -106,9 +124,9 @@ class GameState(Serializable):
         # Lazy loading
         if self.is_done():
             return frozenset()
-        if self._possible_actions is None:
-            self._possible_actions = frozenset(self.generate_possible_actions())
-        return self._possible_actions
+        if self._possible_heavy_actions is None:
+            self._possible_heavy_actions = frozenset(self.generate_possible_heavy_actions())
+        return self._possible_heavy_actions
 
     def check_action(self, action: Action) -> bool:
         """
@@ -120,16 +138,44 @@ class GameState(Serializable):
         Returns:
             bool: True if the action is feasible, False otherwise.
         """
-        if action in self.get_possible_actions():
-            return True
+        if isinstance(action, LightAction):
+            return action in self.get_possible_light_actions()
+        if isinstance(action, HeavyAction):
+            return action in self.get_possible_heavy_actions()
         return False
 
     @abstractmethod
-    def convert_light_action_to_action(self,data) ->  Action :
+    def apply_action(self, action: LightAction) -> "GameState":
+        """
+        Applies an action to the game state.
+
+        Args:
+            action (LightAction): The action to apply.
+
+        Returns:
+            GameState: The new game state.
+
+        Raises:
+            MethodNotImplementedError: If the method is not implemented.
+        """
         raise MethodNotImplementedError()
+    
 
     @abstractmethod
-    def generate_possible_actions(self) -> set[Action]:
+    def generate_possible_light_actions(self) -> set[LightAction]:
+        """
+        Generates a set of all possible actions from this game state.
+
+        Returns:
+            Set[Action]: A set of possible actions.
+
+        Raises:
+            MethodNotImplementedError: If the method is not implemented.
+        """
+        raise MethodNotImplementedError()
+    
+    @abstractmethod
+    def generate_possible_heavy_actions(self) -> set[HeavyAction]:
         """
         Generates a set of all possible actions from this game state.
 
