@@ -156,9 +156,9 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         if self.shared_sid and not self.sid:
             self.sid=self.shared_sid.sid
         while True:
-            data = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
+            data_gui = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
             try:
-
+                data = current_state.convert_gui_data_to_action_data(data_gui)
                 action = LightAction(data).get_heavy_action(current_state)
 
             except MethodNotImplementedError:

@@ -144,6 +144,19 @@ class GameState(Serializable):
             return action in self.get_possible_heavy_actions()
         return False
 
+    def convert_gui_data_to_action_data(self, data: dict[str, Any]) -> dict[str, Any]:
+        """
+        Converts GUI data to light action data.
+        This method can and should be overridden by the user.
+
+        Args:
+            data (Dict[str, Any]): The GUI data.
+
+        Returns:
+            Dict[str, Any]: The action data.
+        """
+        return data
+
     @abstractmethod
     def apply_action(self, action: LightAction) -> "GameState":
         """
