@@ -116,6 +116,7 @@ class GameMaster:
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
+        # TODO
         action.current_game_state._possible_actions=None
         action.current_game_state=None
         action.next_game_state._possible_actions=None

@@ -13,6 +13,7 @@ from aiohttp import web
 from loguru import logger
 
 from seahorse.game.action import Action
+from seahorse.game.heavy_action import HeavyAction
 from seahorse.utils.serializer import Serializable
 
 if TYPE_CHECKING:
@@ -90,8 +91,8 @@ def remote_action(label: str):
     """
     def meta_wrapper(fun: Callable):
         @functools.wraps(fun)
-        async def wrapper(self:EventSlave,current_state:GameState,*_,**__):
-            await EventMaster.get_instance().sio.emit(label,json.dumps(current_state.to_json(),default=lambda x:x.to_json()),to=self.sid)
+        async def wrapper(self:EventSlave,current_state:GameState,*_,**kwargs):
+            await EventMaster.get_instance().sio.emit(label,json.dumps({**current_state.to_json(),**kwargs},default=lambda x:x.to_json()),to=self.sid)
             out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
             return out
 
@@ -248,7 +249,7 @@ class EventMaster:
         new_gs.players = players
 
 
-        return Action(past_gs,new_gs)
+        return HeavyAction(past_gs,new_gs)
 
     async def wait_for_event(self,sid:int,label:str,*,flush_until:float | None=None) -> Coroutine:
         """Waits for an aribtrary event emitted by the connection identified by `sid`
