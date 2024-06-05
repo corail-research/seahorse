@@ -44,7 +44,7 @@ class GameMaster:
         log_level: str = "INFO",
         port: int =8080,
         hostname: str ="localhost",
-        time_limit: int = 15*60,
+        time_limit: int = 1e9,
     ) -> None:
         """
         Initializes a new instance of the GameMaster class.
@@ -57,7 +57,6 @@ class GameMaster:
             log_level (str): The name of the log file.
         """
         self.timetol = 1e-1
-        # self.recorded_plays = []
         self.name = name
         self.current_game_state = initial_game_state
         self.players = initial_game_state.players
@@ -96,9 +95,8 @@ class GameMaster:
         possible_actions = self.current_game_state.get_possible_heavy_actions()
 
         start = time.time()
-        # next_player.start_timer()
-        logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
 
+        logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
         if isinstance(next_player,EventSlave):
             action = await next_player.play(self.current_game_state, remaining_time=self.remaining_time[next_player.get_id()])
         else:
@@ -145,12 +143,9 @@ class GameMaster:
             try:
                 logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
-<<<<<<< remove_timer
+
                 # self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
-=======
-                self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
             
->>>>>>> main
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
@@ -203,13 +198,9 @@ class GameMaster:
             logger.info(f"Winner - {player.get_name()}")
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
-<<<<<<< remove_timer
         logger.verdict(f"{','.join(w.get_name() for w in self.get_winner())} has won the game")
-=======
-        logger.verdict(f"{verdict_scores[::-1]}")
 
         print(f"Time taken for the whole game : {time.time()-time_start}")        
->>>>>>> main
 
         return self.winner
 
