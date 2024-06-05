@@ -44,7 +44,7 @@ class GameMaster:
         log_level: str = "INFO",
         port: int =8080,
         hostname: str ="localhost",
-        time_limit: int = 15*60,
+        time_limit: int = 1e9,
     ) -> None:
         """
         Initializes a new instance of the GameMaster class.
@@ -57,7 +57,6 @@ class GameMaster:
             log_level (str): The name of the log file.
         """
         self.timetol = 1e-1
-        # self.recorded_plays = []
         self.name = name
         self.current_game_state = initial_game_state
         self.players = initial_game_state.players
@@ -96,9 +95,8 @@ class GameMaster:
         possible_actions = self.current_game_state.get_possible_heavy_actions()
 
         start = time.time()
-        # next_player.start_timer()
-        logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
 
+        logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
         if isinstance(next_player,EventSlave):
             action = await next_player.play(self.current_game_state, remaining_time=self.remaining_time[next_player.get_id()])
         else:
@@ -107,12 +105,6 @@ class GameMaster:
         self.remaining_time[next_player.get_id()] -= (tstp-start)
         if self.remaining_time[next_player.get_id()] < 0:
             raise SeahorseTimeoutError()
-        
-        # if abs((tstp-start)-(tstp-next_player.get_last_timestamp()))>self.timetol:
-        #     next_player.stop_timer()
-        #     raise StopAndStartError()
-
-        # next_player.stop_timer()
 
         action = action.get_heavy_action(self.current_game_state)
         if action not in possible_actions:
@@ -135,9 +127,7 @@ class GameMaster:
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
-        # self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
         id2player={}
-        # verdict_scores=[-1e9,-1e9]
         for player in self.get_game_state().get_players() :
             id2player[player.get_id()]=player.get_name()
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
@@ -145,31 +135,20 @@ class GameMaster:
             try:
                 logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
-                # self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
                 elif isinstance(e,ActionNotPermittedError) :
                     logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
-                # else:
-                #     logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
 
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 id_player_error = self.current_game_state.get_next_player().get_id()
                 other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error]))
                 temp_score[id_player_error] = -1e9
                 temp_score[other_player] = 1e9
-
-                # temp_score.pop(id_player_error)
                 self.winner = self.compute_winner(temp_score)
 
-                # self.current_game_state.get_scores()[id_player_error] = -3
-                # other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error]))
-                # self.current_game_state.get_scores()[other_player] = 0
-
-                # scores = self.get_scores()
                 for key in temp_score.keys():
-                    # verdict_scores[int(id2player[key].split("_")[-1])-1]=-scores[key]
                     logger.info(f"{id2player[key]}:{temp_score[key]}")
 
                 for player in self.get_winner() :
@@ -191,7 +170,6 @@ class GameMaster:
         self.winner = self.compute_winner(self.current_game_state.get_scores())
         scores = self.get_scores()
         for key in scores.keys() :
-                # verdict_scores[int(id2player[key].split("_")[-1])-1]=-scores[key]
                 logger.info(f"{id2player[key]}:{(scores[key])}")
 
         for player in self.get_winner() :

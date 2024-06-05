@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
 
-class Player(Serializable):#,TimeMixin):
+class Player(Serializable):
     """
     A base class representing a player in the game.
 
@@ -28,7 +28,6 @@ class Player(Serializable):#,TimeMixin):
 
         Args:
             name (str, optional): The name of the player. Defaults to "bob".
-            time_limit (float, optional): The time limit for the player's moves. Defaults to 1e6.
             hard_id (int, optional, keyword-only): Set the player's id in case of distant loading
         """
         self.name = name
@@ -36,10 +35,8 @@ class Player(Serializable):#,TimeMixin):
             self.id = builtins.id(self)
         else:
             self.id = id
-        # self.init_timer(time_limit)
 
 
-    # @timed_function
     def play(self, current_state: GameState, remaining_time: int) -> Action:
         """
         Implements the player's logic and calls compute_action with minimal information.
