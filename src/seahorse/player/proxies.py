@@ -39,7 +39,7 @@ class RemotePlayerProxy(Serializable,EventSlave):
         self.sid = None
 
     @remote_action("turn")
-    def play(self, *,current_state: GameState) -> Action:
+    def play(self, *,current_state: GameState, remaining_time: int) -> Action:
         """
         Plays a move.
 
@@ -108,7 +108,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
             self.wrapped_player.id = json.loads(data)["new_id"]
 
     @event_emitting("action")
-    def play(self, current_state: GameState) -> Action:
+    def play(self, current_state: GameState, remaining_time: int) -> Action:
         """
         Plays a move.
 
@@ -118,7 +118,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         Returns:
             Action: The action resulting from the move.
         """
-        return self.compute_action(current_state=current_state)
+        return self.compute_action(current_state=current_state, remaining_time=remaining_time)
 
     def __getattr__(self, attr):
         return getattr(self.wrapped_player, attr)
@@ -130,7 +130,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         return hash(self) == hash(__value)
 
     def __str__(self) -> str:
-        return f"Player {self.wrapped_player.get_name()} has ID {self.wrapped_player.get_id()}."
+        return f"Player {self.wrapped_player.get_name()} (ID: {self.wrapped_player.get_id()})."
 
     def to_json(self) -> dict:
         return self.wrapped_player.to_json()
@@ -152,7 +152,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         self.shared_sid = None
         self.sid = None
 
-    async def play(self, current_state: GameState) -> Action:
+    async def play(self, current_state: GameState, **args) -> Action:
         if self.shared_sid and not self.sid:
             self.sid=self.shared_sid.sid
         while True:

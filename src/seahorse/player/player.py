@@ -5,7 +5,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
-from seahorse.game.time_manager import TimeMixin, timed_function
+# from seahorse.game.time_manager import TimeMixin, timed_function
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
 
-class Player(Serializable,TimeMixin):
+class Player(Serializable):#,TimeMixin):
     """
     A base class representing a player in the game.
 
@@ -22,7 +22,7 @@ class Player(Serializable,TimeMixin):
         name (str) : the name of the player
     """
 
-    def __init__(self, name: str = "bob", time_limit: float = 1e6,*,id:int | None = None,**_) -> None:
+    def __init__(self, name: str = "bob",*,id:int | None = None,**_) -> None:
         """
         Initializes a new instance of the Player class.
 
@@ -36,11 +36,11 @@ class Player(Serializable,TimeMixin):
             self.id = builtins.id(self)
         else:
             self.id = id
-        self.init_timer(time_limit)
+        # self.init_timer(time_limit)
 
 
-    @timed_function
-    def play(self, current_state: GameState) -> Action:
+    # @timed_function
+    def play(self, current_state: GameState, remaining_time: int) -> Action:
         """
         Implements the player's logic and calls compute_action with minimal information.
 
@@ -54,7 +54,7 @@ class Player(Serializable,TimeMixin):
             Action: The resulting action.
         """
         # TODO: check score ????
-        return self.compute_action(current_state=current_state)
+        return self.compute_action(current_state=current_state, remaining_time=remaining_time)
 
     @abstractmethod
     def compute_action(self, **kwargs) -> Action:
