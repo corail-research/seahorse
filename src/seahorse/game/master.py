@@ -10,7 +10,9 @@ from typing import List, Optional
 from loguru import logger
 
 from seahorse.game.game_state import GameState
+from seahorse.game.heavy_action import HeavyAction
 from seahorse.game.io_stream import EventMaster, EventSlave
+from seahorse.game.light_action import LightAction
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
@@ -87,7 +89,8 @@ class GameMaster:
             GamseState : The new game_state.
         """
         next_player = self.current_game_state.get_next_player()
-        possible_actions = self.current_game_state.get_possible_actions()
+
+        possible_actions = self.current_game_state.get_possible_heavy_actions()
 
         start = time.time()
         next_player.start_timer()
@@ -105,6 +108,7 @@ class GameMaster:
 
         next_player.stop_timer()
 
+        action = action.get_heavy_action(self.current_game_state)
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
@@ -120,6 +124,7 @@ class GameMaster:
         Returns:
             Iterable[Player]: The winner(s) of the game.
         """
+        time_start = time.time()
         await self.emitter.sio.emit(
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
@@ -135,6 +140,7 @@ class GameMaster:
                 logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
                 self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
+            
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
@@ -180,8 +186,9 @@ class GameMaster:
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
         logger.verdict(f"{verdict_scores[::-1]}")
-        with open(self.players[0].name+"_"+self.players[-1].name+"_"+str(time.time())+".json","w+") as f:
-            f.write(json.dumps(self.recorded_plays,default=lambda x:x.to_json()))
+
+        print(f"Time taken for the whole game : {time.time()-time_start}")        
+
         return self.winner
 
     def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:
