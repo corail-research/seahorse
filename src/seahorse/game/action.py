@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING
-
 from seahorse.utils.serializer import Serializable
 
 class Action(Serializable):
@@ -19,7 +17,7 @@ class Action(Serializable):
         pass
 
     @abstractmethod
-    def get_heavy_action(self, **kwargs) -> Action:
+    def get_heavy_action(self, *_) -> Action:
         """
         Returns the heavy action.
 

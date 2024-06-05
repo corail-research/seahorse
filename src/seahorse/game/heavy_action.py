@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
-from seahorse.utils.serializer import Serializable
 
 if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
@@ -47,7 +46,7 @@ class HeavyAction(Action):
         """
         return self.next_game_state
 
-    def get_heavy_action(self, game_state: GameState = None) -> HeavyAction:
+    def get_heavy_action(self, *_) -> HeavyAction:
         """
         Returns the heavy action.
 

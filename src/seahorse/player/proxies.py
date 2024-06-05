@@ -98,8 +98,9 @@ class LocalPlayerProxy(Serializable,EventSlave):
         async def handle_turn(*data):
             logger.info(f"{self.wrapped_player.name} is playing")
             logger.debug(f"Data received : {data}")
-            logger.debug(f"Deserialized data : \n{gs.from_json(data[0],next_player=self)}")
-            action = await self.play(gs.from_json(data[0],next_player=self))
+            deserialized = json.loads(data[0])
+            logger.debug(f"Deserialized data : \n{deserialized}")
+            action = await self.play(gs.from_json(data[0],next_player=self),remaining_time = deserialized["remaining_time"])
             logger.info(f"{self.wrapped_player} played the following action : \n{action}")
 
         @self.sio.on("update_id")
@@ -118,7 +119,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         Returns:
             Action: The action resulting from the move.
         """
-        return self.compute_action(current_state=current_state, remaining_time=remaining_time)
+        return self.compute_action(current_state=current_state, remaining_time=remaining_time).get_heavy_action(current_state)
 
     def __getattr__(self, attr):
         return getattr(self.wrapped_player, attr)
@@ -136,7 +137,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         return self.wrapped_player.to_json()
 
 class InteractivePlayerProxy(LocalPlayerProxy):
-    """Proxy for interactive players, 
+    """Proxy for interactive players,
        inherits from `LocalPlayerProxy`
     """
     def __init__(self, mimics: Player, gui_path:Optional[str]=None, *args, **kwargs) -> None:
@@ -152,7 +153,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         self.shared_sid = None
         self.sid = None
 
-    async def play(self, current_state: GameState, **args) -> Action:
+    async def play(self, current_state: GameState, **_) -> Action:
         if self.shared_sid and not self.sid:
             self.sid=self.shared_sid.sid
         while True:

@@ -10,9 +10,7 @@ from typing import List, Optional
 from loguru import logger
 
 from seahorse.game.game_state import GameState
-from seahorse.game.heavy_action import HeavyAction
 from seahorse.game.io_stream import EventMaster, EventSlave
-from seahorse.game.light_action import LightAction
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
@@ -110,6 +108,7 @@ class GameMaster:
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
+        # TODO
         action.current_game_state._possible_actions=None
         action.current_game_state=None
         action.next_game_state._possible_actions=None
@@ -122,7 +121,6 @@ class GameMaster:
         Returns:
             Iterable[Player]: The winner(s) of the game.
         """
-        time_start = time.time()
         await self.emitter.sio.emit(
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
@@ -140,7 +138,6 @@ class GameMaster:
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
                 elif isinstance(e,ActionNotPermittedError) :
                     logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
-
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 id_player_error = self.current_game_state.get_next_player().get_id()
                 other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error]))
@@ -177,7 +174,6 @@ class GameMaster:
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
         logger.verdict(f"{','.join(w.get_name() for w in self.get_winner())} has won the game")
-
         return self.winner
 
     def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:

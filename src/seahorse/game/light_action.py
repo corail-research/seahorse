@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
 from seahorse.game.heavy_action import HeavyAction
-
+from seahorse.utils.custom_exceptions import NoGameStateProvidedError
 if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
@@ -22,11 +22,11 @@ class LightAction(Action):
         Initializes a new instance of the Action class.
 
         Args: data (dict): The data of the light action.
-            
+
         """
         self.data = data
 
-    
+
     def get_heavy_action(self, game_state: GameState = None) -> HeavyAction:
         """
         Returns the heavy action.
@@ -35,10 +35,10 @@ class LightAction(Action):
             HeavyAction: The heavy action.
         """
         if game_state is None:
-            raise ValueError("Cannot apply a light action without current game state.")
-        
+            raise NoGameStateProvidedError()
+
         return HeavyAction(game_state, game_state.apply_action(self))
-    
+
 
     def __hash__(self) -> int:
         return hash(tuple(self.data.items()))
