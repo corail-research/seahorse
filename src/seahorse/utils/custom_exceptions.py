@@ -15,6 +15,12 @@ class NotRunningError(Exception):
         self.message = message
         super().__init__(message)
 
+class NoGameStateProvidedError(Exception):
+    """Thrown when trying to get a heavy action from a light action without providing a game state
+    """
+    def __init__(self,  message: str = "Cannot apply a light action without current game state."):
+        self.message = message
+        super().__init__(message)
 class PlayerDuplicateError(Exception):
     """Thrown when trying to stop somethin twice
     """

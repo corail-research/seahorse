@@ -153,7 +153,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         self.shared_sid = None
         self.sid = None
 
-    async def play(self, current_state: GameState, **args) -> Action:
+    async def play(self, current_state: GameState, **_) -> Action:
         if self.shared_sid and not self.sid:
             self.sid=self.shared_sid.sid
         while True:

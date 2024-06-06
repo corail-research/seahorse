@@ -10,9 +10,7 @@ from typing import List, Optional
 from loguru import logger
 
 from seahorse.game.game_state import GameState
-from seahorse.game.heavy_action import HeavyAction
 from seahorse.game.io_stream import EventMaster, EventSlave
-from seahorse.game.light_action import LightAction
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
@@ -200,9 +198,6 @@ class GameMaster:
 
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
         logger.verdict(f"{','.join(w.get_name() for w in self.get_winner())} has won the game")
-
-        print(f"Time taken for the whole game : {time.time()-time_start}")
-
         return self.winner
 
     def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:

@@ -7,7 +7,7 @@ from seahorse.game.game_layout.board import Piece, Board
 from seahorse.game.representation import Representation
 from seahorse.player.player import Player
 from seahorse.game.game_state import GameState
-from seahorse.game.action import Action
+from seahorse.game.heavy_action import HeavyAction
 
 
 class Dummy_GameState(GameState):
@@ -26,7 +26,7 @@ class Dummy_GameState(GameState):
                     copy_rep.get_env()[(i, j)] = Piece(piece_type="Added", owner=next_player)
                     list_rep.append(copy.deepcopy(copy_rep))
         poss_actions = {
-            Action(
+            HeavyAction(
                 self,
                 Dummy_GameState(
                     self.get_scores(),
