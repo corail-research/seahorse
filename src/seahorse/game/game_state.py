@@ -1,7 +1,6 @@
 from abc import abstractmethod
 from itertools import cycle
 from typing import Any
-
 from seahorse.game.action import Action
 from seahorse.game.heavy_action import HeavyAction
 from seahorse.game.light_action import LightAction
@@ -173,7 +172,6 @@ class GameState(Serializable):
         """
         raise MethodNotImplementedError()
     
-
     @abstractmethod
     def generate_possible_light_actions(self) -> set[LightAction]:
         """

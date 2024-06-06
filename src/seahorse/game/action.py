@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING
-
 from seahorse.utils.serializer import Serializable
 
 class Action(Serializable):
