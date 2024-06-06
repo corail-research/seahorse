@@ -127,14 +127,11 @@ class GameMaster:
         Returns:
             Iterable[Player]: The winner(s) of the game.
         """
-        time_start = time.time()
         await self.emitter.sio.emit(
             "play",
             json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
         )
-        # self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
         id2player={}
-        # verdict_scores=[-1e9,-1e9]
         for player in self.get_game_state().get_players() :
             id2player[player.get_id()]=player.get_name()
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
@@ -142,33 +139,20 @@ class GameMaster:
             try:
                 logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
-
-                # self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
-
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
                 elif isinstance(e,ActionNotPermittedError) :
                     logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
-                # else:
-                #     logger.error(f"Player {self.current_game_state.get_next_player()} might have tried tampering with the timer.\n The timedelta difference exceeded the allowed tolerancy in GameMaster.timetol ")
-
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 id_player_error = self.current_game_state.get_next_player().get_id()
                 other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error]))
                 temp_score[id_player_error] = -1e9
                 temp_score[other_player] = 1e9
 
-                # temp_score.pop(id_player_error)
                 self.winner = self.compute_winner(temp_score)
 
-                # self.current_game_state.get_scores()[id_player_error] = -3
-                # other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error]))
-                # self.current_game_state.get_scores()[other_player] = 0
-
-                # scores = self.get_scores()
                 for key in temp_score.keys():
-                    # verdict_scores[int(id2player[key].split("_")[-1])-1]=-scores[key]
                     logger.info(f"{id2player[key]}:{temp_score[key]}")
 
                 for player in self.get_winner() :
