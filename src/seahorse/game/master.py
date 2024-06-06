@@ -105,7 +105,7 @@ class GameMaster:
         self.remaining_time[next_player.get_id()] -= (tstp-start)
         if self.remaining_time[next_player.get_id()] < 0:
             raise SeahorseTimeoutError()
-        
+
         # if abs((tstp-start)-(tstp-next_player.get_last_timestamp()))>self.timetol:
         #     next_player.stop_timer()
         #     raise StopAndStartError()
@@ -146,7 +146,7 @@ class GameMaster:
                 self.current_game_state = await self.step()
 
                 # self.recorded_plays.append(self.current_game_state.__class__.from_json(json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json())))
-            
+
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
@@ -201,7 +201,7 @@ class GameMaster:
         await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
         logger.verdict(f"{','.join(w.get_name() for w in self.get_winner())} has won the game")
 
-        print(f"Time taken for the whole game : {time.time()-time_start}")        
+        print(f"Time taken for the whole game : {time.time()-time_start}")
 
         return self.winner
 

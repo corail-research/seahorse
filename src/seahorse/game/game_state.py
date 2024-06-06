@@ -111,7 +111,7 @@ class GameState(Serializable):
         if self._possible_light_actions is None:
             self._possible_light_actions = frozenset(self.generate_possible_light_actions())
         return self._possible_light_actions
-    
+
     def get_possible_heavy_actions(self) -> frozenset[HeavyAction]:
         """
         Returns a copy of the possible heavy actions from this state.
@@ -171,7 +171,7 @@ class GameState(Serializable):
             MethodNotImplementedError: If the method is not implemented.
         """
         raise MethodNotImplementedError()
-    
+
     @abstractmethod
     def generate_possible_light_actions(self) -> set[LightAction]:
         """
@@ -184,7 +184,7 @@ class GameState(Serializable):
             MethodNotImplementedError: If the method is not implemented.
         """
         raise MethodNotImplementedError()
-    
+
     @abstractmethod
     def generate_possible_heavy_actions(self) -> set[HeavyAction]:
         """

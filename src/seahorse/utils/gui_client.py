@@ -4,7 +4,7 @@ import subprocess
 from typing import Any, Coroutine, Optional
 
 from loguru import logger
-from seahorse.game.io_stream import EventMaster, EventSlave 
+from seahorse.game.io_stream import EventMaster, EventSlave
 
 class GUIClient(EventSlave):
     def __init__(self, path:Optional[str]=None) -> None:

@@ -137,7 +137,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         return self.wrapped_player.to_json()
 
 class InteractivePlayerProxy(LocalPlayerProxy):
-    """Proxy for interactive players, 
+    """Proxy for interactive players,
        inherits from `LocalPlayerProxy`
     """
     def __init__(self, mimics: Player, gui_path:Optional[str]=None, *args, **kwargs) -> None:

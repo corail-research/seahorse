@@ -262,7 +262,7 @@ class EventMaster:
             flush_until (float, optional): The timestamp treshold. Defaults to None.
 
         Returns:
-            Coroutine: a promise yielding the data associated to the event 
+            Coroutine: a promise yielding the data associated to the event
         """
         while not len(self.__events.get(sid,{}).get(label,[])):
             await asyncio.sleep(.1)
