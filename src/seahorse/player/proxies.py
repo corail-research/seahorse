@@ -8,6 +8,7 @@ from seahorse.game.action import Action
 
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
+from seahorse.game.light_action import LightAction
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.gui_client import GUIClient
@@ -38,7 +39,7 @@ class RemotePlayerProxy(Serializable,EventSlave):
         self.sid = None
 
     @remote_action("turn")
-    def play(self, *,current_state: GameState) -> Action:
+    def play(self, *,current_state: GameState, remaining_time: int) -> Action:
         """
         Plays a move.
 
@@ -97,8 +98,9 @@ class LocalPlayerProxy(Serializable,EventSlave):
         async def handle_turn(*data):
             logger.info(f"{self.wrapped_player.name} is playing")
             logger.debug(f"Data received : {data}")
-            logger.debug(f"Deserialized data : \n{gs.from_json(data[0],next_player=self)}")
-            action = await self.play(gs.from_json(data[0],next_player=self))
+            deserialized = json.loads(data[0])
+            logger.debug(f"Deserialized data : \n{deserialized}")
+            action = await self.play(gs.from_json(data[0],next_player=self),remaining_time = deserialized["remaining_time"])
             logger.info(f"{self.wrapped_player} played the following action : \n{action}")
 
         @self.sio.on("update_id")
@@ -107,7 +109,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
             self.wrapped_player.id = json.loads(data)["new_id"]
 
     @event_emitting("action")
-    def play(self, current_state: GameState) -> Action:
+    def play(self, current_state: GameState, remaining_time: int) -> Action:
         """
         Plays a move.
 
@@ -117,7 +119,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         Returns:
             Action: The action resulting from the move.
         """
-        return self.compute_action(current_state=current_state)
+        return self.compute_action(current_state=current_state, remaining_time=remaining_time).get_heavy_action(current_state)
 
     def __getattr__(self, attr):
         return getattr(self.wrapped_player, attr)
@@ -129,13 +131,13 @@ class LocalPlayerProxy(Serializable,EventSlave):
         return hash(self) == hash(__value)
 
     def __str__(self) -> str:
-        return f"Player {self.wrapped_player.get_name()} has ID {self.wrapped_player.get_id()}."
+        return f"Player {self.wrapped_player.get_name()} (ID: {self.wrapped_player.get_id()})."
 
     def to_json(self) -> dict:
         return self.wrapped_player.to_json()
 
 class InteractivePlayerProxy(LocalPlayerProxy):
-    """Proxy for interactive players, 
+    """Proxy for interactive players,
        inherits from `LocalPlayerProxy`
     """
     def __init__(self, mimics: Player, gui_path:Optional[str]=None, *args, **kwargs) -> None:
@@ -151,18 +153,20 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         self.shared_sid = None
         self.sid = None
 
-    async def play(self, current_state: GameState) -> Action:
+    async def play(self, current_state: GameState, **_) -> Action:
         if self.shared_sid and not self.sid:
             self.sid=self.shared_sid.sid
         while True:
-            data = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
+            data_gui = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
             try:
-                action = current_state.convert_light_action_to_action(data)
+                data = current_state.convert_gui_data_to_action_data(data_gui)
+                action = LightAction(data).get_heavy_action(current_state)
+
             except MethodNotImplementedError:
                 #TODO: handle this case
                 action = Action.from_json(data)
 
-            if action in current_state.get_possible_actions():
+            if action in current_state.get_possible_heavy_actions():
                 break
             else:
                 await EventMaster.get_instance().sio.emit("ActionNotPermitted",None)
