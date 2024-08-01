@@ -5,7 +5,7 @@ import time
 from abc import abstractmethod
 from collections.abc import Iterable
 from itertools import cycle
-from typing import List, Optional
+from typing import Optional
 
 from loguru import logger
 
@@ -96,7 +96,8 @@ class GameMaster:
 
         logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
         if isinstance(next_player,EventSlave):
-            action = await next_player.play(self.current_game_state, remaining_time=self.remaining_time[next_player.get_id()])
+            action = await next_player.play(self.current_game_state, 
+                                            remaining_time=self.remaining_time[next_player.get_id()])
         else:
             action = next_player.play(self.current_game_state, remaining_time=self.remaining_time[next_player.get_id()])
         tstp = time.time()
@@ -108,7 +109,6 @@ class GameMaster:
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
-        # TODO
         action.current_game_state._possible_actions=None
         action.current_game_state=None
         action.next_game_state._possible_actions=None
@@ -131,7 +131,8 @@ class GameMaster:
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
         while not self.current_game_state.is_done():
             try:
-                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
+                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - \
+                            {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
@@ -140,7 +141,8 @@ class GameMaster:
                     logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 id_player_error = self.current_game_state.get_next_player().get_id()
-                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if player.get_id()!=id_player_error]))
+                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if
+                                          player.get_id()!=id_player_error]))
                 temp_score[id_player_error] = -1e9
                 temp_score[other_player] = 1e9
                 self.winner = self.compute_winner(temp_score)
@@ -176,7 +178,7 @@ class GameMaster:
         logger.verdict(f"{','.join(w.get_name() for w in self.get_winner())} has won the game")
         return self.winner
 
-    def record_game(self, listeners:Optional[List[EventSlave]]=None) -> None:
+    def record_game(self, listeners:Optional[list[EventSlave]]=None) -> None:
         """
         Starts a game and broadcasts its successive states.
         """

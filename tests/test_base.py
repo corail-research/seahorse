@@ -1,18 +1,17 @@
-from typing import Any, Dict, List
-import unittest
 import copy
-from random import sample
+import unittest
+from typing import Any
 
-from seahorse.game.game_layout.board import Piece, Board
-from seahorse.game.representation import Representation
-from seahorse.player.player import Player
+from seahorse.game.game_layout.board import Board, Piece
 from seahorse.game.game_state import GameState
 from seahorse.game.heavy_action import HeavyAction
+from seahorse.game.representation import Representation
+from seahorse.player.player import Player
 
 
-class Dummy_GameState(GameState):
+class DummyGameState(GameState):
 
-    def __init__(self, scores: Dict[int, Any], next_player: Player, players: List[Player], rep: Representation) -> None:
+    def __init__(self, scores: dict[int, Any], next_player: Player, players: list[Player], rep: Representation) -> None:
         super().__init__(scores, next_player, players, rep)
 
     def generate_possible_actions(self):
@@ -28,7 +27,7 @@ class Dummy_GameState(GameState):
         poss_actions = {
             HeavyAction(
                 self,
-                Dummy_GameState(
+                DummyGameState(
                     self.get_scores(),
                     self.compute_next_player(),
                     self.players,
@@ -41,19 +40,20 @@ class Dummy_GameState(GameState):
         return poss_actions
 
 
-class test_case(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.board = Board(env={}, dim=[3, 3])
 
         self.player1 = Player("Thomas")
-        self.player2 = Player(id=42)
+        self.player2 = Player(identifier=42)
 
         self.piece1 = Piece("A")
         self.piece2 = Piece("B", self.player2)
         self.piece3 = Piece("C", self.player1)
 
-        self.current_gs = Dummy_GameState(scores={self.player1.get_id():1, self.player2.get_id():0}, next_player=self.player1, players=[self.player1, self.player2], rep=self.board)
+        self.current_gs = DummyGameState(scores={self.player1.get_id():1, self.player2.get_id():0},
+                                          next_player=self.player1, players=[self.player1, self.player2], rep=self.board)
 
     def test_id(self):
         assert self.player1.get_id() == id(self.player1)
@@ -76,8 +76,10 @@ class test_case(unittest.TestCase):
         assert self.current_gs.get_player_score(self.player1) == 1
         self.board.env[(0, 1)] = self.piece1
         possible_actions = self.current_gs.generate_possible_actions()
-        assert len(possible_actions) == self.current_gs.get_rep().get_dimensions()[0]*self.current_gs.get_rep().get_dimensions()[1] - 1
+        assert len(possible_actions) == self.current_gs.get_rep().get_dimensions()[0]*self.current_gs.get_rep()\
+            .get_dimensions()[1] - 1
         self.board.env[(2, 1)] = self.piece2
         self.board.env[(2, 2)] = self.piece3
         possible_actions = self.current_gs.generate_possible_actions()
-        assert len(possible_actions) == self.current_gs.get_rep().get_dimensions()[0]*self.current_gs.get_rep().get_dimensions()[1] - 3
+        assert len(possible_actions) == self.current_gs.get_rep().get_dimensions()[0]*self.current_gs.get_rep()\
+            .get_dimensions()[1] - 3
