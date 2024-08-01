@@ -1,11 +1,11 @@
 import json
-from collections.abc import Coroutine
 import time
+from collections.abc import Coroutine
 from typing import Any, Optional
 
 from loguru import logger
-from seahorse.game.action import Action
 
+from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
 from seahorse.game.light_action import LightAction

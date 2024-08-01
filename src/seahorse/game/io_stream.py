@@ -3,10 +3,11 @@ from __future__ import annotations
 import asyncio
 import functools
 import json
-from collections import deque
-import time
 import re
-from typing import TYPE_CHECKING, Any, Callable, Coroutine
+import time
+from collections import deque
+from collections.abc import Coroutine
+from typing import TYPE_CHECKING, Any, Callable
 
 import socketio
 from aiohttp import web
@@ -33,7 +34,8 @@ class EventSlave:
 
         Args:
             identifier (str | None, optional): Must be a unique identifier. Defaults to None.
-            wrapped_id (int | None, optional): If the eventSlave is bound to an instance a python native id might be associated. Defaults to None.
+            wrapped_id (int | None, optional): If the eventSlave is instance bounded, a native id might be associated.
+                                               Defaults to None.
         """
         self.sio = socketio.AsyncClient()
         self.connected = False
@@ -92,7 +94,8 @@ def remote_action(label: str):
     def meta_wrapper(fun: Callable):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,current_state:GameState,*_,**kwargs):
-            await EventMaster.get_instance().sio.emit(label,json.dumps({**current_state.to_json(),**kwargs},default=lambda x:x.to_json()),to=self.sid)
+            await EventMaster.get_instance().sio.emit(label,json.dumps({**current_state.to_json(),**kwargs},
+                                                                       default=lambda x:x.to_json()),to=self.sid)
             out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
             return out
 
@@ -120,7 +123,8 @@ class EventMaster:
         """Gets the instance object
 
         Args:
-            n_clients (int, optional): the number of clients the instance is supposed to be listening, *ignored* if already initialized. Defaults to 1.
+            n_clients (int, optional): the number of clients the instance is supposed to be listening,
+                                       *ignored* if already initialized. Defaults to 1.
             game_state : class of a game state
             port (int, optional): the port to use. Defaults to 8080.
 
@@ -133,7 +137,8 @@ class EventMaster:
 
     def __init__(self,game_state,port,hostname):
         if EventMaster.__instance is not None:
-            msg = "Trying to initialize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead."
+            msg = "Trying to initialize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n\
+                Call EventMaster.get_instance() instead."
             raise NotImplementedError(msg)
         else:
             # Initializing attributes
@@ -149,7 +154,8 @@ class EventMaster:
             self.hostname = hostname
 
             # Standard python-socketio server
-            self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True, cors_allowed_origins="*", ping_timeout=1e6)
+            self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True,
+                                            cors_allowed_origins="*", ping_timeout=1e6)
             self.app = web.Application()
 
             # Starting asyncio stuff
@@ -176,7 +182,8 @@ class EventMaster:
                 """
                 self.__open_sessions.add(sid)
                 self.__n_clients_connected += 1
-                logger.info(f"Waiting for listeners {self.__n_clients_connected} out of {self.expected_clients} are connected.")
+                logger.info(f"Waiting for listeners {self.__n_clients_connected} out of "
+                            f"{self.expected_clients} are connected.")
 
             @self.sio.event
             def disconnect(sid):
@@ -267,7 +274,9 @@ class EventMaster:
         while not len(self.__events.get(sid,{}).get(label,[])):
             await asyncio.sleep(.1)
         ts,data = self.__events[sid][label].pop()
-        return data if (not flush_until) or ts>=flush_until else await self.wait_for_event(sid,label,flush_until=flush_until)
+        if (not flush_until) or ts>=flush_until:
+            return data
+        await self.wait_for_event(sid,label,flush_until=flush_until)
 
     async def wait_for_identified_client(self,name:str,local_id:int) -> str:
         """ Waits for an identified client (a player typically)
@@ -299,10 +308,9 @@ class EventMaster:
             Starts an emitting sequence and runs a tasks that embeds
             calls to `EventMaster.__instance.sio.emit()`
 
-            The starting of the game is starting when for all `EventSlave` instances in `listeners`, the `.listen()` future is fulfilled.
+            The game is starting when for all `EventSlave` in `listeners`, the `.listen()` future is fulfilled.
 
-            If `len(listeners)==0` the EventMaster emits events
-            in the void.
+            If `len(listeners)==0` the EventMaster emits events in the void.
 
             Args:
                 task (Callable[[None],None]): task calling `EventMaster.sio.emit()`
@@ -312,20 +320,19 @@ class EventMaster:
 
         # Sets the runner up and starts the tcp server
         self.event_loop.run_until_complete(self.runner.setup())
-        #print(self.port)
         site = web.TCPSite(self.runner, self.hostname, self.port)
         self.event_loop.run_until_complete(site.start())
 
         async def stop():
 
             # Waiting for all
-            logger.info(f"Waiting for listeners {self.__n_clients_connected} out of {self.expected_clients} are connected.")
+            logger.info(f"Waiting for listeners {self.__n_clients_connected} "
+                        f"out of {self.expected_clients} are connected.")
             for x in slaves:
                 await x.listen(master_address=f"http://{self.hostname}:{self.port!s}", keep_alive=False)
 
-            logger.info("Starting match")
-
             # Launching the task
+            logger.info("Starting match")
             task_future = asyncio.wrap_future(self.sio.start_background_task(task))
             await task_future
 
