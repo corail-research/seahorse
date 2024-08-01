@@ -1,11 +1,14 @@
 import builtins
 import os
-import subprocess
 import platform
-from typing import Any, Coroutine, Optional
+import subprocess
+from collections.abc import Coroutine
+from typing import Any, Optional
 
 from loguru import logger
+
 from seahorse.game.io_stream import EventMaster, EventSlave
+
 
 class GUIClient(EventSlave):
     def __init__(self, path:Optional[str]=None) -> None:
@@ -21,11 +24,12 @@ class GUIClient(EventSlave):
         except AttributeError:
             try:
                 if platform.system() == "Linux":
-                    subprocess.call(["xdg-open", url])
+                    subprocess.check_call(["xdg-open", url])
                 elif platform.system() == "Darwin":
-                    subprocess.call(["open", url])
+                    subprocess.check_call(["open", url])
                 else:
-                    raise Exception("Unexpected platform")
+                    msg = "Unexpected platform"
+                    raise Exception(msg)
             except Exception:
                 logger.debug("Could not open URL")
 
