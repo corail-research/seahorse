@@ -272,7 +272,7 @@ class EventMaster:
         while not len(self.__events.get(sid,{}).get(label,[])):
             await asyncio.sleep(.1)
         ts,data = self.__events[sid][label].pop()
-        
+
         if (not flush_until) or ts>=flush_until:
             return data
         else :
@@ -297,7 +297,6 @@ class EventMaster:
         cl = self.__identified_clients.get(matching_names[0])
         self.__identified_clients[matching_names[0]]["attached"] = True
 
-        # TODO Check sid
         await self.sio.emit("update_id",json.dumps({"new_id":local_id}),to=cl["sid"])
         return cl
 
@@ -333,7 +332,7 @@ class EventMaster:
             # Launching the task
             logger.info("Starting match")
             task_future = self.sio.start_background_task(task)
-            
+
             # Await the game task completion
             try:
                 await task_future
