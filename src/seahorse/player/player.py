@@ -5,6 +5,7 @@ from abc import abstractmethod
 from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
+# from seahorse.game.time_manager import TimeMixin, timed_function
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
 
@@ -21,7 +22,7 @@ class Player(Serializable):
         name (str) : the name of the player
     """
 
-    def __init__(self, name: str = "bob", *, identifier:int | None = None,**_) -> None:
+    def __init__(self, name: str = "bob",*,id:int | None = None,**_) -> None:
         """
         Initializes a new instance of the Player class.
 
@@ -30,10 +31,10 @@ class Player(Serializable):
             hard_id (int, optional, keyword-only): Set the player's id in case of distant loading
         """
         self.name = name
-        if identifier is None:
-            self.identifier = builtins.id(self)
+        if id is None:
+            self.id = builtins.id(self)
         else:
-            self.identifier = identifier
+            self.id = id
 
 
     def play(self, current_state: GameState, remaining_time: int) -> Action:
@@ -49,6 +50,7 @@ class Player(Serializable):
         Returns:
             Action: The resulting action.
         """
+        # TODO: check score ????
         return self.compute_action(current_state=current_state, remaining_time=remaining_time)
 
     @abstractmethod
@@ -72,7 +74,7 @@ class Player(Serializable):
         Returns:
             int: The ID of the player.
         """
-        return self.identifier
+        return self.id
 
     def get_name(self) -> str:
         """

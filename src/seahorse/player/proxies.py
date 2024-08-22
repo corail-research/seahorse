@@ -1,9 +1,9 @@
 import json
 import time
-from collections.abc import Coroutine
-from typing import Any, Optional
 
+from typing import Any, Optional
 from loguru import logger
+from collections.abc import Coroutine
 
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState

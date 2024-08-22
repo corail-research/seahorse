@@ -86,7 +86,6 @@ class NoTournamentFailError(Exception):
     """Thrown when trying to generate an action that's not permitted
     """
 
-    def __init__(self,  message: str = "Tournament problem : tournament is none, please connect \
-                 to an existing tournament or create a tournament"):
+    def __init__(self,  message: str = "Tournament problem : tournament is none, please connect to an existing tournament or create a tournament"):
         self.message = message
         super().__init__(message)

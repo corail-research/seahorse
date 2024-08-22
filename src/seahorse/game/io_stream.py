@@ -3,15 +3,14 @@ from __future__ import annotations
 import asyncio
 import functools
 import json
-import re
 import time
-from collections import deque
-from collections.abc import Coroutine
-from typing import TYPE_CHECKING, Any, Callable
-
+import re
 import socketio
+
+from typing import TYPE_CHECKING, Any, Callable, Coroutine
 from aiohttp import web
 from loguru import logger
+from collections import deque
 
 from seahorse.game.action import Action
 from seahorse.game.heavy_action import HeavyAction
@@ -34,7 +33,7 @@ class EventSlave:
 
         Args:
             identifier (str | None, optional): Must be a unique identifier. Defaults to None.
-            wrapped_id (int | None, optional): If the eventSlave is instance bounded, a native id might be associated.
+            wrapped_id (int | None, optional): If the eventSlave is bound to an instance a python native id might be associated. 
                                                Defaults to None.
         """
         self.sio = socketio.AsyncClient()
@@ -95,7 +94,8 @@ def remote_action(label: str):
         @functools.wraps(fun)
         async def wrapper(self:EventSlave,current_state:GameState,*_,**kwargs):
             await EventMaster.get_instance().sio.emit(label,json.dumps({**current_state.to_json(),**kwargs},
-                                                                       default=lambda x:x.to_json()),to=self.sid)
+                                                                       default=lambda x:x.to_json()),
+                                                                       to=self.sid)
             out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
             return out
 
@@ -123,7 +123,7 @@ class EventMaster:
         """Gets the instance object
 
         Args:
-            n_clients (int, optional): the number of clients the instance is supposed to be listening,
+            n_clients (int, optional): the number of clients the instance is supposed to be listening, 
                                        *ignored* if already initialized. Defaults to 1.
             game_state : class of a game state
             port (int, optional): the port to use. Defaults to 8080.
@@ -137,8 +137,7 @@ class EventMaster:
 
     def __init__(self,game_state,port,hostname):
         if EventMaster.__instance is not None:
-            msg = "Trying to initialize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n\
-                Call EventMaster.get_instance() instead."
+            msg = "Trying to initialize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead."
             raise NotImplementedError(msg)
         else:
             # Initializing attributes
@@ -154,7 +153,7 @@ class EventMaster:
             self.hostname = hostname
 
             # Standard python-socketio server
-            self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True,
+            self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True, 
                                             cors_allowed_origins="*", ping_timeout=1e6)
             self.app = web.Application()
 
@@ -182,8 +181,7 @@ class EventMaster:
                 """
                 self.__open_sessions.add(sid)
                 self.__n_clients_connected += 1
-                logger.info(f"Waiting for listeners {self.__n_clients_connected} out of "
-                            f"{self.expected_clients} are connected.")
+                logger.info(f"Waiting for listeners {self.__n_clients_connected} out of {self.expected_clients} are connected.")
 
             @self.sio.event
             def disconnect(sid):
@@ -274,9 +272,11 @@ class EventMaster:
         while not len(self.__events.get(sid,{}).get(label,[])):
             await asyncio.sleep(.1)
         ts,data = self.__events[sid][label].pop()
+        
         if (not flush_until) or ts>=flush_until:
             return data
-        await self.wait_for_event(sid,label,flush_until=flush_until)
+        else :
+            await self.wait_for_event(sid,label,flush_until=flush_until)
 
     async def wait_for_identified_client(self,name:str,local_id:int) -> str:
         """ Waits for an identified client (a player typically)
@@ -323,9 +323,8 @@ class EventMaster:
         site = web.TCPSite(self.runner, self.hostname, self.port)
         self.event_loop.run_until_complete(site.start())
 
-        async def stop():
-
-            # Waiting for all
+        async def stop(task):
+            # Waiting for all listeners to connect
             logger.info(f"Waiting for listeners {self.__n_clients_connected} "
                         f"out of {self.expected_clients} are connected.")
             for x in slaves:
@@ -333,14 +332,24 @@ class EventMaster:
 
             # Launching the task
             logger.info("Starting match")
-            task_future = asyncio.wrap_future(self.sio.start_background_task(task))
-            await task_future
-
-            # Cleaning up and closing the runner upon completion
+            task_future = self.sio.start_background_task(task)
+            
+            # Await the game task completion
             try:
-                await asyncio.wait_for(self.runner.cleanup(), timeout=1)
-            except asyncio.exceptions.TimeoutError:
-                pass
+                await task_future
+            except asyncio.CancelledError:
+                logger.warning("Game task was cancelled.")
+
+
+            # Explicitly cancel any remaining tasks related to disconnected clients
+            # logger.info("Canceling pending tasks related to disconnected clients.")
+            tasks = [task for task in asyncio.all_tasks() if task is not asyncio.current_task()]
+            for task in tasks:
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    pass
 
         # Blocking call to the procedure
-        self.event_loop.run_until_complete(stop())
+        self.event_loop.run_until_complete(stop(task))

@@ -62,8 +62,7 @@ class HeavyAction(Action):
         return hash(self) == hash(value)
 
     def __str__(self) -> str:
-        return "From:\n" + self.get_current_game_state().get_rep().__str__() + "\nto:\n" \
-                        + self.get_next_game_state().get_rep().__str__()
+        return "From:\n" + self.get_current_game_state().get_rep().__str__() + "\nto:\n" + self.get_next_game_state().get_rep().__str__()
 
     def to_json(self) -> dict:
         return self.__dict__

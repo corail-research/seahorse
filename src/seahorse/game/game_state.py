@@ -236,6 +236,5 @@ class GameState(Serializable):
 
     def __str__(self) -> str:
         to_print = f"Current scores are {self.get_scores()}.\n"
-        to_print += f"Next person to play is player {self.get_next_player().get_id()} \
-                    ({self.get_next_player().get_name()}).\n"
+        to_print += f"Next person to play is player {self.get_next_player().get_id()} ({self.get_next_player().get_name()}).\n"
         return to_print

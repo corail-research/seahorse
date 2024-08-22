@@ -99,7 +99,8 @@ class GameMaster:
             action = await next_player.play(self.current_game_state, 
                                             remaining_time=self.remaining_time[next_player.get_id()])
         else:
-            action = next_player.play(self.current_game_state, remaining_time=self.remaining_time[next_player.get_id()])
+            action = next_player.play(self.current_game_state, 
+                                      remaining_time=self.remaining_time[next_player.get_id()])
         tstp = time.time()
         self.remaining_time[next_player.get_id()] -= (tstp-start)
         if self.remaining_time[next_player.get_id()] < 0:
@@ -109,9 +110,6 @@ class GameMaster:
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
-        action.current_game_state._possible_actions=None
-        action.current_game_state=None
-        action.next_game_state._possible_actions=None
         return action.get_next_game_state()
 
     async def play_game(self) -> list[Player]:
@@ -131,8 +129,7 @@ class GameMaster:
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
         while not self.current_game_state.is_done():
             try:
-                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - \
-                            {self.get_game_state().get_next_player().get_id()}")
+                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
@@ -141,7 +138,7 @@ class GameMaster:
                     logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 id_player_error = self.current_game_state.get_next_player().get_id()
-                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if
+                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if 
                                           player.get_id()!=id_player_error]))
                 temp_score[id_player_error] = -1e9
                 temp_score[other_player] = 1e9
