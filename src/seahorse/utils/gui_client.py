@@ -23,15 +23,20 @@ class GUIClient(EventSlave):
             os.startfile(url)
         except AttributeError:
             try:
-                if platform.system() == "Linux":
-                    subprocess.check_call(["xdg-open", url])
-                elif platform.system() == "Darwin":
+                system = platform.system()
+                if system == "Linux":
+                    # Handle WSL specifically
+                    if "microsoft" in platform.uname().release.lower():
+                        subprocess.check_call(["wslview", url])
+                    else:
+                        subprocess.check_call(["xdg-open", url])
+                elif system == "Darwin":
                     subprocess.check_call(["open", url])
                 else:
                     msg = "Unexpected platform"
                     raise Exception(msg)
-            except Exception:
-                logger.debug("Could not open URL")
+            except Exception as e:
+                logger.debug(f"Could not open URL: {e}")
 
     async def listen(self,**_) -> Coroutine[Any, Any, None]:
         if self.path:
