@@ -22,7 +22,7 @@ requires-python = ">=3.9"
 license = "BSD-3-Clause"
 keywords = []
 authors = [
-  { name = "Corail-research-group", email = "" },
+  { name = "Corail-research-group", email = "quentin.cappart@polymtl.ca" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -32,13 +32,10 @@ classifiers = [
 ]
 dependencies = [
   "python-socketio",
-  "python-engineio==4.5.1",
-  "python-socketio==5.8.0",
-  "loguru==0.7.0",
-  "achallonge-compat-fork",
+  "loguru",
   "split",
-  "nest_asyncio",
-  "aiohttp>=3.8.5",
+  "nest-asyncio",
+  "aiohttp",
   "asyncio"
 ]
 
