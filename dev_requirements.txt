@@ -8,7 +8,7 @@ attrs==23.2.0
 Babel==2.15.0
 bidict==0.23.1
 certifi==2024.7.4
-cffi==1.16.0
+cffi==1.17.1
 charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
@@ -51,6 +51,7 @@ mkdocstrings-python==1.10.7
 more-itertools==10.3.0
 multidict==6.0.5
 nest-asyncio==1.6.0
+netifaces==0.10.6
 numpy==2.0.1
 packaging==24.1
 paginate==0.5.6
@@ -58,6 +59,7 @@ pathspec==0.12.1
 pexpect==4.9.0
 platformdirs==4.2.2
 pluggy==1.5.0
+propcache==0.2.0
 ptyprocess==0.7.0
 pycparser==2.22
 Pygments==2.18.0
