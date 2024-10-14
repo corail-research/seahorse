@@ -32,6 +32,9 @@ jobs:
   hatch-build:
     name: Building distributions
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9"]
     needs: tests
     steps:
     - uses: actions/checkout@v3
