@@ -16,9 +16,10 @@ jobs:
     steps:
       - uses: Actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: Actions/setup-python@v4
+        uses: Actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: 'pip'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
