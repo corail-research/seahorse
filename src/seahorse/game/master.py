@@ -8,7 +8,6 @@ from itertools import cycle
 from typing import Optional
 
 from loguru import logger
-
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.player.player import Player
@@ -19,6 +18,7 @@ from seahorse.utils.custom_exceptions import (
     SeahorseTimeoutError,
     StopAndStartError,
 )
+from seahorse.utils.timeout import TimeOut
 
 
 class GameMaster:
@@ -92,18 +92,23 @@ class GameMaster:
 
         possible_actions = self.current_game_state.get_possible_heavy_actions()
 
-        start = time.time()
+        def timeout_callback():
+            # update times for consistent logs, can be removed if deemed unnecessary
+            tstp = time.time()
+            self.remaining_time[next_player.get_id()] -= (tstp-start) 
 
+        start = time.time()
         logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
-        if isinstance(next_player,EventSlave):
-            action = await next_player.play(self.current_game_state, 
-                                            remaining_time=self.remaining_time[next_player.get_id()])
-        else:
-            action = next_player.play(self.current_game_state, 
-                                      remaining_time=self.remaining_time[next_player.get_id()])
+        with TimeOut(seconds=int(1+self.remaining_time[next_player.get_id()]), timeout_callback=timeout_callback): # stop player early if he is playing to slowly (stops infinte loops)
+            if isinstance(next_player,EventSlave):
+                action = await next_player.play(self.current_game_state, 
+                                                remaining_time=self.remaining_time[next_player.get_id()])
+            else:
+                action = next_player.play(self.current_game_state, 
+                                          remaining_time=self.remaining_time[next_player.get_id()])
         tstp = time.time()
         self.remaining_time[next_player.get_id()] -= (tstp-start)
-        if self.remaining_time[next_player.get_id()] < 0:
+        if self.remaining_time[next_player.get_id()] < 0: # check still needed due to limitations listed in Timeout class
             raise SeahorseTimeoutError()
 
         action = action.get_heavy_action(self.current_game_state)
