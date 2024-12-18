@@ -316,7 +316,7 @@ class EventMaster:
         site = web.TCPSite(self.runner, self.hostname, self.port)
         self.event_loop.run_until_complete(site.start())
 
-        async def stop():
+        async def stop(task):
 
             # Waiting for all
             logger.info(f"Waiting for listeners {self.__n_clients_connected} out of {self.expected_clients} are connected.")
@@ -338,5 +338,5 @@ class EventMaster:
             await asyncio.wait_for(site.stop())
 
         # Blocking call to the procedure
-        self.event_loop.run_until_complete(stop())
+        self.event_loop.run_until_complete(stop(task))
 
