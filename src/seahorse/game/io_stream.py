@@ -349,7 +349,7 @@ class EventMaster:
                     await task
                 except asyncio.CancelledError:
                     pass
-            
+
             # Stop TCPSite to close socket and runner
             await site.stop()
 
