@@ -335,5 +335,8 @@ class EventMaster:
             except asyncio.exceptions.TimeoutError:
                 pass
 
+            await asyncio.wait_for(site.stop())
+
         # Blocking call to the procedure
         self.event_loop.run_until_complete(stop())
+
