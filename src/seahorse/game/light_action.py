@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from seahorse.game.action import Action
 from seahorse.game.heavy_action import HeavyAction
 from seahorse.utils.custom_exceptions import NoGameStateProvidedError
+
 if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
