@@ -350,8 +350,8 @@ class EventMaster:
                 except asyncio.CancelledError:
                     pass
 
-            # Stop TCPSite to close socket and runner
-            await site.stop()
+            # Cleanup runner to release socket
+            await self.runner.cleanup()
 
         # Blocking call to the procedure
         self.event_loop.run_until_complete(stop(task))
