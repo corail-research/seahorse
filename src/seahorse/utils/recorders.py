@@ -18,11 +18,15 @@ class StateRecorder(EventSlave):
         self.sid = None
 
         self.activate(self.identifier)
-        self.recorded_content = []
+        self.recorded_content = {"steps" : [], "final_summary" : None}
 
         @self.sio.on("play")
         def record_play(data):
-            self.recorded_content.append(json.loads(data))
+            self.recorded_content["steps"].append(json.loads(data))
+
+        @self.sio.on("done")
+        def record_done(data):
+            self.recorded_content["final_summary"] = json.loads(data)
 
         @self.sio.event()
         def disconnect():
