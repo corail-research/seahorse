@@ -151,6 +151,7 @@ class GameMaster:
                     logger.info(f"Winner - {player.get_name()}")
 
                 await self.emitter.sio.emit("done",json.dumps({
+                    "players": [{"id":player.get_id(), "name":player.get_name()} for player in self.current_game_state.get_players()],
                     "scores": self.get_scores(),
                     "custom_stats": self.get_custom_stats(),
                     "winner_id": next(iter([player.get_id() for player in self.current_game_state.get_players() if 
@@ -177,6 +178,7 @@ class GameMaster:
             logger.info(f"Winner - {player.get_name()}")
 
         await self.emitter.sio.emit("done",json.dumps({
+            "players": [{"id":player.get_id(), "name":player.get_name()} for player in self.current_game_state.get_players()],
             "scores": self.get_scores(),
             "custom_stats": self.get_custom_stats(),
             "winner_id": next(iter([player.get_id() for player in self.get_winner()])),
