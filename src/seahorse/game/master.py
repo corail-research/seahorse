@@ -234,7 +234,7 @@ class GameMaster:
                 self.winner = [player for player in self.current_game_state.get_players() if player.get_id() != looser_id]
             else:
                 self.winner = self.compute_winner()
-        
+
         return self.winner
 
     def get_scores(self) -> dict[int, float]:
@@ -243,7 +243,7 @@ class GameMaster:
             Dict: The scores of the current state.
         """
         return self.current_game_state.get_scores()
-    
+
     def get_custom_stats(self) -> list[dict]:
         """
         Returns:
@@ -266,7 +266,6 @@ class GameMaster:
         ]
         Returns:
             list[dict]: A list of dictionaries containing custom statistics.
-        
         """
         return []
 
