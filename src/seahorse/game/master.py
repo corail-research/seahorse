@@ -9,6 +9,7 @@ from typing import Optional
 
 from loguru import logger
 
+from seahorse.game.custom_stat import CustomStat
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.player.player import Player
@@ -259,7 +260,7 @@ class GameMaster:
             self.custom_stats = self.compute_custom_stats()
         return self.custom_stats
 
-    def compute_custom_stats(self) -> list[dict]:
+    def compute_custom_stats(self) -> list[CustomStat]:
         """
         Computes custom statistics for the game.
         It should be overridden by subclasses to provide specific statistics.
@@ -271,7 +272,7 @@ class GameMaster:
             ...
         ]
         Returns:
-            list[dict]: A list of dictionaries containing custom statistics.
+            list[CustomStat]: A list of dictionaries containing custom statistics.
         """
         return []
 
