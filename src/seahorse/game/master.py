@@ -251,10 +251,10 @@ class GameMaster:
         """
         return self.current_game_state.get_scores()
 
-    def get_custom_stats(self) -> list[dict]:
+    def get_custom_stats(self) -> list[CustomStat]:
         """
         Returns:
-            list[dict]: The custom statistics of the game.
+            list[CustomState]: The custom statistics of the game.
         """
         if not hasattr(self, "custom_stats"):
             self.custom_stats = self.compute_custom_stats()
