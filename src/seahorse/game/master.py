@@ -3,7 +3,7 @@ import json
 import sys
 import time
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Container, Iterable
 from itertools import cycle
 from typing import Optional
 
@@ -97,10 +97,10 @@ class GameMaster:
 
         logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
         if isinstance(next_player,EventSlave):
-            action = await next_player.play(self.current_game_state, 
+            action = await next_player.play(self.current_game_state,
                                             remaining_time=self.remaining_time[next_player.get_id()])
         else:
-            action = next_player.play(self.current_game_state, 
+            action = next_player.play(self.current_game_state,
                                       remaining_time=self.remaining_time[next_player.get_id()])
         tstp = time.time()
         self.remaining_time[next_player.get_id()] -= (tstp-start)
@@ -130,7 +130,8 @@ class GameMaster:
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
         while not self.current_game_state.is_done():
             try:
-                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
+                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} "
+                            f"- {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
@@ -140,22 +141,22 @@ class GameMaster:
 
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 id_player_error = self.current_game_state.get_next_player().get_id()
-                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if 
+                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if
                                           player.get_id()!=id_player_error]))
                 temp_score[id_player_error] = -1e9
                 temp_score[other_player] = 1e9
                 for key in temp_score.keys():
                     logger.info(f"{id2player[key]}:{temp_score[key]}")
 
-                for player in self.get_winner(looser_id=id_player_error) :
+                for player in self.get_winner(looser_ids={id_player_error}) :
                     logger.info(f"Winner - {player.get_name()}")
 
                 await self.emitter.sio.emit("done",json.dumps({
-                    "players": [{"id":player.get_id(), "name":player.get_name()} for player in self.current_game_state.get_players()],
+                    "players": [{"id":player.get_id(), "name":player.get_name()}
+                                for player in self.current_game_state.get_players()],
                     "scores": self.get_scores(),
                     "custom_stats": self.get_custom_stats(),
-                    "winner_id": next(iter([player.get_id() for player in self.current_game_state.get_players() if 
-                                         player.get_id()!=id_player_error])),
+                    "winners_id": [player.get_id() for player in self.get_winner()],
                     "status": "cancelled",
                 }))
 
@@ -178,10 +179,11 @@ class GameMaster:
             logger.info(f"Winner - {player.get_name()}")
 
         await self.emitter.sio.emit("done",json.dumps({
-            "players": [{"id":player.get_id(), "name":player.get_name()} for player in self.current_game_state.get_players()],
+            "players": [{"id":player.get_id(), "name":player.get_name()}
+                        for player in self.current_game_state.get_players()],
             "scores": self.get_scores(),
             "custom_stats": self.get_custom_stats(),
-            "winner_id": next(iter([player.get_id() for player in self.get_winner()])),
+            "winners_id": [player.get_id() for player in self.get_winner()],
             "status": "done",
         }))
         logger.verdict(f"{','.join(w.get_name() for w in self.get_winner())} has won the game")
@@ -223,17 +225,19 @@ class GameMaster:
         """
         return self.log_level
 
-    def get_winner(self, looser_id=None) -> list[Player]:
+    def get_winner(self, looser_ids: Container[int] | None = None) -> list[Player]:
         """
         Arguments:
-            looser_id (int, optional): The ID of the player who lost the game. If provided, the winner will be all players except the one with this ID.
+            looser_ids (Container[int], optional): The IDs of the players who lost the game.
+            If provided, the winners will be all players except these ones.
         Returns:
             Player: The winner(s) of the game.
 
         """
         if not hasattr(self, "winner"):
-            if looser_id is not None:
-                self.winner = [player for player in self.current_game_state.get_players() if player.get_id() != looser_id]
+            if looser_ids is not None:
+                self.winner = [player for player in self.current_game_state.get_players()
+                               if player.get_id() not in looser_ids]
             else:
                 self.winner = self.compute_winner()
 
