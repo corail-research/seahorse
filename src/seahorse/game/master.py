@@ -3,12 +3,13 @@ import json
 import sys
 import time
 from abc import abstractmethod
-from collections.abc import Iterable
+from collections.abc import Container, Iterable
 from itertools import cycle
 from typing import Optional
 
 from loguru import logger
 
+from seahorse.game.custom_stat import CustomStat
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.player.player import Player
@@ -97,10 +98,10 @@ class GameMaster:
 
         logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
         if isinstance(next_player,EventSlave):
-            action = await next_player.play(self.current_game_state, 
+            action = await next_player.play(self.current_game_state,
                                             remaining_time=self.remaining_time[next_player.get_id()])
         else:
-            action = next_player.play(self.current_game_state, 
+            action = next_player.play(self.current_game_state,
                                       remaining_time=self.remaining_time[next_player.get_id()])
         tstp = time.time()
         self.remaining_time[next_player.get_id()] -= (tstp-start)
@@ -130,28 +131,35 @@ class GameMaster:
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
         while not self.current_game_state.is_done():
             try:
-                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} - {self.get_game_state().get_next_player().get_id()}")
+                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} "
+                            f"- {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
             except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
                 if isinstance(e,SeahorseTimeoutError):
                     logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
                 elif isinstance(e,ActionNotPermittedError) :
                     logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
+
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 id_player_error = self.current_game_state.get_next_player().get_id()
-                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if 
+                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if
                                           player.get_id()!=id_player_error]))
                 temp_score[id_player_error] = -1e9
                 temp_score[other_player] = 1e9
-                self.winner = self.compute_winner(temp_score)
-
                 for key in temp_score.keys():
                     logger.info(f"{id2player[key]}:{temp_score[key]}")
 
-                for player in self.get_winner() :
+                for player in self.get_winner(looser_ids={id_player_error}) :
                     logger.info(f"Winner - {player.get_name()}")
 
-                await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
+                await self.emitter.sio.emit("done",json.dumps({
+                    "players": [{"id":player.get_id(), "name":player.get_name()}
+                                for player in self.current_game_state.get_players()],
+                    "scores": self.get_scores(),
+                    "custom_stats": self.get_custom_stats(),
+                    "winners_id": [player.get_id() for player in self.get_winner()],
+                    "status": "cancelled",
+                }))
 
                 logger.verdict(f"{self.current_game_state.get_next_player().get_name()} has been disqualified")
 
@@ -164,15 +172,21 @@ class GameMaster:
                 json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
             )
 
-        self.winner = self.compute_winner(self.current_game_state.get_scores())
         scores = self.get_scores()
-        for key in scores.keys() :
+        for key in scores.keys():
                 logger.info(f"{id2player[key]}:{(scores[key])}")
 
         for player in self.get_winner() :
             logger.info(f"Winner - {player.get_name()}")
 
-        await self.emitter.sio.emit("done",json.dumps(self.get_scores()))
+        await self.emitter.sio.emit("done",json.dumps({
+            "players": [{"id":player.get_id(), "name":player.get_name()}
+                        for player in self.current_game_state.get_players()],
+            "scores": self.get_scores(),
+            "custom_stats": self.get_custom_stats(),
+            "winners_id": [player.get_id() for player in self.get_winner()],
+            "status": "done",
+        }))
         logger.verdict(f"{','.join(w.get_name() for w in self.get_winner())} has won the game")
         return self.winner
 
@@ -212,11 +226,22 @@ class GameMaster:
         """
         return self.log_level
 
-    def get_winner(self) -> list[Player]:
+    def get_winner(self, looser_ids: Container[int] | None = None) -> list[Player]:
         """
+        Arguments:
+            looser_ids (Container[int], optional): The IDs of the players who lost the game.
+            If provided, the winners will be all players except these ones.
         Returns:
             Player: The winner(s) of the game.
+
         """
+        if not hasattr(self, "winner"):
+            if looser_ids is not None:
+                self.winner = [player for player in self.current_game_state.get_players()
+                               if player.get_id() not in looser_ids]
+            else:
+                self.winner = self.compute_winner()
+
         return self.winner
 
     def get_scores(self) -> dict[int, float]:
@@ -226,13 +251,35 @@ class GameMaster:
         """
         return self.current_game_state.get_scores()
 
-    @abstractmethod
-    def compute_winner(self, scores: dict[int, float]) -> list[Player]:
+    def get_custom_stats(self) -> list[CustomStat]:
         """
-        Computes the winner(s) of the game based on the scores.
+        Returns:
+            list[CustomState]: The custom statistics of the game.
+        """
+        if not hasattr(self, "custom_stats"):
+            self.custom_stats = self.compute_custom_stats()
+        return self.custom_stats
 
-        Args:
-            scores (Dict[int, float]): The score for each player.
+    def compute_custom_stats(self) -> list[CustomStat]:
+        """
+        Computes custom statistics for the game.
+        It should be overridden by subclasses to provide specific statistics.
+        It should use self.get_game_state() to access the current game state.
+        If should use the format :
+        [
+            {"name": "stat_name_1", "value": value_1, "agent_id": player_id_1},
+            {"name": "stat_name_2", "value": value_2, "agent_id": player_id_2},
+            ...
+        ]
+        Returns:
+            list[CustomStat]: A list of dictionaries containing custom statistics.
+        """
+        return []
+
+    @abstractmethod
+    def compute_winner(self) -> list[Player]:
+        """
+        Computes the winner(s) of the game based on the current game state.
 
         Raises:
             MethodNotImplementedError: If the method is not implemented.
