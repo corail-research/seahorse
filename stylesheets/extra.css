@@ -1,0 +1,118 @@
+@font-face {
+  font-family: "Frankfurt";
+  src: url('../assets/fonts/frankfurt.ttf') format('truetype');
+}
+:root {
+    --md-primary-fg-color:        #1cacd1;
+    --md-primary-fg-color--light: #1a82b9;
+    --md-primary-fg-color--dark:  #e17990;
+    --md-footer-bg-color:var(--md-primary-fg-color);
+    --md-mermaid-node-fg-color:var(--md-primary-fg-color);
+    --md-accent-fg-color:var(--md-primary-fg-color);
+    --md-mermaid-label-bg-color:var(--md-primary-fg-color--light);
+  }
+
+.horizontal-container{
+  display: inline-block;
+  width: 100%;
+  vertical-align: top;
+}
+
+.horizontal-container .card{
+  display: inline-block;
+  vertical-align: top;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  transition: 0.3s;
+  width: 132px;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+}
+
+.card p {
+  font-size:small;
+}
+
+.card .face {
+  object-fit: cover;
+  height:170px;
+}
+
+.container {
+  padding: 2px 16px;
+}
+
+.md-logo img{
+  height: 2.1rem !important;
+  transform: translate(57px,-8px) scale(1.2);
+}
+.md-header__topic:first-child, .md-header__topic{
+  font-family: 'Frankfurt';
+  text-transform: uppercase;
+  font-weight: 200;
+  font-size: 2em;
+}
+.seahorse-text-blue{
+  transform: translateX(-60px);
+  display: flex;
+  font-family: 'Frankfurt';
+  text-transform: uppercase;
+  font-weight: 200;
+  color:#1cacd1;
+  
+}
+
+.lk-link{
+  width: 100%;
+  text-align: center;
+  filter: invert(41%) sepia(14%) saturate(3186%) hue-rotate(160deg) brightness(101%) contrast(89%);
+  transition: filter .23s ease-in-out;
+  padding: 0px 0px 20px 0px;
+}
+.lk-link:hover{
+  filter: invert(60%) sepia(42%) saturate(626%) hue-rotate(300deg) brightness(92%) contrast(90%);
+  transition: filter .23s ease-in-out;
+  cursor:pointer;
+}
+
+.seahorse-text-blue::before{
+  display: inline-block;
+  content: "";
+  background-image: url(../assets/seahorse.png);
+  width: 123px;
+  height: 123px;
+  background-size: 100%;
+  transform: translateX(60px);
+  background-repeat: no-repeat;
+}
+@media screen  and (max-width: 1220px) {
+
+.seahorse-text-blue::before{
+  display: none;
+}
+
+.seahorse-text-blue{
+  transform: translateX(0px);
+}
+
+.large-text{
+  font-size:4em !important;
+}
+
+}
+
+.large-text{
+  font-size:6em;
+}
+
+.supporter-showcase{
+  height: 100px;
+}
+.supporter-showcase .supporter-img{
+  width:50%;
+  display: block;
+}
