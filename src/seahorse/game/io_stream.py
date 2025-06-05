@@ -68,6 +68,11 @@ class EventSlave:
             while self.connected:
                 await asyncio.sleep(.1)
 
+    async def close_connection(self) -> None:
+        if self.connected:
+            await self.sio.disconnect()
+            self.connected = False
+
 def event_emitting(label:str):
     """Decorator to also send the function's output trough listening socket connexions
 
@@ -221,7 +226,7 @@ class EventMaster:
                 # TODO check presence of "id" in data
                 idf = data.get("identifier",0)
                 reg = r"^"+idf+r"(_duplicate_[0-9]+$|$)"
-                if len(list(filter(lambda x:re.search(reg,x),self.__ident2sid.keys()))):
+                if list(filter(lambda x:re.search(reg,x),self.__ident2sid.keys())):
                     logger.warning("Two clients are using the same identifier, one of those will be ignored.")
                     idf = idf+"_duplicate_"+str(time.time())
 
@@ -294,7 +299,7 @@ class EventMaster:
         def unattached_match(x):
             return re.search(reg, x) and not self.__identified_clients.get(x)["attached"]
         matching_names = list(filter(unattached_match,self.__ident2sid.keys()))
-        while not len(matching_names):
+        while not matching_names:
             await asyncio.sleep(.1)
             matching_names = list(filter(unattached_match,self.__ident2sid.keys()))
 
@@ -343,6 +348,9 @@ class EventMaster:
             except asyncio.CancelledError:
                 logger.warning("Game task was cancelled.")
 
+            # Close listeners connection
+            for x in slaves:
+                await x.close_connection()
 
             # Explicitly cancel any remaining tasks related to disconnected clients
             # logger.info("Canceling pending tasks related to disconnected clients.")
