@@ -3,14 +3,15 @@ from __future__ import annotations
 import asyncio
 import functools
 import json
-import time
 import re
-import socketio
+import time
+from collections import deque
+from collections.abc import Coroutine
+from typing import TYPE_CHECKING, Any, Callable
 
-from typing import TYPE_CHECKING, Any, Callable, Coroutine
+import socketio
 from aiohttp import web
 from loguru import logger
-from collections import deque
 
 from seahorse.game.action import Action
 from seahorse.game.heavy_action import HeavyAction
@@ -33,7 +34,8 @@ class EventSlave:
 
         Args:
             identifier (str | None, optional): Must be a unique identifier. Defaults to None.
-            wrapped_id (int | None, optional): If the eventSlave is bound to an instance a python native id might be associated. 
+            wrapped_id (int | None, optional): If the eventSlave is bound to an instance,
+                                               a python native id might be associated.
                                                Defaults to None.
         """
         self.sio = socketio.AsyncClient()
@@ -65,6 +67,12 @@ class EventSlave:
         if keep_alive:
             while self.connected:
                 await asyncio.sleep(.1)
+
+    async def close_connection(self) -> None:
+        if self.connected:
+            await asyncio.sleep(0.1)  # Ensure all events are processed before disconnecting
+            await self.sio.disconnect()
+            self.connected = False
 
 def event_emitting(label:str):
     """Decorator to also send the function's output trough listening socket connexions
@@ -123,7 +131,7 @@ class EventMaster:
         """Gets the instance object
 
         Args:
-            n_clients (int, optional): the number of clients the instance is supposed to be listening, 
+            n_clients (int, optional): the number of clients the instance is supposed to be listening,
                                        *ignored* if already initialized. Defaults to 1.
             game_state : class of a game state
             port (int, optional): the port to use. Defaults to 8080.
@@ -137,7 +145,8 @@ class EventMaster:
 
     def __init__(self,game_state,port,hostname):
         if EventMaster.__instance is not None:
-            msg = "Trying to initialize multiple instances of EventMaster, this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead."
+            msg = "Trying to initialize multiple instances of EventMaster, \
+                this is forbidden to avoid side-effects.\n Call EventMaster.get_instance() instead."
             raise NotImplementedError(msg)
         else:
             # Initializing attributes
@@ -153,7 +162,7 @@ class EventMaster:
             self.hostname = hostname
 
             # Standard python-socketio server
-            self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True, 
+            self.sio = socketio.AsyncServer(async_mode="aiohttp", async_handlers=True,
                                             cors_allowed_origins="*", ping_timeout=1e6)
             self.app = web.Application()
 
@@ -181,7 +190,8 @@ class EventMaster:
                 """
                 self.__open_sessions.add(sid)
                 self.__n_clients_connected += 1
-                logger.info(f"Waiting for listeners {self.__n_clients_connected} out of {self.expected_clients} are connected.")
+                logger.info(f"Waiting for listeners {self.__n_clients_connected} \
+                            out of {self.expected_clients} are connected.")
 
             @self.sio.event
             def disconnect(sid):
@@ -217,7 +227,7 @@ class EventMaster:
                 # TODO check presence of "id" in data
                 idf = data.get("identifier",0)
                 reg = r"^"+idf+r"(_duplicate_[0-9]+$|$)"
-                if len(list(filter(lambda x:re.search(reg,x),self.__ident2sid.keys()))):
+                if list(filter(lambda x:re.search(reg,x),self.__ident2sid.keys())):
                     logger.warning("Two clients are using the same identifier, one of those will be ignored.")
                     idf = idf+"_duplicate_"+str(time.time())
 
@@ -290,7 +300,7 @@ class EventMaster:
         def unattached_match(x):
             return re.search(reg, x) and not self.__identified_clients.get(x)["attached"]
         matching_names = list(filter(unattached_match,self.__ident2sid.keys()))
-        while not len(matching_names):
+        while not matching_names:
             await asyncio.sleep(.1)
             matching_names = list(filter(unattached_match,self.__ident2sid.keys()))
 
@@ -339,16 +349,21 @@ class EventMaster:
             except asyncio.CancelledError:
                 logger.warning("Game task was cancelled.")
 
+            # Close listeners connection
+            for x in slaves:
+                await x.close_connection()
 
             # Explicitly cancel any remaining tasks related to disconnected clients
             # logger.info("Canceling pending tasks related to disconnected clients.")
-            tasks = [task for task in asyncio.all_tasks() if task is not asyncio.current_task()]
-            for task in tasks:
-                task.cancel()
+            all_pending_tasks = [task for task in asyncio.all_tasks() if task is not asyncio.current_task()]
+            for pending_task in all_pending_tasks:
                 try:
-                    await task
+                    pending_task.cancel()
                 except asyncio.CancelledError:
                     pass
+
+            # Cleanup runner to release socket
+            await self.runner.cleanup()
 
         # Blocking call to the procedure
         self.event_loop.run_until_complete(stop(task))

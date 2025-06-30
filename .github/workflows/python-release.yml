@@ -14,7 +14,7 @@ jobs:
         python-version: ["3.9"]
 
     steps:
-      - uses: Actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python ${{ matrix.python-version }}
         uses: Actions/setup-python@v5
         with:
@@ -37,8 +37,8 @@ jobs:
         python-version: ["3.9"]
     needs: tests
     steps:
-    - uses: actions/checkout@v3
-    - uses: Actions/setup-python@v5
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
       with:
           python-version: ${{ matrix.python-version }}
           cache: 'pip'
@@ -50,7 +50,7 @@ jobs:
     - name: Building distros
       run: |
         hatch build
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: distros
         path: dist/
@@ -65,7 +65,7 @@ jobs:
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: distros
         path: dist
