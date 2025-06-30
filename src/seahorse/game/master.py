@@ -154,7 +154,7 @@ class GameMaster:
 
                 for player in self.get_winner(looser_ids={id_player_error}) :
                     logger.info(f"Winner - {player.get_name()}")
-                
+
                 await self.emitter.sio.emit("done",json.dumps({
                     "players": [{"id":player.get_id(), "name":player.get_name()}
                                 for player in self.current_game_state.get_players()],
