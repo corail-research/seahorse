@@ -121,9 +121,12 @@ class GameMaster:
         Returns:
             Iterable[Player]: The winner(s) of the game.
         """
+        # Prepare the game state JSON and add remaining time info
+        play_payload = self.current_game_state.to_json()
+        play_payload["remaining_time"] = self.remaining_time.copy()
         await self.emitter.sio.emit(
             "play",
-            json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
+            json.dumps(play_payload, default=lambda x: x.to_json()),
         )
         id2player={}
         for player in self.get_game_state().get_players() :
@@ -167,9 +170,12 @@ class GameMaster:
 
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
 
+            # Prepare the game state JSON and add remaining time info
+            play_payload = self.current_game_state.to_json()
+            play_payload["remaining_time"] = self.remaining_time.copy()
             await self.emitter.sio.emit(
                 "play",
-                json.dumps(self.current_game_state.to_json(),default=lambda x:x.to_json()),
+                json.dumps(play_payload, default=lambda x: x.to_json()),
             )
 
         scores = self.get_scores()

@@ -12,10 +12,12 @@ from seahorse.game.io_stream import EventMaster, EventSlave
 
 class GUIClient(EventSlave):
     def __init__(self, path:Optional[str]=None) -> None:
+        super().__init__()
         self.id = builtins.id(self)
         self.wrapped_id = self.id
         self.path = path
         self.sid = None
+        self.activate("__GUI__" + str(self.id))
 
     @staticmethod
     def open_file(url):
