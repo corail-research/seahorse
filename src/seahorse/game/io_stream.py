@@ -69,8 +69,8 @@ class EventSlave:
                 await asyncio.sleep(.1)
 
     async def close_connection(self) -> None:
-        if self.connected:
-            await asyncio.sleep(0.1)  # Ensure all events are processed before disconnecting
+        await asyncio.sleep(0.5)
+        if hasattr(self, 'connected') and self.connected:
             await self.sio.disconnect()
             self.connected = False
 
