@@ -70,7 +70,7 @@ class EventSlave:
 
     async def close_connection(self) -> None:
         await asyncio.sleep(0.5)
-        if hasattr(self, 'connected') and self.connected:
+        if hasattr(self, "connected") and self.connected:
             await self.sio.disconnect()
             self.connected = False
 
