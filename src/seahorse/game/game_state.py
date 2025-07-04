@@ -203,7 +203,7 @@ class GameState(Serializable):
     def convert_heavy_action_to_light_action(self, action: HeavyAction) -> LightAction:
         """
         Converts a heavy action to a light action.
-        
+
         Args:
             action (HeavyAction): The heavy action to convert.
 
@@ -211,7 +211,7 @@ class GameState(Serializable):
             LightAction: The converted light action.
         """
         raise MethodNotImplementedError()
-    
+
     @abstractmethod
     def compute_scores(self, next_rep: Representation) -> dict[int, Any]:
         """
