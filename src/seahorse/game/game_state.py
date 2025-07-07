@@ -21,6 +21,8 @@ class GameState(Serializable):
         players (List[Player]): The list of players.
         rep (Representation): The representation of the game.
     """
+    scores = {}
+    rep = None
 
     def __init__(self, scores: dict[int, Any], next_player: Player, players: list[Player], rep: Representation) -> None:
         """

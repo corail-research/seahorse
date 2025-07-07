@@ -1,7 +1,9 @@
+
 import copy
 import json
 import sys
 import time
+import asyncio
 from abc import abstractmethod
 from collections.abc import Container, Iterable
 from itertools import cycle
@@ -20,6 +22,7 @@ from seahorse.utils.custom_exceptions import (
     SeahorseTimeoutError,
     StopAndStartError,
 )
+from seahorse.utils.timeout import run_with_timeout
 
 
 class GameMaster:
@@ -94,18 +97,26 @@ class GameMaster:
 
         possible_actions = self.current_game_state.get_possible_heavy_actions()
 
-        start = time.time()
+        def timeout_callback():
+            tstp = time.time()
+            self.remaining_time[next_player.get_id()] -= (tstp-start)
 
+        start = time.time()
         logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
-        if isinstance(next_player,EventSlave):
-            action = await next_player.play(self.current_game_state,
-                                            remaining_time=self.remaining_time[next_player.get_id()])
-        else:
-            action = next_player.play(self.current_game_state,
-                                      remaining_time=self.remaining_time[next_player.get_id()])
+
+        action = await run_with_timeout(
+            func=next_player.play,
+            args=(self.current_game_state,),
+            kwargs={"remaining_time": self.remaining_time[next_player.get_id()]},
+            timeout=int(1+self.remaining_time[next_player.get_id()]),
+            timeout_callback=timeout_callback,
+            exception=SeahorseTimeoutError(),
+            is_async=isinstance(next_player, EventSlave),
+        )
+
         tstp = time.time()
         self.remaining_time[next_player.get_id()] -= (tstp-start)
-        if self.remaining_time[next_player.get_id()] < 0:
+        if self.remaining_time[next_player.get_id()] < 0: # check still needed due to limitations listed in Timeout class
             raise SeahorseTimeoutError()
 
         action = action.get_heavy_action(self.current_game_state)
