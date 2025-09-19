@@ -261,8 +261,6 @@ class GameMaster:
         }))
         logger.verdict(f"Validate agent(s): {[a.get_name() for a in self.players]}")
 
-        return self.winner
-
     def record_game(self, listeners:Optional[list[EventSlave]]=None) -> None:
         """
         Starts a game and broadcasts its successive states.
