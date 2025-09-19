@@ -270,6 +270,12 @@ class GameMaster:
         """
         self.emitter.start(self.play_game, self.players+(listeners if listeners else []))
 
+    def record_dummy_game(self, listeners:Optional[list[EventSlave]]=None) -> None:
+        """
+        Starts a dummy game and broadcasts its successive states.
+        """
+        self.emitter.start(self.play_dummy_game, self.players+(listeners if listeners else []))
+
     def update_log(self) -> None:
         """
         Updates the log file.
