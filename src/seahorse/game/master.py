@@ -21,7 +21,6 @@ from seahorse.utils.custom_exceptions import (
     SeahorseTimeoutError,
 )
 
-NO_DUMMY_THRESHOLD = 2
 
 class GameMaster:
     """
