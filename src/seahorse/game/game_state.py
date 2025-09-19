@@ -51,6 +51,7 @@ class GameState(Serializable):
         """
         return self.scores[player.get_id()]
 
+    #TODO:: clarify what is next player in the two methods bellow.
     def get_next_player(self) -> Player:
         """
         Returns the next player.
@@ -67,9 +68,12 @@ class GameState(Serializable):
         Returns:
             Player: The next player.
         """
-        current = self.next_player
-        curr_id = self.players.index(current)
-        return next(cycle(self.players[curr_id + 1 :] + self.players[:curr_id]))
+        if len(self.players) > 1:
+            current = self.next_player
+            curr_id = self.players.index(current)
+            return next(cycle(self.players[curr_id + 1 :] + self.players[:curr_id]))
+
+        return self.next_player
 
     def get_scores(self) -> dict[int, float]:
         """

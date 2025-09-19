@@ -4,6 +4,7 @@ import sys
 import time
 from abc import abstractmethod
 from collections.abc import Container, Iterable
+from functools import partialmethod
 from itertools import cycle
 from typing import Optional
 
@@ -18,7 +19,6 @@ from seahorse.utils.custom_exceptions import (
     MethodNotImplementedError,
     PlayerDuplicateError,
     SeahorseTimeoutError,
-    StopAndStartError,
 )
 
 
@@ -43,7 +43,7 @@ class GameMaster:
         log_level: str = "INFO",
         port: int =8080,
         hostname: str ="localhost",
-        time_limit: int = 1e9,
+        time_limit: float = 1e9,
     ) -> None:
         """
         Initializes a new instance of the GameMaster class.
@@ -68,14 +68,15 @@ class GameMaster:
             logger.error(f"{player_names}")
             raise PlayerDuplicateError()
 
+        self.id2player: dict[int, Player] = {}
+        for player in self.get_game_state().get_players() :
+            self.id2player[player.get_id()]=player.get_name()
 
         self.log_level = log_level
         self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
         next(self.players_iterator)
         self.emitter = EventMaster.get_instance(initial_game_state.__class__,port=port,hostname=hostname)
         logger.remove()
-
-        from functools import partialmethod
 
         if "VERDICT" not in logger._core.levels:
             logger.level("VERDICT", no=33, icon="x", color="<blue>")
@@ -114,6 +115,18 @@ class GameMaster:
 
         return action.get_next_game_state()
 
+    async def __emit_play_payload__(self) -> None:
+        """
+        Prepare the game state JSON and add remaining time.
+        Emit these infos in a payload through the master's emmiter socket.
+        """
+        play_payload = self.current_game_state.to_json()
+        play_payload["remaining_time"] = self.remaining_time.copy()
+        await self.emitter.sio.emit(
+            "play",
+            json.dumps(play_payload, default=lambda x: x.to_json()),
+        )
+
     async def play_game(self) -> list[Player]:
         """
         Play the game.
@@ -121,40 +134,42 @@ class GameMaster:
         Returns:
             Iterable[Player]: The winner(s) of the game.
         """
-        # Prepare the game state JSON and add remaining time info
-        play_payload = self.current_game_state.to_json()
-        play_payload["remaining_time"] = self.remaining_time.copy()
-        await self.emitter.sio.emit(
-            "play",
-            json.dumps(play_payload, default=lambda x: x.to_json()),
-        )
-        id2player={}
-        for player in self.get_game_state().get_players() :
-            id2player[player.get_id()]=player.get_name()
+        await self.__emit_play_payload__()
+
+        for player in self.players:
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
+
         while not self.current_game_state.is_done():
+            curent_player_id = self.get_game_state().get_next_player().get_id()
+            logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} "
+                        f"- {curent_player_id}")
             try:
-                logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} "
-                            f"- {self.get_game_state().get_next_player().get_id()}")
                 self.current_game_state = await self.step()
-            except (ActionNotPermittedError,SeahorseTimeoutError,StopAndStartError) as e:
+            except Exception as e:
                 if isinstance(e,SeahorseTimeoutError):
-                    logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}")
+                    logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}: "
+                                 f"{self.remaining_time[curent_player_id]}")
                 elif isinstance(e,ActionNotPermittedError) :
                     logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
+                else:
+                    logger.error(f"Player {self.current_game_state.get_next_player()} threw the following exception.")
+                    logger.error(str(e))
 
                 temp_score = copy.copy(self.current_game_state.get_scores())
-                id_player_error = self.current_game_state.get_next_player().get_id()
-                other_player = next(iter([player.get_id() for player in self.current_game_state.get_players() if
-                                          player.get_id()!=id_player_error]))
-                temp_score[id_player_error] = -1e9
-                temp_score[other_player] = 1e9
-                for key in temp_score.keys():
-                    logger.info(f"{id2player[key]}:{temp_score[key]}")
+                temp_score[curent_player_id] = -1e9
 
-                for player in self.get_winner(looser_ids={id_player_error}) :
+                for other_player in [player.get_id() for player in self.current_game_state.get_players() if
+                                     player.get_id()!=curent_player_id]:
+                    temp_score[other_player] = 1e9
+
+                for key in temp_score.keys():
+                    logger.info(f"{self.id2player[key]}:{temp_score[key]}")
+
+                for player in self.get_winner(looser_ids={curent_player_id}) :
                     logger.info(f"Winner - {player.get_name()}")
 
+                #TODO: This is counter productive as Seahorse is meant to be independant from the Abyss framework.
+                # We should define an abstract method for designers which will fill the infos according to their needs.
                 await self.emitter.sio.emit("done",json.dumps({
                     "players": [{"id":player.get_id(), "name":player.get_name()}
                                 for player in self.current_game_state.get_players()],
@@ -171,20 +186,16 @@ class GameMaster:
             logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
 
             # Prepare the game state JSON and add remaining time info
-            play_payload = self.current_game_state.to_json()
-            play_payload["remaining_time"] = self.remaining_time.copy()
-            await self.emitter.sio.emit(
-                "play",
-                json.dumps(play_payload, default=lambda x: x.to_json()),
-            )
+            await self.__emit_play_payload__()
 
         scores = self.get_scores()
         for key in scores.keys():
-                logger.info(f"{id2player[key]}:{(scores[key])}")
+                logger.info(f"{self.id2player[key]}:{(scores[key])}")
 
         for player in self.get_winner() :
             logger.info(f"Winner - {player.get_name()}")
 
+        #TODO: Same as todo at line 170.
         await self.emitter.sio.emit("done",json.dumps({
             "players": [{"id":player.get_id(), "name":player.get_name()}
                         for player in self.current_game_state.get_players()],
@@ -196,11 +207,73 @@ class GameMaster:
         logger.verdict(f"{','.join(w.get_name() for w in self.get_winner())} has won the game")
         return self.winner
 
+    async def play_dummy_game(self, k: int=1):
+        """
+        Play a dummy game for at most k steps and identify if a player is valid.
+        Currently, it can only identify invalid one player but will accept more during the play.
+
+        Args:
+            k (int): Number of maximum steps for the dummy game.
+        """
+        await self.__emit_play_payload__()
+
+        for player in self.players:
+            logger.info(f"Player : {player.get_name()} - {player.get_id()}")
+
+        i = 0
+        while not self.current_game_state.is_done() and i<k:
+            curent_player_id = self.get_game_state().get_next_player().get_id()
+            logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} "
+                        f"- {curent_player_id}")
+            try:
+                self.current_game_state = await self.step()
+            except Exception as e:
+                if isinstance(e,SeahorseTimeoutError):
+                    logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}: "
+                                 f"{self.remaining_time[curent_player_id]}")
+                elif isinstance(e,ActionNotPermittedError) :
+                    logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
+                else:
+                    logger.error(f"Player {self.current_game_state.get_next_player()} threw the following exception.")
+                    logger.error(str(e))
+
+                #TODO: make this able to identify multiple invalid agents
+                await self.emitter.sio.emit("done",json.dumps({
+                    "players": [{"id":player.get_id(), "name":player.get_name()}
+                                for player in self.current_game_state.get_players()],
+                    "invalid_id": curent_player_id,
+                    "status": "invalid",
+                }))
+
+                logger.verdict(f"Agent {self.id2player[curent_player_id].get_name()} is invalid")
+
+            logger.info(f"Current game state: \n{self.current_game_state.get_rep()}")
+
+            await self.__emit_play_payload__()
+
+            i += 1
+
+
+        await self.emitter.sio.emit("done",json.dumps({
+            "players": [{"id":player.get_id(), "name":player.get_name()}
+                        for player in self.current_game_state.get_players()],
+            "status": "valid",
+        }))
+        logger.verdict(f"Validate agent(s): {[a.get_name() for a in self.players]}")
+
+        return self.winner
+
     def record_game(self, listeners:Optional[list[EventSlave]]=None) -> None:
         """
         Starts a game and broadcasts its successive states.
         """
         self.emitter.start(self.play_game, self.players+(listeners if listeners else []))
+
+    def record_dummy_game(self, listeners:Optional[list[EventSlave]]=None) -> None:
+        """
+        Starts a dummy game and broadcasts its successive states.
+        """
+        self.emitter.start(self.play_dummy_game, self.players+(listeners if listeners else []))
 
     def update_log(self) -> None:
         """
