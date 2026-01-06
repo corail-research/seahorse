@@ -1,3 +1,4 @@
+import asyncio
 import copy
 import json
 import sys
@@ -9,7 +10,9 @@ from itertools import cycle
 from typing import Optional
 
 from loguru import logger
+from pebble import asynchronous
 
+from seahorse.game.action import Action
 from seahorse.game.custom_stat import CustomStat
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave
@@ -93,17 +96,28 @@ class GameMaster:
         """
         next_player = self.current_game_state.get_next_player()
 
+        # This produce a hard timeout for the next player move
+        @asynchronous.process(timeout=self.remaining_time[next_player.get_id()])
+        def next_move(next_player: Player) -> Action:
+            if isinstance(next_player,EventSlave):
+                action = asyncio.run(next_player.play(self.current_game_state,
+                                                      remaining_time=self.remaining_time[next_player.get_id()]))
+            else:
+                action = next_player.play(self.current_game_state,
+                                          remaining_time=self.remaining_time[next_player.get_id()])
+            return action
+
         possible_actions = self.current_game_state.get_possible_heavy_actions()
+
+        logger.info(f"time : {self.remaining_time[next_player.get_id()]}s")
 
         start = time.time()
 
-        logger.info(f"time : {self.remaining_time[next_player.get_id()]}")
-        if isinstance(next_player,EventSlave):
-            action = await next_player.play(self.current_game_state,
-                                            remaining_time=self.remaining_time[next_player.get_id()])
-        else:
-            action = next_player.play(self.current_game_state,
-                                      remaining_time=self.remaining_time[next_player.get_id()])
+        try:
+            action = await next_move(next_player)
+        except TimeoutError as timeout:
+            raise SeahorseTimeoutError() from timeout
+
         tstp = time.time()
         self.remaining_time[next_player.get_id()] -= (tstp-start)
         if self.remaining_time[next_player.get_id()] < 0:

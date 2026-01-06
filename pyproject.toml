@@ -36,7 +36,8 @@ dependencies = [
   "split",
   "nest-asyncio",
   "aiohttp",
-  "asyncio"
+  "asyncio",
+  "pebble"
 ]
 
 [project.urls]
