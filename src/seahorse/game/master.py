@@ -87,6 +87,18 @@ class GameMaster:
 
         logger.add(sys.stderr, level=log_level)
 
+    # This produce a hard timeout for the next player move
+    def __next_move__(self, next_player: Player) -> tuple[Action, float]:
+        if isinstance(next_player,EventSlave):
+            start = time.time()
+            action = asyncio.run(next_player.play(self.current_game_state,
+                                                    remaining_time=self.remaining_time[next_player.get_id()]))
+        else:
+            start = time.time()
+            action = next_player.play(self.current_game_state,
+                                        remaining_time=self.remaining_time[next_player.get_id()])
+        return action, time.time()-start
+
     async def step(self) -> GameState:
         """
         Calls the next player move.
@@ -95,31 +107,17 @@ class GameMaster:
             GamseState : The new game_state.
         """
         next_player = self.current_game_state.get_next_player()
-
-        # This produce a hard timeout for the next player move
-        @asynchronous.process(timeout=self.remaining_time[next_player.get_id()])
-        def next_move(next_player: Player) -> Action:
-            if isinstance(next_player,EventSlave):
-                action = asyncio.run(next_player.play(self.current_game_state,
-                                                      remaining_time=self.remaining_time[next_player.get_id()]))
-            else:
-                action = next_player.play(self.current_game_state,
-                                          remaining_time=self.remaining_time[next_player.get_id()])
-            return action
-
         possible_actions = self.current_game_state.get_possible_heavy_actions()
 
         logger.info(f"time : {self.remaining_time[next_player.get_id()]}s")
 
-        start = time.time()
-
         try:
-            action = await next_move(next_player)
+            action, time_diff = await asynchronous.process(self.__next_move__,
+                                                           timeout=self.remaining_time[next_player.get_id()])(next_player)
         except TimeoutError as timeout:
             raise SeahorseTimeoutError() from timeout
 
-        tstp = time.time()
-        self.remaining_time[next_player.get_id()] -= (tstp-start)
+        self.remaining_time[next_player.get_id()] -= time_diff
         if self.remaining_time[next_player.get_id()] < 0:
             raise SeahorseTimeoutError()
 
