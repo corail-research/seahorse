@@ -14,7 +14,7 @@ from aiohttp import web
 from loguru import logger
 
 from seahorse.game.action import Action
-from seahorse.game.heavy_action import HeavyAction
+from seahorse.game.stateful_action import StatefulAction
 from seahorse.utils.serializer import Serializable
 
 if TYPE_CHECKING:
@@ -264,7 +264,7 @@ class EventMaster:
         new_gs.players = players
 
 
-        return HeavyAction(past_gs,new_gs)
+        return StatefulAction(past_gs,new_gs)
 
     async def wait_for_event(self,sid:int,label:str,*,flush_until:float | None=None) -> Coroutine:
         """Waits for an aribtrary event emitted by the connection identified by `sid`

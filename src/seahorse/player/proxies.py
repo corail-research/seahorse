@@ -8,7 +8,7 @@ from collections.abc import Coroutine
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
-from seahorse.game.light_action import LightAction
+from seahorse.game.stateless_action import StatelessAction
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.gui_client import GUIClient
@@ -119,7 +119,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         Returns:
             Action: The action resulting from the move.
         """
-        return self.compute_action(current_state=current_state, remaining_time=remaining_time).get_heavy_action(current_state)
+        return self.compute_action(current_state=current_state, remaining_time=remaining_time).get_stateful_action(current_state)
 
     def __getattr__(self, attr):
         return getattr(self.wrapped_player, attr)
@@ -160,13 +160,13 @@ class InteractivePlayerProxy(LocalPlayerProxy):
             data_gui = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
             try:
                 data = current_state.convert_gui_data_to_action_data(data_gui)
-                action = LightAction(data).get_heavy_action(current_state)
+                action = StatelessAction(data).get_stateful_action(current_state)
 
             except MethodNotImplementedError:
                 #TODO: handle this case
                 action = Action.from_json(data)
 
-            if action in current_state.get_possible_heavy_actions():
+            if action in current_state.get_possible_stateful_actions():
                 break
             else:
                 await EventMaster.get_instance().sio.emit("ActionNotPermitted",None)

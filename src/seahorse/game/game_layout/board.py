@@ -66,14 +66,11 @@ class Piece(Serializable):
     def __eq__(self, __value: object) -> bool:
         return hash(self) == hash(__value)
 
-    #def __str__(self) -> str:
-    #    return self.get_type()
-
-    def to_json(self) -> str:
+    def to_json(self) -> dict:
         return self.__dict__
 
     @classmethod
-    def from_json(cls,data) -> str:
+    def from_json(cls,data,**kwargs) -> "Serializable":
         return cls(**json.loads(data))
 
 
@@ -136,7 +133,7 @@ class Board(Representation):
         for i in range(dim[0]):
             for j in range(dim[1]):
                 if self.get_env().get((i, j), -1) != -1:
-                    to_print += str(self.get_env().get((i, j)).get_type()) + " "
+                    to_print += str(self.get_env()[(i, j)].get_type()) + " "
                 else:
                     to_print += "_ "
             to_print += "\n"

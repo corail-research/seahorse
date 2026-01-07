@@ -1,10 +1,10 @@
 from abc import abstractmethod
 from itertools import cycle
-from typing import Any
+from typing import Any, Generator
 
 from seahorse.game.action import Action
-from seahorse.game.heavy_action import HeavyAction
-from seahorse.game.light_action import LightAction
+from seahorse.game.stateful_action import StatefulAction
+from seahorse.game.stateless_action import StatelessAction
 from seahorse.game.representation import Representation
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
@@ -36,8 +36,8 @@ class GameState(Serializable):
         self.next_player = next_player
         self.players = players
         self.rep = rep
-        self._possible_light_actions = None
-        self._possible_heavy_actions = None
+        self._possible_stateless_actions = None
+        self._possible_stateful_actions = None
 
     def get_player_score(self, player: Player) -> float:
         """
@@ -51,10 +51,9 @@ class GameState(Serializable):
         """
         return self.scores[player.get_id()]
 
-    #TODO:: clarify what is next player in the two methods bellow.
     def get_next_player(self) -> Player:
         """
-        Returns the next player.
+        Returns the next player (i.e. the player whose turn it is to play).
 
         Returns:
             Player: The next player.
@@ -63,7 +62,7 @@ class GameState(Serializable):
 
     def compute_next_player(self) -> Player:
         """
-        Computes the next player.
+        Computes the next player. (i.e. the player whose turn it is to play).
 
         Returns:
             Player: The next player.
@@ -102,35 +101,35 @@ class GameState(Serializable):
         """
         return self.rep
 
-    def get_possible_light_actions(self) -> frozenset[LightAction]:
+    def get_possible_stateless_actions(self) -> frozenset[StatelessAction]:
         """
-        Returns a copy of the possible light actions from this state.
-        The first call triggers the `generate_possible_light_actions` method.
+        Returns a copy of the possible stateless actions from this state.
+        The first call triggers the `generate_possible_stateless_actions` method.
 
         Returns:
-            FrozenSet[LightAction]: The possible actions.
+            FrozenSet[StatelessAction]: The possible actions.
         """
         # Lazy loading
         if self.is_done():
             return frozenset()
-        if self._possible_light_actions is None:
-            self._possible_light_actions = frozenset(self.generate_possible_light_actions())
-        return self._possible_light_actions
+        if self._possible_stateless_actions is None:
+            self._possible_stateless_actions = frozenset(self.generate_possible_stateless_actions())
+        return self._possible_stateless_actions
 
-    def get_possible_heavy_actions(self) -> frozenset[HeavyAction]:
+    def get_possible_stateful_actions(self) -> frozenset[StatefulAction]:
         """
-        Returns a copy of the possible heavy actions from this state.
-        The first call triggers the `generate_possible_heavy_actions` method.
+        Returns a copy of the possible stateful actions from this state.
+        The first call triggers the `generate_possible_stateful_actions` method.
 
         Returns:
-            FrozenSet[Action]: The possible actions.
+            FrozenSet[StatefulAction]: The possible actions.
         """
         # Lazy loading
         if self.is_done():
             return frozenset()
-        if self._possible_heavy_actions is None:
-            self._possible_heavy_actions = frozenset(self.generate_possible_heavy_actions())
-        return self._possible_heavy_actions
+        if self._possible_stateful_actions is None:
+            self._possible_stateful_actions = frozenset(self.generate_possible_stateful_actions())
+        return self._possible_stateful_actions
 
     def check_action(self, action: Action) -> bool:
         """
@@ -142,15 +141,15 @@ class GameState(Serializable):
         Returns:
             bool: True if the action is feasible, False otherwise.
         """
-        if isinstance(action, LightAction):
-            return action in self.get_possible_light_actions()
-        if isinstance(action, HeavyAction):
-            return action in self.get_possible_heavy_actions()
+        if isinstance(action, StatelessAction):
+            return action in self.get_possible_stateless_actions()
+        if isinstance(action, StatefulAction):
+            return action in self.get_possible_stateful_actions()
         return False
 
     def convert_gui_data_to_action_data(self, data: dict[str, Any]) -> dict[str, Any]:
         """
-        Converts GUI data to light action data.
+        Converts GUI data to stateless action data.
         This method can and should be overridden by the user.
 
         Args:
@@ -162,12 +161,12 @@ class GameState(Serializable):
         return data
 
     @abstractmethod
-    def apply_action(self, action: LightAction) -> "GameState":
+    def apply_action(self, action: StatelessAction) -> "GameState":
         """
         Applies an action to the game state.
 
         Args:
-            action (LightAction): The action to apply.
+            action (StatelessAction): The action to apply.
 
         Returns:
             GameState: The new game state.
@@ -178,12 +177,12 @@ class GameState(Serializable):
         raise MethodNotImplementedError()
 
     @abstractmethod
-    def generate_possible_light_actions(self) -> set[LightAction]:
+    def generate_possible_stateless_actions(self) -> Generator[StatelessAction, None, None]:
         """
-        Generates a set of all possible actions from this game state.
+        Generates a set of all possible stateless actions from this game state.
 
         Returns:
-            Set[Action]: A set of possible actions.
+            Set[StatelessAction]: A set of possible stateless actions.
 
         Raises:
             MethodNotImplementedError: If the method is not implemented.
@@ -191,12 +190,12 @@ class GameState(Serializable):
         raise MethodNotImplementedError()
 
     @abstractmethod
-    def generate_possible_heavy_actions(self) -> set[HeavyAction]:
+    def generate_possible_stateful_actions(self) -> Generator[StatefulAction, None, None]:
         """
-        Generates a set of all possible actions from this game state.
+        Generates a set of all possible stateful actions from this game state.
 
         Returns:
-            Set[Action]: A set of possible actions.
+            Set[StatefulAction]: A set of possible stateful actions.
 
         Raises:
             MethodNotImplementedError: If the method is not implemented.
@@ -204,25 +203,25 @@ class GameState(Serializable):
         raise MethodNotImplementedError()
 
     @abstractmethod
-    def convert_heavy_action_to_light_action(self, action: HeavyAction) -> LightAction:
+    def convert_stateful_action_to_stateless_action(self, stateful_action: StatefulAction) -> StatelessAction:
         """
-        Converts a heavy action to a light action.
+        Converts a stateful action to a stateless action.
 
         Args:
-            action (HeavyAction): The heavy action to convert.
+            action (StatefulAction): The stateful action to convert.
 
         Returns:
-            LightAction: The converted light action.
+            StatelessAction: The converted stateless action.
         """
         raise MethodNotImplementedError()
 
     @abstractmethod
-    def compute_scores(self, next_rep: Representation) -> dict[int, Any]:
+    def compute_scores(self, play_info: Any) -> dict[int, Any]:
         """
         Computes the scores of each player.
 
         Args:
-            next_rep (Representation): The next representation.
+            play_info (Any): Information about the play used to compute scores.
 
         Returns:
             Dict[int, Any]: The scores of each player.

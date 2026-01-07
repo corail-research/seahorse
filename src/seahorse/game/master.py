@@ -30,7 +30,7 @@ class GameMaster:
         name (str): The name of the game.
         initial_game_state (GameState): The initial state of the game.
         current_game_state (GameState): The current state of the game.
-        players_iterator (Iterable): An iterable for the players, ordered according
+        players_iterator (Iterator[Player]): An iterator for the players, ordered according
             to the playing order. If a list is provided, a cyclic iterator is automatically built.
         log_level (str): The name of the log file.
     """
@@ -68,12 +68,12 @@ class GameMaster:
             logger.error(f"{player_names}")
             raise PlayerDuplicateError()
 
-        self.id2player: dict[int, Player] = {}
+        self.id2player: dict[int, str] = {}
         for player in self.get_game_state().get_players() :
             self.id2player[player.get_id()]=player.get_name()
 
         self.log_level = log_level
-        self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
+        self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else iter(players_iterator)
         next(self.players_iterator)
         self.emitter = EventMaster.get_instance(initial_game_state.__class__,port=port,hostname=hostname)
         logger.remove()
@@ -93,7 +93,7 @@ class GameMaster:
         """
         next_player = self.current_game_state.get_next_player()
 
-        possible_actions = self.current_game_state.get_possible_heavy_actions()
+        possible_actions = self.current_game_state.get_possible_stateful_actions()
 
         start = time.time()
 
@@ -109,7 +109,7 @@ class GameMaster:
         if self.remaining_time[next_player.get_id()] < 0:
             raise SeahorseTimeoutError()
 
-        action = action.get_heavy_action(self.current_game_state)
+        action = action.get_stateful_action(self.current_game_state)
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
