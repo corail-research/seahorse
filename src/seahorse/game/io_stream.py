@@ -25,23 +25,39 @@ class EventSlave:
 
     def activate(self,
                  identifier:str | None = None,
-                 wrapped_id:int | None = None,
+                 instance_id:int | None = None,
                  *,
                  disconnected_cb: Callable[[None],None] | None = None
                  ) -> None:
         """
-        Sets the listener up, binds handlers
+        Sets the listener up, binds handlers.
+        At least a string identifier or an instance id should be provided for activation.
 
         Args:
             identifier (str | None, optional): Must be a unique identifier. Defaults to None.
-            wrapped_id (int | None, optional): If the eventSlave is bound to an instance,
+            wrapped_id (int | None, optional): If the EventSlave is bound to an instance,
                                                a python native id might be associated.
                                                Defaults to None.
+        Raises:
+            ValueError: If none of the identifier or instance_id are provided.
         """
+        if identifier is None and instance_id is None:
+            msg = "At least a string identifier or an instance id should be provided for activation."
+            raise ValueError(msg)
+
         self.sio = socketio.AsyncClient()
         self.connected = False
-        self.identifier = identifier
-        self.wrapped_id = wrapped_id
+
+        if identifier is not None:
+            self.identifier = identifier
+        else:
+            self.identifier = str(instance_id)
+
+        if instance_id is not None:
+            self.instance_id = instance_id
+        else:
+            self.instance_id = hash(identifier)
+
         self.disconnected_cb = disconnected_cb
 
         @self.sio.event()
@@ -233,7 +249,7 @@ class EventMaster:
 
                 self.__ident2sid[idf]=sid
                 self.__sid2ident[sid]=idf
-                self.__identified_clients[idf]={"sid":sid,"id":data.get("wrapped_id",None),"incoming":deque(),"attached":False}
+                self.__identified_clients[idf]={"sid":sid,"id":data.get("instance_id",None),"incoming":deque(),"attached":False}
 
 
             # Setting the singleton instance
@@ -288,7 +304,7 @@ class EventMaster:
         else :
             await self.wait_for_event(sid,label,flush_until=flush_until)
 
-    async def wait_for_identified_client(self,name:str,local_id:int) -> str:
+    async def wait_for_identified_client(self,name:str,local_id:int) -> dict[str, Any]:
         """ Waits for an identified client (a player typically)
 
         Args:
@@ -298,13 +314,13 @@ class EventMaster:
         """
         reg = r"^"+name+r"([0-9]+$|$)"
         def unattached_match(x):
-            return re.search(reg, x) and not self.__identified_clients.get(x)["attached"]
+            return re.search(reg, x) and not self.__identified_clients[x]["attached"]
         matching_names = list(filter(unattached_match,self.__ident2sid.keys()))
         while not matching_names:
             await asyncio.sleep(.1)
             matching_names = list(filter(unattached_match,self.__ident2sid.keys()))
 
-        cl = self.__identified_clients.get(matching_names[0])
+        cl = self.__identified_clients[matching_names[0]]
         self.__identified_clients[matching_names[0]]["attached"] = True
 
         await self.sio.emit("update_id",json.dumps({"new_id":local_id}),to=cl["sid"])
