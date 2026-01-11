@@ -7,7 +7,7 @@ import re
 import time
 from collections import deque
 from collections.abc import Coroutine
-from typing import TYPE_CHECKING, Any, Callable
+from typing import Any, Callable
 
 import socketio
 from aiohttp import web
@@ -16,9 +16,6 @@ from loguru import logger
 from seahorse.game.action import Action
 from seahorse.game.heavy_action import HeavyAction
 from seahorse.utils.serializer import Serializable
-
-if TYPE_CHECKING:
-    from seahorse.game.game_state import GameState
 
 
 class EventSlave:
@@ -89,44 +86,6 @@ class EventSlave:
         if hasattr(self, "connected") and self.connected:
             await self.sio.disconnect()
             self.connected = False
-
-def event_emitting(label:str):
-    """Decorator to also send the function's output trough listening socket connexions
-
-    Args:
-        label (str): the type of event to emit
-    """
-    def meta_wrapper(fun: Callable[[Any],Action]):
-        @functools.wraps(fun)
-        async def wrapper(self:EventSlave,*args,**kwargs):
-            out = fun(self,*args, **kwargs)
-            await self.sio.emit(label,json.dumps(out.to_json(),default=lambda x:x.to_json()))
-            return out
-
-        return wrapper
-
-    return meta_wrapper
-
-
-def remote_action(label: str):
-    """Proxy decorator to override an expected local behavior with a distant one
-       *The logic in decorated function is ignored*
-    Args:
-        label (str): the time of event to emit to trigger the distant logic
-    """
-    def meta_wrapper(fun: Callable):
-        @functools.wraps(fun)
-        async def wrapper(self:EventSlave,current_state:GameState,*_,**kwargs):
-            await EventMaster.get_instance().sio.emit(label,json.dumps({**current_state.to_json(),**kwargs},
-                                                                       default=lambda x:x.to_json()),
-                                                                       to=self.sid)
-            out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
-            return out
-
-        return wrapper
-
-    return meta_wrapper
-
 
 class EventMaster:
     """

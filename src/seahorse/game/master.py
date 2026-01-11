@@ -2,21 +2,18 @@ import asyncio
 import copy
 import json
 import sys
-import time
 from abc import abstractmethod
 from collections.abc import Container, Iterable
 from functools import partialmethod
-from itertools import cycle
 from typing import Optional
 
 from loguru import logger
-from pebble import asynchronous
 
-from seahorse.game.action import Action
 from seahorse.game.custom_stat import CustomStat
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.player.player import Player
+from seahorse.player.proxies import PlayerProxy
 from seahorse.utils.custom_exceptions import (
     ActionNotPermittedError,
     MethodNotImplementedError,
@@ -42,7 +39,7 @@ class GameMaster:
         self,
         name: str,
         initial_game_state: GameState,
-        players_iterator: Iterable[Player],
+        players_iterator: Iterable[PlayerProxy],
         log_level: str = "INFO",
         port: int =8080,
         hostname: str ="localhost",
@@ -71,13 +68,16 @@ class GameMaster:
             logger.error(f"{player_names}")
             raise PlayerDuplicateError()
 
-        self.id2player: dict[int, Player] = {}
-        for player in self.get_game_state().get_players() :
-            self.id2player[player.get_id()]=player.get_name()
+        if not isinstance(players_iterator, Iterable):
+            msg = "Player iterator must be a valid iterator object"
+            raise ValueError(msg)
+
+        self.id2player: dict[int, PlayerProxy] = {}
+        for player in players_iterator:
+            self.id2player[player.get_id()] = player
 
         self.log_level = log_level
-        self.players_iterator = cycle(players_iterator) if isinstance(players_iterator, list) else players_iterator
-        next(self.players_iterator)
+
         self.emitter = EventMaster.get_instance(initial_game_state.__class__,port=port,hostname=hostname)
         logger.remove()
 
@@ -87,18 +87,6 @@ class GameMaster:
 
         logger.add(sys.stderr, level=log_level)
 
-    # This produce a hard timeout for the next player move
-    def __next_move__(self, next_player: Player) -> tuple[Action, float]:
-        if isinstance(next_player,EventSlave):
-            start = time.time()
-            action = asyncio.run(next_player.play(self.current_game_state,
-                                                    remaining_time=self.remaining_time[next_player.get_id()]))
-        else:
-            start = time.time()
-            action = next_player.play(self.current_game_state,
-                                        remaining_time=self.remaining_time[next_player.get_id()])
-        return action, time.time()-start
-
     async def step(self) -> GameState:
         """
         Calls the next player move.
@@ -106,20 +94,23 @@ class GameMaster:
         Returns:
             GamseState : The new game_state.
         """
-        next_player = self.current_game_state.get_next_player()
-        possible_actions = self.current_game_state.get_possible_heavy_actions()
+        next_player = self.id2player[self.current_game_state.get_next_player().get_id()]
 
         logger.info(f"time : {self.remaining_time[next_player.get_id()]}s")
 
         try:
-            action, time_diff = await asynchronous.process(self.__next_move__,
-                                                           timeout=self.remaining_time[next_player.get_id()])(next_player)
+            action, time_diff = await next_player.play(self.current_game_state,
+                                                       self.remaining_time[next_player.get_id()])
         except TimeoutError as timeout:
             raise SeahorseTimeoutError() from timeout
 
+
         self.remaining_time[next_player.get_id()] -= time_diff
         if self.remaining_time[next_player.get_id()] < 0:
-            raise SeahorseTimeoutError()
+            msg=SeahorseTimeoutError().message + str(self.remaining_time[next_player.get_id()])
+            raise SeahorseTimeoutError(msg)
+
+        possible_actions = self.current_game_state.get_possible_heavy_actions()
 
         action = action.get_heavy_action(self.current_game_state)
         if action not in possible_actions:
@@ -217,7 +208,7 @@ class GameMaster:
             "status": "done",
         }))
         logger.verdict(f"{','.join(w.get_name() for w in self.get_winner())} has won the game")
-        return self.winner
+        return self.get_winner()
 
     async def play_dummy_game(self, k: int=1):
         """

@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 from abc import abstractmethod
+from typing import TYPE_CHECKING
+
+from dill import pickles
 
 from seahorse.game.action import Action
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
 
+if TYPE_CHECKING:
+    from seahorse.game.game_state import GameState
 
 class Player(Serializable):
     """
@@ -31,7 +36,7 @@ class Player(Serializable):
             self.id = player_id
 
     @abstractmethod
-    def compute_action(self, **kwargs) -> Action:
+    def compute_action(self, current_state: GameState, **kwargs) -> Action:
         """
         Should be dedicated to adversarial search.
 
@@ -45,6 +50,10 @@ class Player(Serializable):
             Action: The action to play.
         """
         raise MethodNotImplementedError()
+
+    # @abstractmethod
+    # def to_mimic(self) -> MimicPlayer:
+    #     raise MethodNotImplementedError()
 
     def get_id(self) -> int:
         """
@@ -75,21 +84,16 @@ class Player(Serializable):
         """
         return f"Player {self.get_name()}({self.get_id()})"
 
-
-class MimicPlayer(Player):
+class MimicPlayer(Serializable):
 
     def __init__(self, player_type: type[Player], *args, **kwargs) -> None:
-        self.mimic = player_type().__init__(*args, **kwargs)
-
-    def compute_action(self, **kwargs) -> None:
-        pass
+        self.mimic = player_type(*args, **kwargs)
 
     def __getattr__(self, attr):
         return getattr(self.mimic, attr)
 
-    @classmethod
-    def mimic_player(cls, player: Player) -> MimicPlayer:
-        mimic = MimicPlayer(Player, name=player.get_name(), player_id=player.get_id())
-        mimic.mimic.__dict__ |= player.__dict__
+    def __str__(self) -> str:
+        return f"MimicPlayer {self.get_name()}({self.get_id()})"
 
-        return mimic
+    def to_json(self) -> dict:
+        return self.mimic.__dict__

@@ -1,21 +1,106 @@
+import functools
 import json
 import time
+from abc import abstractmethod
+from typing import Callable, Optional
 
-from typing import Any, Optional
 from loguru import logger
-from collections.abc import Coroutine
 
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
-from seahorse.game.io_stream import EventMaster, EventSlave, event_emitting, remote_action
+from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.game.light_action import LightAction
+from seahorse.player.contrainers import PlayerContainer
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.gui_client import GUIClient
 from seahorse.utils.serializer import Serializable
 
 
-class RemotePlayerProxy(Serializable,EventSlave):
+class PlayerProxy(Serializable):
+
+    @abstractmethod
+    async def play(self, current_state: GameState, remaining_time: float, **kwargs) -> tuple[Action, float]:
+        """
+        Plays a move.
+
+        Args:
+            current_state: The game state.
+
+        Returns:
+            Action: The action resulting from the move.
+        """
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    async def close(self) -> None:
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def to_player(self) -> Player:
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def get_id(self) -> int:
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def get_name(self) -> str:
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def __getattr__(self, attr):
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def __hash__(self) -> int:
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def __eq__(self, __value: object) -> bool:
+        raise MethodNotImplementedError()
+
+    @abstractmethod
+    def __str__(self) -> str:
+        raise MethodNotImplementedError()
+
+
+class ContaineredPlayerProxy(PlayerProxy):
+
+    def __init__(self, wrapped_player: Player, gs:type[GameState]=GameState) -> None:
+        self.containered_player = PlayerContainer(wrapped_player, gs)
+
+    async def play(self, current_state: GameState, remaining_time: float, **kwargs) -> tuple[Action, float]:
+        return await self.containered_player.play(current_state, remaining_time, **kwargs)
+
+    async def close(self) -> None:
+        self.containered_player.close()
+
+    def to_player(self) -> Player:
+        return self.containered_player.get_player()
+
+    def get_id(self):
+        return self.containered_player.get_id()
+
+    def get_name(self):
+        return self.containered_player.get_name()
+
+    def __getattr__(self, attr):
+        return getattr(self.containered_player, attr)
+
+    def __hash__(self) -> int:
+        return hash(self.containered_player)
+
+    def __eq__(self, __value: object) -> bool:
+        return hash(self) == hash(__value)
+
+    def __str__(self) -> str:
+        return str(self.containered_player)
+
+    def to_json(self) -> dict:
+        return self.containered_player.to_json()
+
+class RemotePlayerProxy(PlayerProxy, EventSlave):
     """
     A class representing a remote player proxy.
 
@@ -33,36 +118,62 @@ class RemotePlayerProxy(Serializable,EventSlave):
             *args: Additional arguments.
             **kwargs: Additional keyword arguments.
         """
-        self.mimics = mimics(*args, **kwargs)
-        self.activate(wrapped_id=self.mimics.get_id())
-        self.id = self.mimics.id
+        self.mimic = mimics(*args, **kwargs)
+        self.activate(instance_id=self.mimic.get_id())
         self.sid = None
 
-    @remote_action("turn")
-    def play(self, *,current_state: GameState, remaining_time: int) -> Action:
-        """
-        Plays a move.
-
+    @staticmethod
+    def remote_action(label: str):
+        """Proxy decorator to override an expected local behavior with a distant one
+        *The logic in decorated function is ignored*
         Args:
-            current_state: The game state.
-
-        Returns:
-            Action: The action resulting from the move.
+            label (str): the time of event to emit to trigger the distant logic
         """
+        def meta_wrapper(fun: Callable):
+            @functools.wraps(fun)
+            async def wrapper(self:"RemotePlayerProxy",current_state:GameState,*_,**kwargs):
+                if self.sid is None:
+                    msg = f"Remote player {self} is not connected (SID missing)"
+                    raise ValueError(msg)
+
+                await EventMaster.get_instance().sio.emit(label,json.dumps({**current_state.to_json(),**kwargs},
+                                                                        default=lambda x:x.to_json()),
+                                                                        to=self.sid)
+                out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
+                return out
+
+            return wrapper
+
+        return meta_wrapper
+
+    @remote_action("turn")
+    async def play(self, *,current_state: GameState, remaining_time: float) -> None:
         pass
 
-    async def listen(self,**_) -> Coroutine[Any, Any, None]:
+    async def close(self) -> None:
+        return await self.close_connection()
+
+    async def listen(self,**_) -> None:
         """
         Fires up the listening process
 
         Returns:
             Coroutine: A coroutine object.
         """
-        idmap = await EventMaster.get_instance().wait_for_identified_client(self.name,self.id)
+        idmap = await EventMaster.get_instance().wait_for_identified_client(self.name,self.instance_id)
         self.sid = idmap["sid"]
 
+    def to_player(self) -> Player:
+        return self.mimic
+
+    def get_id(self):
+        return self.mimic.get_id()
+
+    def get_name(self):
+        return self.mimic.get_name()
+
     def __getattr__(self, attr):
-        return getattr(self.mimics, attr)
+        return getattr(self.mimic, attr)
 
     def __hash__(self) -> int:
         return hash(self.sid)
@@ -70,11 +181,14 @@ class RemotePlayerProxy(Serializable,EventSlave):
     def __eq__(self, __value: object) -> bool:
         return hash(self) == hash(__value)
 
+    def __str__(self) -> str:
+        return f"Player {self.mimic.get_name()}({self.mimic.get_id()})."
+
     def to_json(self) -> str:
-        return str(self.wrapped_id)
+        return str(self.instance_id)
 
 
-class LocalPlayerProxy(Serializable,EventSlave):
+class LocalPlayerProxy(PlayerProxy, EventSlave):
     """
     A class representing a local player proxy.
 
@@ -93,7 +207,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
             wrapped_player (Player): The player object to wrap.
         """
         self.wrapped_player = wrapped_player
-        self.activate(self.wrapped_player.name,wrapped_id=wrapped_player.get_id())
+        self.activate(self.wrapped_player.name,wrapped_player.get_id())
         @self.sio.on("turn")
         async def handle_turn(*data):
             logger.info(f"{self.wrapped_player.name} is playing")
@@ -108,8 +222,26 @@ class LocalPlayerProxy(Serializable,EventSlave):
             logger.debug("update_id received",json.loads(data)["new_id"])
             self.wrapped_player.id = json.loads(data)["new_id"]
 
+    @staticmethod
+    def event_emitting(label:str):
+        """Decorator to also send the function's output trough listening socket connexions
+
+        Args:
+            label (str): the type of event to emit
+        """
+        def meta_wrapper(fun: Callable[...,tuple[Action,float]]):
+            @functools.wraps(fun)
+            async def wrapper(self:EventSlave,*args,**kwargs):
+                action, time_diff = fun(self,*args, **kwargs)
+                await self.sio.emit(label,json.dumps(action.to_json(),default=lambda x:x.to_json()))
+                return (action, time_diff)
+
+            return wrapper
+
+        return meta_wrapper
+
     @event_emitting("action")
-    def play(self, current_state: GameState, remaining_time: int) -> Action:
+    def play(self, current_state: GameState, remaining_time: float) -> tuple[Action, float]:
         """
         Plays a move.
 
@@ -121,6 +253,18 @@ class LocalPlayerProxy(Serializable,EventSlave):
         """
         return self.compute_action(current_state=current_state, remaining_time=remaining_time).get_heavy_action(current_state)
 
+    async def close(self) -> None:
+        return await self.close_connection()
+
+    def to_player(self) -> Player:
+        return self.wrapped_player
+
+    def get_id(self):
+        return self.wrapped_player.get_id()
+
+    def get_name(self):
+        return self.wrapped_player.get_name()
+
     def __getattr__(self, attr):
         return getattr(self.wrapped_player, attr)
 
@@ -131,7 +275,7 @@ class LocalPlayerProxy(Serializable,EventSlave):
         return hash(self) == hash(__value)
 
     def __str__(self) -> str:
-        return f"Player {self.wrapped_player.get_name()} (ID: {self.wrapped_player.get_id()})."
+        return f"Player {self.wrapped_player.get_name()}({self.wrapped_player.get_id()})."
 
     def to_json(self) -> dict:
         return self.wrapped_player.to_json()
@@ -145,10 +289,10 @@ class InteractivePlayerProxy(LocalPlayerProxy):
 
         Args:
             mimics (type[Player]): A wrapped player, the internal logic will be overridden by an interactive one
-            gui_path (str, optional): If the interaction is supposed to happen on the host machine, provide a GUI path to start it up. Defaults to None.
+            gui_path (str, optional): If the interaction is supposed to happen on the host machine, provide a GUI path
+                                      to start it up. Defaults to None.
         """
         super().__init__(mimics, *args, **kwargs)
-        self.wrapped_player.player_type = "interactive"
         self.path = gui_path
         self.shared_sid = None
         self.sid = None
@@ -181,4 +325,3 @@ class InteractivePlayerProxy(LocalPlayerProxy):
 
     def share_sid(self,proxy:"InteractivePlayerProxy"):
         self.shared_sid=proxy
-

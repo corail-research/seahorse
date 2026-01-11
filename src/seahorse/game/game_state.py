@@ -22,7 +22,8 @@ class GameState(Serializable):
         rep (Representation): The representation of the game.
     """
 
-    def __init__(self, scores: dict[int, Any], next_player: Player, players: list[Player], rep: Representation) -> None:
+    def __init__(self, scores: dict[int, Any], next_player: Player,
+                 players: list[Player], rep: Representation) -> None:
         """
         Initializes a new instance of the GameState class.
 
@@ -33,8 +34,17 @@ class GameState(Serializable):
             rep (Representation): The representation of the game.
         """
         self.scores = scores
+
+        if not isinstance(next_player, Player):
+            msg = "Players object should be provided as Player type to ensure it can be serialized"
+            raise ValueError(msg)
         self.next_player = next_player
+
+        if not all(isinstance(player, Player) for player in players):
+            msg = "Players object should be provided as Player type to ensure it can be serialized"
+            raise ValueError(msg)
         self.players = players
+
         self.rep = rep
         self._possible_light_actions = None
         self._possible_heavy_actions = None
