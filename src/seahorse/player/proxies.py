@@ -67,8 +67,8 @@ class PlayerProxy(Serializable):
 
 class ContaineredPlayerProxy(PlayerProxy):
 
-    def __init__(self, wrapped_player: Player, gs:type[GameState]=GameState) -> None:
-        self.containered_player = PlayerContainer(wrapped_player, gs)
+    def __init__(self, wrapped_player: Player) -> None:
+        self.containered_player = PlayerContainer(wrapped_player)
 
     async def play(self, current_state: GameState, remaining_time: float, **kwargs) -> tuple[Action, float]:
         return await self.containered_player.play(current_state, remaining_time, **kwargs)

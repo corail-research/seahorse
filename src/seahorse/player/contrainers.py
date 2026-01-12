@@ -12,8 +12,7 @@ from seahorse.player.player import Player
 from seahorse.utils.serializer import Serializable
 
 
-def container_player_loop(player: Player, game_state: GameState,
-                          in_queue: Queue, out_queue: Queue,
+def container_player_loop(player: Player, in_queue: Queue, out_queue: Queue,
                           wait: Event, close: Event):
     while True:
         wait.wait()
@@ -30,7 +29,7 @@ def container_player_loop(player: Player, game_state: GameState,
     # return player, action, end-start
 
 class PlayerContainer(Serializable):
-    def __init__(self, player: Player, gs:type[GameState]=GameState) -> None:
+    def __init__(self, player: Player) -> None:
         self.contained_player = player
         self.in_queue: Queue = AioQueue()
         self.out_queue: Queue = AioQueue()
@@ -41,7 +40,7 @@ class PlayerContainer(Serializable):
         self.wait_event.clear()
 
         self.process: Process = AioProcess(target=container_player_loop,
-                                           args=(player, gs, self.in_queue,
+                                           args=(player, self.in_queue,
                                                  self.out_queue, self.wait_event, self.close_event))
 
         self.process.start()
