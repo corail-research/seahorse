@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import asyncio
-import functools
 import json
 import re
 import time
 from collections import deque
-from collections.abc import Coroutine
+from collections.abc import Awaitable, Coroutine
 from typing import Any, Callable
 
 import socketio
@@ -285,7 +284,8 @@ class EventMaster:
         await self.sio.emit("update_id",json.dumps({"new_id":local_id}),to=cl["sid"])
         return cl
 
-    def start(self, task: Callable[[None], None], listeners: list[EventSlave]) -> None:
+    def start(self, task: Callable[[None], None], listeners: list[EventSlave],
+              close_cb: Callable[[], Awaitable] | None = None) -> None:
         """
             This method is blocking.
 
@@ -339,6 +339,9 @@ class EventMaster:
 
             # Cleanup runner to release socket
             await self.runner.cleanup()
+
+            if close_cb is not None:
+                await close_cb()
 
         # Blocking call to the procedure
         self.event_loop.run_until_complete(stop(task))

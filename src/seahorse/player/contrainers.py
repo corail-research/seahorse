@@ -1,50 +1,77 @@
-import sys
+import asyncio
 import time
 
-from pebble import asynchronous
+from aioprocessing import AioEvent, AioProcess, AioQueue
+from aioprocessing.locks import AioEvent as Event
+from aioprocessing.process import AioProcess as Process
+from aioprocessing.queues import AioQueue as Queue
 
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.player.player import Player
 from seahorse.utils.serializer import Serializable
 
-is_windows = sys.platform.startswith('win')
 
 def container_player_loop(player: Player, game_state: GameState,
-                          remaining_time: float, **kwargs) -> tuple[Player, Action, float]:
-    start = time.time()
-    action = player.compute_action(current_state=game_state, remaining_time=remaining_time,**kwargs)
-    end = time.time()
+                          in_queue: Queue, out_queue: Queue,
+                          wait: Event, close: Event):
+    while True:
+        wait.wait()
+        if close.is_set():
+            break
 
-    return player, action, end-start
+        game_state, remaining_time, kwargs = in_queue.get()
+        print(type(game_state))
+        print(type(remaining_time))
+        print(type(kwargs))
+
+        start = time.time()
+        action = player.compute_action(current_state=game_state, remaining_time=remaining_time,**kwargs)
+        end = time.time()
+
+        print(action)
+
+        out_queue.put((action, end-start))
+
+    # return player, action, end-start
 
 class PlayerContainer(Serializable):
     def __init__(self, player: Player, gs:type[GameState]=GameState) -> None:
         self.contained_player = player
-        # self.queue: Queue[GameState | Action | float | dict[str, Any]] = Queue()
+        self.in_queue: Queue = AioQueue()
+        self.out_queue: Queue = AioQueue()
+        self.close_event: Event = AioEvent()
+        self.wait_event: Event = AioEvent()
 
-        # self.process = Process(target=container_player_loop,
-        #                        args=(player, self.queue, gs))
-        # self.process.start()
+        self.close_event.clear()
+        self.wait_event.clear()
+
+        self.process: Process = AioProcess(target=container_player_loop,
+                                           args=(player, gs, self.in_queue,
+                                                 self.out_queue, self.wait_event, self.close_event))
+
+        self.process.start()
 
     async def play(self, game_state: GameState, remaining_time: float, **kwargs) -> tuple[Action, float]:
-
-        # This approach isn't the most efficient for general speedtime but it doesn't slow down the player computation.
-        # TODO: find a way to spawn a process once and transmit the informations every turn.
-
-
-        func = asynchronous.process(container_player_loop, timeout=remaining_time+is_windows)
-        player, action, time_diff = await func(self.contained_player, game_state, remaining_time, **kwargs)
-
-        self.contained_player = player
+        self.wait_event.set()
+        try:
+            await self.in_queue.coro_put((game_state, remaining_time, kwargs))
+            self.wait_event.clear()
+            action, time_diff = await asyncio.wait_for(self.out_queue.coro_get(), timeout=remaining_time)
+        except Exception as e:
+            self.close_event.set()
+            while not self.out_queue.empty():
+                self.out_queue.get_nowait()
+            self.close()
+            raise e
 
         return action, time_diff
 
     def close(self) -> None:
         if self.process.is_alive():
-            self.process.kill()
-            self.process.close()
-        self.queue.close()
+            self.close_event.set()
+            self.wait_event.set()
+
 
     def get_player(self) -> Player:
         return self.contained_player

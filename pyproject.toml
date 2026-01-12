@@ -37,7 +37,7 @@ dependencies = [
   "nest-asyncio",
   "aiohttp",
   "asyncio",
-  "pebble"
+  "aioprocessing[dill]"
 ]
 
 [project.urls]

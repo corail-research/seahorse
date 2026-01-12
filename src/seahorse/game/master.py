@@ -155,8 +155,7 @@ class GameMaster:
                 elif isinstance(e,ActionNotPermittedError) :
                     logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
                 else:
-                    logger.error(f"Player {self.current_game_state.get_next_player()} threw the following exception.")
-                    logger.error(str(e))
+                    logger.exception(f"{self.current_game_state.get_next_player()} threw the following exception.")
 
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 temp_score[curent_player_id] = -1e9
@@ -268,13 +267,17 @@ class GameMaster:
         """
         Starts a game and broadcasts its successive states.
         """
-        self.emitter.start(self.play_game, self.players+(listeners if listeners else []))
+        self.emitter.start(self.play_game, self.players+(listeners if listeners else []), self.close)
 
     def record_dummy_game(self, listeners:Optional[list[EventSlave]]=None) -> None:
         """
         Starts a dummy game and broadcasts its successive states.
         """
-        self.emitter.start(self.play_dummy_game, self.players+(listeners if listeners else []))
+        self.emitter.start(self.play_dummy_game, self.players+(listeners if listeners else []), self.close)
+
+    async def close(self):
+        for player_id in self.id2player:
+            await self.id2player[player_id].close()
 
     def update_log(self) -> None:
         """
