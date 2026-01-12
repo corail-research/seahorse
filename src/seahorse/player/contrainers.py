@@ -21,15 +21,9 @@ def container_player_loop(player: Player, game_state: GameState,
             break
 
         game_state, remaining_time, kwargs = in_queue.get()
-        print(type(game_state))
-        print(type(remaining_time))
-        print(type(kwargs))
-
         start = time.time()
         action = player.compute_action(current_state=game_state, remaining_time=remaining_time,**kwargs)
         end = time.time()
-
-        print(action)
 
         out_queue.put((action, end-start))
 
