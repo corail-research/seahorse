@@ -1,9 +1,6 @@
-import asyncio
+import sys
 import time
-from multiprocessing import Process, Queue
-from typing import Any
 
-from loguru import logger
 from pebble import asynchronous
 
 from seahorse.game.action import Action
@@ -11,6 +8,7 @@ from seahorse.game.game_state import GameState
 from seahorse.player.player import Player
 from seahorse.utils.serializer import Serializable
 
+is_windows = sys.platform.startswith('win')
 
 def container_player_loop(player: Player, game_state: GameState,
                           remaining_time: float, **kwargs) -> tuple[Player, Action, float]:
@@ -33,7 +31,9 @@ class PlayerContainer(Serializable):
 
         # This approach isn't the most efficient for general speedtime but it doesn't slow down the player computation.
         # TODO: find a way to spawn a process once and transmit the informations every turn.
-        func = asynchronous.process(container_player_loop, timeout=remaining_time)
+
+
+        func = asynchronous.process(container_player_loop, timeout=remaining_time+is_windows)
         player, action, time_diff = await func(self.contained_player, game_state, remaining_time, **kwargs)
 
         self.contained_player = player
