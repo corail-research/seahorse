@@ -2,6 +2,7 @@ import functools
 import json
 import time
 from abc import abstractmethod
+from collections.abc import Coroutine
 from typing import Callable, Optional
 
 from loguru import logger
@@ -131,14 +132,14 @@ class RemotePlayerProxy(PlayerProxy, EventSlave):
         """
         def meta_wrapper(fun: Callable):
             @functools.wraps(fun)
-            async def wrapper(self:"RemotePlayerProxy",current_state:GameState,*_,**kwargs):
+            async def wrapper(self:"RemotePlayerProxy",current_state:GameState,remaining_time:float,*_,**kwargs) -> tuple[Action,float]:
                 if self.sid is None:
                     msg = f"Remote player {self} is not connected (SID missing)"
                     raise ValueError(msg)
 
-                await EventMaster.get_instance().sio.emit(label,json.dumps({**current_state.to_json(),**kwargs},
-                                                                        default=lambda x:x.to_json()),
-                                                                        to=self.sid)
+                state_data = json.dumps({**current_state.to_json()},
+                                  default=lambda x:x.to_json())
+                await EventMaster.get_instance().sio.emit(label,(state_data, remaining_time, kwargs),to=self.sid)
                 out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
                 return out
 
@@ -147,7 +148,7 @@ class RemotePlayerProxy(PlayerProxy, EventSlave):
         return meta_wrapper
 
     @remote_action("turn")
-    async def play(self, *,current_state: GameState, remaining_time: float) -> None:
+    async def play(self, *,current_state: GameState, remaining_time: float, **kwargs) -> None:
         pass
 
     async def close(self) -> None:
@@ -214,7 +215,8 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
             logger.debug(f"Data received : {data}")
             deserialized = json.loads(data[0])
             logger.debug(f"Deserialized data : \n{deserialized}")
-            action = await self.play(gs.from_json(data[0],next_player=self),remaining_time = deserialized["remaining_time"])
+            action, _ = await self.play(gs.from_json(data[0],next_player=self),
+                                     remaining_time=data[1], kwargs=data[2])
             logger.info(f"{self.wrapped_player} played the following action : \n{action}")
 
         @self.sio.on("update_id")
@@ -229,11 +231,11 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
         Args:
             label (str): the type of event to emit
         """
-        def meta_wrapper(fun: Callable[...,tuple[Action,float]]):
+        def meta_wrapper(fun: Callable[...,Coroutine[None, None, tuple[Action,float]]]):
             @functools.wraps(fun)
             async def wrapper(self:EventSlave,*args,**kwargs):
-                action, time_diff = fun(self,*args, **kwargs)
-                await self.sio.emit(label,json.dumps(action.to_json(),default=lambda x:x.to_json()))
+                action, time_diff = await fun(self,*args, **kwargs)
+                await self.sio.emit(label,(json.dumps(action.to_json(),default=lambda x:x.to_json()), time_diff))
                 return (action, time_diff)
 
             return wrapper
@@ -241,7 +243,7 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
         return meta_wrapper
 
     @event_emitting("action")
-    def play(self, current_state: GameState, remaining_time: float) -> tuple[Action, float]:
+    async def play(self, current_state: GameState, remaining_time: float, **kwargs) -> tuple[Action, float]:
         """
         Plays a move.
 
@@ -251,7 +253,12 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
         Returns:
             Action: The action resulting from the move.
         """
-        return self.compute_action(current_state=current_state, remaining_time=remaining_time).get_heavy_action(current_state)
+
+        start = time.time()
+        action = self.wrapped_player.compute_action(current_state=current_state, remaining_time=remaining_time,**kwargs)
+        end = time.time()
+
+        return action.get_heavy_action(game_state=current_state), end-start
 
     async def close(self) -> None:
         return await self.close_connection()

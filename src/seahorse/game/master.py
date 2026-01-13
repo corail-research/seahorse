@@ -59,6 +59,7 @@ class GameMaster:
         self.name = name
         self.current_game_state = initial_game_state
         self.players = initial_game_state.players
+        self.players_proxy = list(players_iterator)
         self.remaining_time = {player.get_id(): time_limit for player in self.players}
 
         player_names = [x.name for x in self.players]
@@ -236,8 +237,7 @@ class GameMaster:
                 elif isinstance(e,ActionNotPermittedError) :
                     logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
                 else:
-                    logger.error(f"Player {self.current_game_state.get_next_player()} threw the following exception.")
-                    logger.error(str(e))
+                    logger.exception(f"Player {self.current_game_state.get_next_player()} threw the following exception.")
 
                 #TODO: make this able to identify multiple invalid agents
                 await self.emitter.sio.emit("done",json.dumps({
@@ -267,17 +267,17 @@ class GameMaster:
         """
         Starts a game and broadcasts its successive states.
         """
-        self.emitter.start(self.play_game, self.players+(listeners if listeners else []), self.close)
+        self.emitter.start(self.play_game, self.players_proxy+(listeners if listeners else []), self.close)
 
     def record_dummy_game(self, listeners:Optional[list[EventSlave]]=None) -> None:
         """
         Starts a dummy game and broadcasts its successive states.
         """
-        self.emitter.start(self.play_dummy_game, self.players+(listeners if listeners else []), self.close)
+        self.emitter.start(self.play_dummy_game, self.players_proxy+(listeners if listeners else []), self.close)
 
     async def close(self):
-        for player_id in self.id2player:
-            await self.id2player[player_id].close()
+        for player_proxy in self.players_proxy:
+            await player_proxy.close()
 
     def update_log(self) -> None:
         """

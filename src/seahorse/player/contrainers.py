@@ -19,9 +19,9 @@ def container_player_loop(player: Player, in_queue: Queue, out_queue: Queue,
         if close.is_set():
             break
 
-        game_state, remaining_time, kwargs = in_queue.get()
+        current_state, remaining_time, kwargs = in_queue.get()
         start = time.time()
-        action = player.compute_action(current_state=game_state, remaining_time=remaining_time,**kwargs)
+        action = player.compute_action(current_state=current_state, remaining_time=remaining_time,**kwargs)
         end = time.time()
 
         out_queue.put((action, end-start))
@@ -45,10 +45,10 @@ class PlayerContainer(Serializable):
 
         self.process.start()
 
-    async def play(self, game_state: GameState, remaining_time: float, **kwargs) -> tuple[Action, float]:
+    async def play(self, current_state: GameState, remaining_time: float, **kwargs) -> tuple[Action, float]:
         self.wait_event.set()
         try:
-            await self.in_queue.coro_put((game_state, remaining_time, kwargs))
+            await self.in_queue.coro_put((current_state, remaining_time, kwargs))
             self.wait_event.clear()
             action, time_diff = await asyncio.wait_for(self.out_queue.coro_get(), timeout=remaining_time)
         except Exception as e:

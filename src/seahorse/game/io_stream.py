@@ -183,7 +183,7 @@ class EventMaster:
                 self.__events[sid][event].appendleft((time.time(),data))
 
             @self.sio.on("action")
-            async def handle_play(sid,data):
+            async def handle_play(sid,*data):
                 # TODO : cope with race condition "action" before "identify"
                 try:
                     self.__identified_clients[self.__sid2ident[sid]]["incoming"].appendleft(data)
@@ -213,7 +213,7 @@ class EventMaster:
             # Setting the singleton instance
             EventMaster.__instance = self
 
-    async def wait_for_next_play(self,sid:int,players:list) -> Action:
+    async def wait_for_next_play(self,sid:int,players:list) -> tuple[Action,float]:
         """Waiting for the next play action, this function is blocking
 
         Args:
@@ -224,11 +224,13 @@ class EventMaster:
             Action: returns the received action
         """
         # TODO revise sanity checks to avoid critical errors
+        # TODO this force to emit a statefull action, it should be rework to accept all action types
         logger.info(f"Waiting for next play from {self.__sid2ident[sid]}")
         while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
             await asyncio.sleep(.1)
         logger.info("Action received")
-        action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
+        action, time_diff = self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop()
+        action = json.loads(action)
         next_player_id = int(action["next_game_state"]["next_player"]["id"])
         next_player = next(iter(list(filter(lambda p:p.id==next_player_id,players))))
 
@@ -238,7 +240,7 @@ class EventMaster:
         new_gs.players = players
 
 
-        return HeavyAction(past_gs,new_gs)
+        return HeavyAction(past_gs,new_gs), time_diff
 
     async def wait_for_event(self,sid:int,label:str,*,flush_until:float | None=None) -> Coroutine:
         """Waits for an aribtrary event emitted by the connection identified by `sid`
