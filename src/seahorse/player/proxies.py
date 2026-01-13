@@ -75,7 +75,7 @@ class ContaineredPlayerProxy(PlayerProxy):
         return await self.containered_player.play(current_state, remaining_time, **kwargs)
 
     async def close(self) -> None:
-        self.containered_player.close()
+        await self.containered_player.close()
 
     def to_player(self) -> Player:
         return self.containered_player.get_player()
