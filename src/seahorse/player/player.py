@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
@@ -15,23 +16,23 @@ class Player(Serializable):
     A base class representing a player in the game.
 
     Attributes:
-        player_id (int): The ID of the player.
+        id (int): The ID of the player.
         name (str) : the name of the player
     """
 
-    def __init__(self, name: str = "bob",*,player_id:int | None = None,**_) -> None:
+    def __init__(self, name: str = "bob",*,id:int | None = None,**_) -> None:
         """
         Initializes a new instance of the Player class.
 
         Args:
             name (str, optional): The name of the player. Defaults to "bob".
-            player_id (int, optional, keyword-only): Set the player's id in case of distant loading
+            id (int, optional, keyword-only): Set the player's id in case of distant loading
         """
         self.name = name
-        if player_id is None:
-            self.id = id(self)
+        if id is None:
+            self.id = builtins.id(self)
         else:
-            self.id = player_id
+            self.id = id
 
     @abstractmethod
     def compute_action(self, current_state: GameState, **kwargs) -> Action:

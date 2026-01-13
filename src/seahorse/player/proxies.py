@@ -216,7 +216,7 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
             logger.debug(f"Data received : {data}")
             deserialized = json.loads(data[0])
             logger.debug(f"Deserialized data : \n{deserialized}")
-            action, _ = await self.play(gs.from_json(data[0],next_player=self),
+            action, _ = await self.play(gs.from_json(data[0],active_player=self),
                                      remaining_time=data[1], kwargs=data[2])
             logger.info(f"{self.wrapped_player} played the following action : \n{action}")
 

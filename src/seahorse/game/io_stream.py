@@ -5,8 +5,8 @@ import json
 import re
 import time
 from collections import deque
-from collections.abc import Awaitable
-from typing import Any, Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 import socketio
 from aiohttp import web
@@ -231,12 +231,12 @@ class EventMaster:
         logger.info("Action received")
         action, time_diff = self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop()
         action = json.loads(action)
-        next_player_id = int(action["next_game_state"]["next_player"]["id"])
-        next_player = next(iter(list(filter(lambda p:p.id==next_player_id,players))))
+        active_player_id = int(action["next_game_state"]["active_player"]["id"])
+        active_player = next(iter(list(filter(lambda p:p.id==active_player_id,players))))
 
         past_gs = self.__game_state.from_json(json.dumps(action["current_game_state"]))
         past_gs.players = players
-        new_gs = self.__game_state.from_json(json.dumps(action["next_game_state"]),next_player=next_player)
+        new_gs = self.__game_state.from_json(json.dumps(action["next_game_state"]),active_player=active_player)
         new_gs.players = players
 
 
