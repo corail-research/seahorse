@@ -32,6 +32,7 @@ class PlayerContainer(Serializable):
         self.manager: Manager = AioManager()
         self.in_queue: Queue = self.manager.AioQueue()
         self.out_queue: Queue = self.manager.AioQueue()
+        self.closed = False
 
         self.process: Process = AioProcess(target=container_player_loop,
                                            daemon=True,
@@ -53,7 +54,14 @@ class PlayerContainer(Serializable):
         return action, time_diff
 
     async def close(self) -> None:
-        self.manager.shutdown()
+        if not self.closed:
+            self.closed = True
+            self.in_queue.put_nowait(None)
+            await asyncio.sleep(.1)
+            while not self.in_queue.empty():
+                self.in_queue.get_nowait()
+            self.manager.shutdown()
+
 
     def get_player(self) -> Player:
         return self.contained_player
