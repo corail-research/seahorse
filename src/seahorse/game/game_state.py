@@ -18,19 +18,19 @@ class GameState(Serializable):
 
     Attributes:
         scores (Dict[int, Any]): The scores of the state for each player.
-        next_player (Player): The next player to play.
+        active_player (Player): The player who can perform an action on the game state.
         players (List[Player]): The list of players.
         rep (Representation): The representation of the game.
     """
 
-    def __init__(self, scores: dict[int, Any], next_player: Player,
+    def __init__(self, scores: dict[int, Any], active_player: Player,
                  players: list[Player], rep: Representation) -> None:
         """
         Initializes a new instance of the GameState class.
 
         Args:
             scores (Dict[int, Any]): The scores of the state for each player.
-            next_player (Player): The next player to play.
+            active_player (Player): The player who can perform an action on the game state.
             players (List[Player]): The list of players.
             rep (Representation): The representation of the game.
         """
@@ -39,7 +39,7 @@ class GameState(Serializable):
         # if not isinstance(next_player, Player):
         #     msg = "Players object should be provided as Player type to ensure it can be serialized"
         #     raise ValueError(msg)
-        self.next_player = next_player
+        self.active_player = active_player
 
         # if not all(isinstance(player, Player) for player in players):
         #     msg = "Players object should be provided as Player type to ensure it can be serialized"
@@ -62,28 +62,28 @@ class GameState(Serializable):
         """
         return self.scores[player.get_id()]
 
-    def get_next_player(self) -> Player:
+    def get_active_player(self) -> Player:
         """
-        Returns the next player (i.e. the player whose turn it is to play).
+        Returns the active player who can perform an action on the game state.
 
         Returns:
             Player: The next player.
         """
-        return self.next_player
+        return self.active_player
 
     def compute_next_player(self) -> Player:
         """
-        Computes the next player. (i.e. the player whose turn it is to play).
+        Computes the player who's gonna play on the next game state.
 
         Returns:
             Player: The next player.
         """
         if len(self.players) > 1:
-            current = self.next_player
+            current = self.active_player
             curr_id = self.players.index(current)
             return next(cycle(self.players[curr_id + 1 :] + self.players[:curr_id]))
 
-        return self.next_player
+        return self.active_player
 
     def get_scores(self) -> dict[int, float]:
         """
@@ -263,7 +263,7 @@ class GameState(Serializable):
 
     def __str__(self) -> str:
         to_print = f"Current scores are {self.get_scores()}.\n"
-        to_print += f"Next person to play is player {self.get_next_player().get_id()} ({self.get_next_player().get_name()}).\n"
+        to_print += f"Next person to play is player {self.get_active_player().get_id()} ({self.get_active_player().get_name()}).\n"
         return to_print
 
     @classmethod

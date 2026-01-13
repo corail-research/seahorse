@@ -17,7 +17,7 @@ class DummyGameState(GameState):
     def generate_possible_actions(self):
         list_rep = []
         current_rep = self.get_rep()
-        next_player = self.get_next_player()
+        next_player = self.get_active_player()
         for i in range(current_rep.get_dimensions()[0]):
             for j in range(current_rep.get_dimensions()[1]):
                 if not current_rep.get_env().get((i, j)):
