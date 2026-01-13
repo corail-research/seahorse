@@ -46,7 +46,7 @@ class TestCase(unittest.TestCase):
         self.board = Board(env={}, dim=[3, 3])
 
         self.player1 = Player("Thomas")
-        self.player2 = Player(player_id=42)
+        self.player2 = Player(id=42)
 
         self.piece1 = Piece("A")
         self.piece2 = Piece("B", self.player2)
