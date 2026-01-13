@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
 from seahorse.game.heavy_action import HeavyAction
-from seahorse.utils.custom_exceptions import NoGameStateProvidedError
 
 if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
@@ -28,16 +27,13 @@ class LightAction(Action):
         self.data = data
 
 
-    def get_heavy_action(self, game_state: GameState = None) -> HeavyAction:
+    def get_heavy_action(self, game_state: GameState) -> HeavyAction:
         """
         Returns the heavy action.
 
         Returns:
             HeavyAction: The heavy action.
         """
-        if game_state is None:
-            raise NoGameStateProvidedError()
-
         return HeavyAction(game_state, game_state.apply_action(self))
 
 
