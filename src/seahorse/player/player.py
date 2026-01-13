@@ -3,8 +3,6 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING
 
-from dill import pickles
-
 from seahorse.game.action import Action
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable

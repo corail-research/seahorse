@@ -70,7 +70,7 @@ class Piece(Serializable):
         return self.__dict__
 
     @classmethod
-    def from_json(cls,data,**kwargs) -> Serializable:
+    def from_json(cls,data,**_kwargs) -> Serializable:
         return cls(**json.loads(data))
 
 
