@@ -17,7 +17,7 @@ class DummyGameState(GameState):
     def generate_possible_actions(self):
         list_rep = []
         current_rep = self.get_rep()
-        next_player = self.get_next_player()
+        next_player = self.get_active_player()
         for i in range(current_rep.get_dimensions()[0]):
             for j in range(current_rep.get_dimensions()[1]):
                 if not current_rep.get_env().get((i, j)):
@@ -46,7 +46,7 @@ class TestCase(unittest.TestCase):
         self.board = Board(env={}, dim=[3, 3])
 
         self.player1 = Player("Thomas")
-        self.player2 = Player(id=42)
+        self.player2 = Player(player_id=42)
 
         self.piece1 = Piece("A")
         self.piece2 = Piece("B", self.player2)
