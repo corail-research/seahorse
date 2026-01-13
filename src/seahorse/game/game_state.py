@@ -1,11 +1,12 @@
 from abc import abstractmethod
+from collections.abc import Generator
 from itertools import cycle
-from typing import Any, Generator
+from typing import Any
 
 from seahorse.game.action import Action
+from seahorse.game.representation import Representation
 from seahorse.game.stateful_action import StatefulAction
 from seahorse.game.stateless_action import StatelessAction
-from seahorse.game.representation import Representation
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
@@ -22,7 +23,8 @@ class GameState(Serializable):
         rep (Representation): The representation of the game.
     """
 
-    def __init__(self, scores: dict[int, Any], next_player: Player, players: list[Player], rep: Representation) -> None:
+    def __init__(self, scores: dict[int, Any], next_player: Player,
+                 players: list[Player], rep: Representation) -> None:
         """
         Initializes a new instance of the GameState class.
 
@@ -33,8 +35,17 @@ class GameState(Serializable):
             rep (Representation): The representation of the game.
         """
         self.scores = scores
+
+        # if not isinstance(next_player, Player):
+        #     msg = "Players object should be provided as Player type to ensure it can be serialized"
+        #     raise ValueError(msg)
         self.next_player = next_player
+
+        # if not all(isinstance(player, Player) for player in players):
+        #     msg = "Players object should be provided as Player type to ensure it can be serialized"
+        #     raise ValueError(msg)
         self.players = players
+
         self.rep = rep
         self._possible_stateless_actions = None
         self._possible_stateful_actions = None
@@ -254,3 +265,8 @@ class GameState(Serializable):
         to_print = f"Current scores are {self.get_scores()}.\n"
         to_print += f"Next person to play is player {self.get_next_player().get_id()} ({self.get_next_player().get_name()}).\n"
         return to_print
+
+    @classmethod
+    @abstractmethod
+    def from_json(cls,data:str,*,next_player:Player | None = None) -> "GameState":
+        raise MethodNotImplementedError()

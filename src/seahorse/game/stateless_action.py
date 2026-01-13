@@ -28,7 +28,7 @@ class StatelessAction(Action):
         self.data = data
 
 
-    def get_stateful_action(self, game_state: GameState = None) -> StatefulAction:
+    def get_stateful_action(self, game_state: GameState) -> StatefulAction:
         """
         Returns the stateful action.
 

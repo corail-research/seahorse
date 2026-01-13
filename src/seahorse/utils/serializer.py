@@ -7,7 +7,7 @@ from seahorse.utils.custom_exceptions import MethodNotImplementedError
 class Serializable:
 
     @abstractmethod
-    def to_json(self)->dict:
+    def to_json(self) -> dict:
         raise MethodNotImplementedError()
 
     @classmethod

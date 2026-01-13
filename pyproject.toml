@@ -36,7 +36,8 @@ dependencies = [
   "split",
   "nest-asyncio",
   "aiohttp",
-  "asyncio"
+  "asyncio",
+  "aioprocessing[dill]"
 ]
 
 [project.urls]
