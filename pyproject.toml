@@ -18,7 +18,7 @@ name = "seahorse"
 dynamic = ["version"]
 description = ''
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = "BSD-3-Clause"
 keywords = []
 authors = [
@@ -27,7 +27,10 @@ authors = [
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dependencies = [
@@ -36,7 +39,8 @@ dependencies = [
   "split",
   "nest-asyncio",
   "aiohttp",
-  "asyncio"
+  "asyncio",
+  "aioprocessing[dill]"
 ]
 
 [project.urls]
@@ -68,7 +72,7 @@ cov = [
 
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.9","3.10","3.11","3.12","3.13"]
+python = ["3.11","3.12","3.13","3.14"]
 
 [tool.hatch.envs.lint]
 detached = true
@@ -94,12 +98,12 @@ all = [
 ]
 
 [tool.black]
-target-version = ["py39"]
+target-version = ["py311"]
 line-length = 120
 skip-string-normalization = true
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py311"
 line-length = 120
 select = [
   "A",

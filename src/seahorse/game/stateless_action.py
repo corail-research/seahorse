@@ -3,42 +3,42 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from seahorse.game.action import Action
-from seahorse.game.heavy_action import HeavyAction
+from seahorse.game.stateful_action import StatefulAction
 from seahorse.utils.custom_exceptions import NoGameStateProvidedError
 
 if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
 
-class LightAction(Action):
+class StatelessAction(Action):
     """
     A class representing an action in the game.
 
     Attributes:
-        data (dict): The data of the light action.
+        data (dict): The data of the stateless action.
     """
 
     def __init__(self, data: dict) -> None:
         """
         Initializes a new instance of the Action class.
 
-        Args: data (dict): The data of the light action.
+        Args: data (dict): The data of the stateless action.
 
         """
         self.data = data
 
 
-    def get_heavy_action(self, game_state: GameState = None) -> HeavyAction:
+    def get_stateful_action(self, game_state: GameState) -> StatefulAction:
         """
-        Returns the heavy action.
+        Returns the stateful action.
 
         Returns:
-            HeavyAction: The heavy action.
+            StatefulAction: The stateful action.
         """
         if game_state is None:
             raise NoGameStateProvidedError()
 
-        return HeavyAction(game_state, game_state.apply_action(self))
+        return StatefulAction(game_state, game_state.apply_action(self))
 
 
     def __hash__(self) -> int:
@@ -48,7 +48,7 @@ class LightAction(Action):
         return hash(self) == hash(value)
 
     def __str__(self) -> str:
-        return "LightAction: " + str(self.data)
+        return "StatelessAction: " + str(self.data)
 
     def to_json(self) -> dict:
         return self.__dict__

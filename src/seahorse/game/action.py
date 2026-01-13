@@ -19,12 +19,12 @@ class Action(Serializable):
         pass
 
     @abstractmethod
-    def get_heavy_action(self, *_) -> Action:
+    def get_stateful_action(self, *args, **kwargs) -> Action:
         """
-        Returns the heavy action.
+        Returns the stateful action.
 
         Returns:
-            Action: The heavy action.
+            Action: The stateful action.
         """
         raise NotImplementedError
 

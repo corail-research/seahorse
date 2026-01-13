@@ -4,8 +4,8 @@ from typing import Any
 
 from seahorse.game.game_layout.board import Board, Piece
 from seahorse.game.game_state import GameState
-from seahorse.game.heavy_action import HeavyAction
 from seahorse.game.representation import Representation
+from seahorse.game.stateful_action import StatefulAction
 from seahorse.player.player import Player
 
 
@@ -17,7 +17,7 @@ class DummyGameState(GameState):
     def generate_possible_actions(self):
         list_rep = []
         current_rep = self.get_rep()
-        next_player = self.get_next_player()
+        next_player = self.get_active_player()
         for i in range(current_rep.get_dimensions()[0]):
             for j in range(current_rep.get_dimensions()[1]):
                 if not current_rep.get_env().get((i, j)):
@@ -25,7 +25,7 @@ class DummyGameState(GameState):
                     copy_rep.get_env()[(i, j)] = Piece(piece_type="Added", owner=next_player)
                     list_rep.append(copy.deepcopy(copy_rep))
         poss_actions = {
-            HeavyAction(
+            StatefulAction(
                 self,
                 DummyGameState(
                     self.get_scores(),

@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
 
-class HeavyAction(Action):
+class StatefulAction(Action):
     """
     A class representing an action in the game.
 
@@ -46,12 +46,12 @@ class HeavyAction(Action):
         """
         return self.next_game_state
 
-    def get_heavy_action(self, *_) -> HeavyAction:
+    def get_stateful_action(self, *_) -> StatefulAction:
         """
-        Returns the heavy action.
+        Returns the stateful action.
 
         Returns:
-            HeavyAction: The heavy action.
+            StatefulAction: The stateful action.
         """
         return self
 

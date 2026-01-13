@@ -1,47 +1,59 @@
 from __future__ import annotations
 
 import asyncio
-import functools
 import json
 import re
 import time
 from collections import deque
-from collections.abc import Coroutine
-from typing import TYPE_CHECKING, Any, Callable
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 import socketio
 from aiohttp import web
 from loguru import logger
 
 from seahorse.game.action import Action
-from seahorse.game.heavy_action import HeavyAction
+from seahorse.game.stateful_action import StatefulAction
 from seahorse.utils.serializer import Serializable
-
-if TYPE_CHECKING:
-    from seahorse.game.game_state import GameState
 
 
 class EventSlave:
 
     def activate(self,
                  identifier:str | None = None,
-                 wrapped_id:int | None = None,
+                 instance_id:int | None = None,
                  *,
                  disconnected_cb: Callable[[None],None] | None = None
                  ) -> None:
         """
-        Sets the listener up, binds handlers
+        Sets the listener up, binds handlers.
+        At least a string identifier or an instance id should be provided for activation.
 
         Args:
             identifier (str | None, optional): Must be a unique identifier. Defaults to None.
-            wrapped_id (int | None, optional): If the eventSlave is bound to an instance,
+            wrapped_id (int | None, optional): If the EventSlave is bound to an instance,
                                                a python native id might be associated.
                                                Defaults to None.
+        Raises:
+            ValueError: If none of the identifier or instance_id are provided.
         """
+        if identifier is None and instance_id is None:
+            msg = "At least a string identifier or an instance id should be provided for activation."
+            raise ValueError(msg)
+
         self.sio = socketio.AsyncClient()
         self.connected = False
-        self.identifier = identifier
-        self.wrapped_id = wrapped_id
+
+        if identifier is not None:
+            self.identifier = identifier
+        else:
+            self.identifier = str(instance_id)
+
+        if instance_id is not None:
+            self.instance_id = instance_id
+        else:
+            self.instance_id = hash(identifier)
+
         self.disconnected_cb = disconnected_cb
 
         @self.sio.event()
@@ -74,44 +86,6 @@ class EventSlave:
             await self.sio.disconnect()
             self.connected = False
 
-def event_emitting(label:str):
-    """Decorator to also send the function's output trough listening socket connexions
-
-    Args:
-        label (str): the type of event to emit
-    """
-    def meta_wrapper(fun: Callable[[Any],Action]):
-        @functools.wraps(fun)
-        async def wrapper(self:EventSlave,*args,**kwargs):
-            out = fun(self,*args, **kwargs)
-            await self.sio.emit(label,json.dumps(out.to_json(),default=lambda x:x.to_json()))
-            return out
-
-        return wrapper
-
-    return meta_wrapper
-
-
-def remote_action(label: str):
-    """Proxy decorator to override an expected local behavior with a distant one
-       *The logic in decorated function is ignored*
-    Args:
-        label (str): the time of event to emit to trigger the distant logic
-    """
-    def meta_wrapper(fun: Callable):
-        @functools.wraps(fun)
-        async def wrapper(self:EventSlave,current_state:GameState,*_,**kwargs):
-            await EventMaster.get_instance().sio.emit(label,json.dumps({**current_state.to_json(),**kwargs},
-                                                                       default=lambda x:x.to_json()),
-                                                                       to=self.sid)
-            out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
-            return out
-
-        return wrapper
-
-    return meta_wrapper
-
-
 class EventMaster:
     """
     Singleton for emitting events
@@ -140,7 +114,7 @@ class EventMaster:
             object: _description_
         """
         if EventMaster.__instance is None:
-            EventMaster(game_state=game_state, port=port, hostname=hostname)
+            return EventMaster(game_state=game_state, port=port, hostname=hostname)
         return EventMaster.__instance
 
     def __init__(self,game_state,port,hostname):
@@ -209,7 +183,7 @@ class EventMaster:
                 self.__events[sid][event].appendleft((time.time(),data))
 
             @self.sio.on("action")
-            async def handle_play(sid,data):
+            async def handle_play(sid,*data):
                 # TODO : cope with race condition "action" before "identify"
                 try:
                     self.__identified_clients[self.__sid2ident[sid]]["incoming"].appendleft(data)
@@ -233,13 +207,13 @@ class EventMaster:
 
                 self.__ident2sid[idf]=sid
                 self.__sid2ident[sid]=idf
-                self.__identified_clients[idf]={"sid":sid,"id":data.get("wrapped_id",None),"incoming":deque(),"attached":False}
+                self.__identified_clients[idf]={"sid":sid,"id":data.get("instance_id",None),"incoming":deque(),"attached":False}
 
 
             # Setting the singleton instance
             EventMaster.__instance = self
 
-    async def wait_for_next_play(self,sid:int,players:list) -> Action:
+    async def wait_for_next_play(self,sid:int,players:list) -> tuple[Action,float]:
         """Waiting for the next play action, this function is blocking
 
         Args:
@@ -250,23 +224,25 @@ class EventMaster:
             Action: returns the received action
         """
         # TODO revise sanity checks to avoid critical errors
+        # TODO this force to emit a statefull action, it should be rework to accept all action types
         logger.info(f"Waiting for next play from {self.__sid2ident[sid]}")
         while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
             await asyncio.sleep(.1)
         logger.info("Action received")
-        action = json.loads(self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop())
-        next_player_id = int(action["next_game_state"]["next_player"]["id"])
-        next_player = next(iter(list(filter(lambda p:p.id==next_player_id,players))))
+        action, time_diff = self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop()
+        action = json.loads(action)
+        active_player_id = int(action["next_game_state"]["active_player"]["id"])
+        active_player = next(iter(list(filter(lambda p:p.id==active_player_id,players))))
 
         past_gs = self.__game_state.from_json(json.dumps(action["current_game_state"]))
         past_gs.players = players
-        new_gs = self.__game_state.from_json(json.dumps(action["next_game_state"]),next_player=next_player)
+        new_gs = self.__game_state.from_json(json.dumps(action["next_game_state"]),active_player=active_player)
         new_gs.players = players
 
 
-        return HeavyAction(past_gs,new_gs)
+        return StatefulAction(past_gs,new_gs), time_diff
 
-    async def wait_for_event(self,sid:int,label:str,*,flush_until:float | None=None) -> Coroutine:
+    async def wait_for_event(self,sid:int,label:str,*,flush_until:float | None=None) -> str | None:
         """Waits for an aribtrary event emitted by the connection identified by `sid`
            and labeled with `label`.
            One might want to ignore all events before a particular timestamp given in `flush_until`
@@ -288,7 +264,7 @@ class EventMaster:
         else :
             await self.wait_for_event(sid,label,flush_until=flush_until)
 
-    async def wait_for_identified_client(self,name:str,local_id:int) -> str:
+    async def wait_for_identified_client(self,name:str,local_id:int) -> dict[str, Any]:
         """ Waits for an identified client (a player typically)
 
         Args:
@@ -298,19 +274,20 @@ class EventMaster:
         """
         reg = r"^"+name+r"([0-9]+$|$)"
         def unattached_match(x):
-            return re.search(reg, x) and not self.__identified_clients.get(x)["attached"]
+            return re.search(reg, x) and not self.__identified_clients[x]["attached"]
         matching_names = list(filter(unattached_match,self.__ident2sid.keys()))
         while not matching_names:
             await asyncio.sleep(.1)
             matching_names = list(filter(unattached_match,self.__ident2sid.keys()))
 
-        cl = self.__identified_clients.get(matching_names[0])
+        cl = self.__identified_clients[matching_names[0]]
         self.__identified_clients[matching_names[0]]["attached"] = True
 
         await self.sio.emit("update_id",json.dumps({"new_id":local_id}),to=cl["sid"])
         return cl
 
-    def start(self, task: Callable[[None], None], listeners: list[EventSlave]) -> None:
+    def start(self, task: Callable[[None], None], listeners: list[EventSlave],
+              close_cb: Callable[[], Awaitable] | None = None) -> None:
         """
             This method is blocking.
 
@@ -364,6 +341,9 @@ class EventMaster:
 
             # Cleanup runner to release socket
             await self.runner.cleanup()
+
+            if close_cb is not None:
+                await close_cb()
 
         # Blocking call to the procedure
         self.event_loop.run_until_complete(stop(task))
