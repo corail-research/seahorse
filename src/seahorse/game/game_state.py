@@ -190,10 +190,10 @@ class GameState(Serializable):
     @abstractmethod
     def generate_possible_stateless_actions(self) -> Generator[StatelessAction, None, None]:
         """
-        Generates a set of all possible stateless actions from this game state.
+        Generates all possible stateless actions from this game state.
 
         Returns:
-            Set[StatelessAction]: A set of possible stateless actions.
+            Generator[StatelessAction]: A generator of possible stateless actions.
 
         Raises:
             MethodNotImplementedError: If the method is not implemented.
@@ -203,10 +203,10 @@ class GameState(Serializable):
     @abstractmethod
     def generate_possible_stateful_actions(self) -> Generator[StatefulAction, None, None]:
         """
-        Generates a set of all possible stateful actions from this game state.
+        Generates all possible stateful actions from this game state.
 
         Returns:
-            Set[StatefulAction]: A set of possible stateful actions.
+            Generator[StatefulAction]: A generator of possible stateful actions.
 
         Raises:
             MethodNotImplementedError: If the method is not implemented.
