@@ -1,11 +1,12 @@
 from abc import abstractmethod
+from collections.abc import Generator
 from itertools import cycle
 from typing import Any
 
 from seahorse.game.action import Action
-from seahorse.game.heavy_action import HeavyAction
-from seahorse.game.light_action import LightAction
 from seahorse.game.representation import Representation
+from seahorse.game.stateful_action import StatefulAction
+from seahorse.game.stateless_action import StatelessAction
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
@@ -17,19 +18,19 @@ class GameState(Serializable):
 
     Attributes:
         scores (Dict[int, Any]): The scores of the state for each player.
-        next_player (Player): The next player to play.
+        active_player (Player): The player who can perform an action on the game state.
         players (List[Player]): The list of players.
         rep (Representation): The representation of the game.
     """
 
-    def __init__(self, scores: dict[int, Any], next_player: Player,
+    def __init__(self, scores: dict[int, Any], active_player: Player,
                  players: list[Player], rep: Representation) -> None:
         """
         Initializes a new instance of the GameState class.
 
         Args:
             scores (Dict[int, Any]): The scores of the state for each player.
-            next_player (Player): The next player to play.
+            active_player (Player): The player who can perform an action on the game state.
             players (List[Player]): The list of players.
             rep (Representation): The representation of the game.
         """
@@ -38,7 +39,7 @@ class GameState(Serializable):
         # if not isinstance(next_player, Player):
         #     msg = "Players object should be provided as Player type to ensure it can be serialized"
         #     raise ValueError(msg)
-        self.next_player = next_player
+        self.active_player = active_player
 
         # if not all(isinstance(player, Player) for player in players):
         #     msg = "Players object should be provided as Player type to ensure it can be serialized"
@@ -46,8 +47,8 @@ class GameState(Serializable):
         self.players = players
 
         self.rep = rep
-        self._possible_light_actions = None
-        self._possible_heavy_actions = None
+        self._possible_stateless_actions = None
+        self._possible_stateful_actions = None
 
     def get_player_score(self, player: Player) -> float:
         """
@@ -61,29 +62,28 @@ class GameState(Serializable):
         """
         return self.scores[player.get_id()]
 
-    #TODO:: clarify what is next player in the two methods bellow.
-    def get_next_player(self) -> Player:
+    def get_active_player(self) -> Player:
         """
-        Returns the next player.
+        Returns the active player who can perform an action on the game state.
 
         Returns:
             Player: The next player.
         """
-        return self.next_player
+        return self.active_player
 
     def compute_next_player(self) -> Player:
         """
-        Computes the next player.
+        Computes the player who's gonna play on the next game state.
 
         Returns:
             Player: The next player.
         """
         if len(self.players) > 1:
-            current = self.next_player
+            current = self.active_player
             curr_id = self.players.index(current)
             return next(cycle(self.players[curr_id + 1 :] + self.players[:curr_id]))
 
-        return self.next_player
+        return self.active_player
 
     def get_scores(self) -> dict[int, float]:
         """
@@ -112,35 +112,35 @@ class GameState(Serializable):
         """
         return self.rep
 
-    def get_possible_light_actions(self) -> frozenset[LightAction]:
+    def get_possible_stateless_actions(self) -> frozenset[StatelessAction]:
         """
-        Returns a copy of the possible light actions from this state.
-        The first call triggers the `generate_possible_light_actions` method.
+        Returns a copy of the possible stateless actions from this state.
+        The first call triggers the `generate_possible_stateless_actions` method.
 
         Returns:
-            FrozenSet[LightAction]: The possible actions.
+            FrozenSet[StatelessAction]: The possible actions.
         """
         # Lazy loading
         if self.is_done():
             return frozenset()
-        if self._possible_light_actions is None:
-            self._possible_light_actions = frozenset(self.generate_possible_light_actions())
-        return self._possible_light_actions
+        if self._possible_stateless_actions is None:
+            self._possible_stateless_actions = frozenset(self.generate_possible_stateless_actions())
+        return self._possible_stateless_actions
 
-    def get_possible_heavy_actions(self) -> frozenset[HeavyAction]:
+    def get_possible_stateful_actions(self) -> frozenset[StatefulAction]:
         """
-        Returns a copy of the possible heavy actions from this state.
-        The first call triggers the `generate_possible_heavy_actions` method.
+        Returns a copy of the possible stateful actions from this state.
+        The first call triggers the `generate_possible_stateful_actions` method.
 
         Returns:
-            FrozenSet[Action]: The possible actions.
+            FrozenSet[StatefulAction]: The possible actions.
         """
         # Lazy loading
         if self.is_done():
             return frozenset()
-        if self._possible_heavy_actions is None:
-            self._possible_heavy_actions = frozenset(self.generate_possible_heavy_actions())
-        return self._possible_heavy_actions
+        if self._possible_stateful_actions is None:
+            self._possible_stateful_actions = frozenset(self.generate_possible_stateful_actions())
+        return self._possible_stateful_actions
 
     def check_action(self, action: Action) -> bool:
         """
@@ -152,15 +152,15 @@ class GameState(Serializable):
         Returns:
             bool: True if the action is feasible, False otherwise.
         """
-        if isinstance(action, LightAction):
-            return action in self.get_possible_light_actions()
-        if isinstance(action, HeavyAction):
-            return action in self.get_possible_heavy_actions()
+        if isinstance(action, StatelessAction):
+            return action in self.get_possible_stateless_actions()
+        if isinstance(action, StatefulAction):
+            return action in self.get_possible_stateful_actions()
         return False
 
     def convert_gui_data_to_action_data(self, data: dict[str, Any]) -> dict[str, Any]:
         """
-        Converts GUI data to light action data.
+        Converts GUI data to stateless action data.
         This method can and should be overridden by the user.
 
         Args:
@@ -172,12 +172,12 @@ class GameState(Serializable):
         return data
 
     @abstractmethod
-    def apply_action(self, action: LightAction) -> "GameState":
+    def apply_action(self, action: StatelessAction) -> "GameState":
         """
         Applies an action to the game state.
 
         Args:
-            action (LightAction): The action to apply.
+            action (StatelessAction): The action to apply.
 
         Returns:
             GameState: The new game state.
@@ -188,12 +188,12 @@ class GameState(Serializable):
         raise MethodNotImplementedError()
 
     @abstractmethod
-    def generate_possible_light_actions(self) -> set[LightAction]:
+    def generate_possible_stateless_actions(self) -> Generator[StatelessAction, None, None]:
         """
-        Generates a set of all possible actions from this game state.
+        Generates all possible stateless actions from this game state.
 
         Returns:
-            Set[Action]: A set of possible actions.
+            Generator[StatelessAction]: A generator of possible stateless actions.
 
         Raises:
             MethodNotImplementedError: If the method is not implemented.
@@ -201,12 +201,12 @@ class GameState(Serializable):
         raise MethodNotImplementedError()
 
     @abstractmethod
-    def generate_possible_heavy_actions(self) -> set[HeavyAction]:
+    def generate_possible_stateful_actions(self) -> Generator[StatefulAction, None, None]:
         """
-        Generates a set of all possible actions from this game state.
+        Generates all possible stateful actions from this game state.
 
         Returns:
-            Set[Action]: A set of possible actions.
+            Generator[StatefulAction]: A generator of possible stateful actions.
 
         Raises:
             MethodNotImplementedError: If the method is not implemented.
@@ -214,25 +214,25 @@ class GameState(Serializable):
         raise MethodNotImplementedError()
 
     @abstractmethod
-    def convert_heavy_action_to_light_action(self, action: HeavyAction) -> LightAction:
+    def convert_stateful_action_to_stateless_action(self, stateful_action: StatefulAction) -> StatelessAction:
         """
-        Converts a heavy action to a light action.
+        Converts a stateful action to a stateless action.
 
         Args:
-            action (HeavyAction): The heavy action to convert.
+            action (StatefulAction): The stateful action to convert.
 
         Returns:
-            LightAction: The converted light action.
+            StatelessAction: The converted stateless action.
         """
         raise MethodNotImplementedError()
 
     @abstractmethod
-    def compute_scores(self, next_rep: Representation) -> dict[int, Any]:
+    def compute_scores(self, play_info: Any) -> dict[int, Any]:
         """
         Computes the scores of each player.
 
         Args:
-            next_rep (Representation): The next representation.
+            play_info (Any): Information about the play used to compute scores.
 
         Returns:
             Dict[int, Any]: The scores of each player.
@@ -263,7 +263,7 @@ class GameState(Serializable):
 
     def __str__(self) -> str:
         to_print = f"Current scores are {self.get_scores()}.\n"
-        to_print += f"Next person to play is player {self.get_next_player().get_id()} ({self.get_next_player().get_name()}).\n"
+        to_print += f"Next person to play is player {self.get_active_player().get_id()} ({self.get_active_player().get_name()}).\n"
         return to_print
 
     @classmethod

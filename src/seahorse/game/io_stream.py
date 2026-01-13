@@ -5,7 +5,7 @@ import json
 import re
 import time
 from collections import deque
-from collections.abc import Awaitable, Coroutine
+from collections.abc import Awaitable
 from typing import Any, Callable
 
 import socketio
@@ -13,7 +13,7 @@ from aiohttp import web
 from loguru import logger
 
 from seahorse.game.action import Action
-from seahorse.game.heavy_action import HeavyAction
+from seahorse.game.stateful_action import StatefulAction
 from seahorse.utils.serializer import Serializable
 
 
@@ -114,7 +114,7 @@ class EventMaster:
             object: _description_
         """
         if EventMaster.__instance is None:
-            EventMaster(game_state=game_state, port=port, hostname=hostname)
+            return EventMaster(game_state=game_state, port=port, hostname=hostname)
         return EventMaster.__instance
 
     def __init__(self,game_state,port,hostname):
@@ -240,9 +240,9 @@ class EventMaster:
         new_gs.players = players
 
 
-        return HeavyAction(past_gs,new_gs), time_diff
+        return StatefulAction(past_gs,new_gs), time_diff
 
-    async def wait_for_event(self,sid:int,label:str,*,flush_until:float | None=None) -> Coroutine:
+    async def wait_for_event(self,sid:int,label:str,*,flush_until:float | None=None) -> str | None:
         """Waits for an aribtrary event emitted by the connection identified by `sid`
            and labeled with `label`.
            One might want to ignore all events before a particular timestamp given in `flush_until`

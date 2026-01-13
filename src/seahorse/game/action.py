@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import abstractmethod
 
+from seahorse.game.stateful_action import StatefulAction
 from seahorse.utils.serializer import Serializable
 
 
@@ -19,12 +20,12 @@ class Action(Serializable):
         pass
 
     @abstractmethod
-    def get_heavy_action(self, *_) -> Action:
+    def get_stateful_action(self, *args, **kwargs) -> StatefulAction:
         """
-        Returns the heavy action.
+        Returns the stateful action.
 
         Returns:
-            Action: The heavy action.
+            Action: The stateful action.
         """
         raise NotImplementedError
 

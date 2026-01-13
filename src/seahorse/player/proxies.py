@@ -10,7 +10,7 @@ from loguru import logger
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave
-from seahorse.game.light_action import LightAction
+from seahorse.game.stateless_action import StatelessAction
 from seahorse.player.contrainers import PlayerContainer
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
@@ -132,7 +132,8 @@ class RemotePlayerProxy(PlayerProxy, EventSlave):
         """
         def meta_wrapper(fun: Callable):
             @functools.wraps(fun)
-            async def wrapper(self:"RemotePlayerProxy",current_state:GameState,remaining_time:float,*_,**kwargs) -> tuple[Action,float]:
+            async def wrapper(self:"RemotePlayerProxy",current_state:GameState,
+                              remaining_time:float,*_,**kwargs) -> tuple[Action,float]:
                 if self.sid is None:
                     msg = f"Remote player {self} is not connected (SID missing)"
                     raise ValueError(msg)
@@ -258,7 +259,7 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
         action = self.wrapped_player.compute_action(current_state=current_state, remaining_time=remaining_time,**kwargs)
         end = time.time()
 
-        return action.get_heavy_action(game_state=current_state), end-start
+        return action.get_stateful_action(game_state=current_state), end-start
 
     async def close(self) -> None:
         return await self.close_connection()
@@ -304,23 +305,34 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         self.shared_sid = None
         self.sid = None
 
-    async def play(self, current_state: GameState, **_) -> Action:
+    async def play(self, current_state: GameState, **_) -> Action | Serializable:
         if self.shared_sid and not self.sid:
             self.sid=self.shared_sid.sid
+
+        if self.sid is None:
+                msg = f"Remote player {self} is not connected (SID missing)"
+                raise ValueError(msg)
+
         while True:
-            data_gui = json.loads(await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time()))
+            response = await EventMaster.get_instance().wait_for_event(self.sid,"interact",flush_until=time.time())
+            if response is None:
+                msg = "No response from 'interact' event"
+                raise ValueError(msg)
+
+            data_gui = json.loads(response)
             try:
                 data = current_state.convert_gui_data_to_action_data(data_gui)
-                action = LightAction(data).get_heavy_action(current_state)
+                action = StatelessAction(data).get_stateful_action(current_state)
 
             except MethodNotImplementedError:
                 #TODO: handle this case
                 action = Action.from_json(data)
 
-            if action in current_state.get_possible_heavy_actions():
+            if action in current_state.get_possible_stateful_actions():
                 break
             else:
                 await EventMaster.get_instance().sio.emit("ActionNotPermitted",None)
+
         return action
 
     async def listen(self, master_address, *, keep_alive: bool) -> None:

@@ -1,4 +1,3 @@
-import asyncio
 import copy
 import json
 import sys
@@ -30,7 +29,7 @@ class GameMaster:
         name (str): The name of the game.
         initial_game_state (GameState): The initial state of the game.
         current_game_state (GameState): The current state of the game.
-        players_iterator (Iterable): An iterable for the players, ordered according
+        players_iterator (Iterator[Player]): An iterator for the players, ordered according
             to the playing order. If a list is provided, a cyclic iterator is automatically built.
         log_level (str): The name of the log file.
     """
@@ -95,7 +94,7 @@ class GameMaster:
         Returns:
             GamseState : The new game_state.
         """
-        next_player = self.id2player[self.current_game_state.get_next_player().get_id()]
+        next_player = self.id2player[self.current_game_state.get_active_player().get_id()]
 
         logger.info(f"time : {self.remaining_time[next_player.get_id()]}s")
 
@@ -111,9 +110,9 @@ class GameMaster:
             msg=SeahorseTimeoutError().message + str(self.remaining_time[next_player.get_id()])
             raise SeahorseTimeoutError(msg)
 
-        possible_actions = self.current_game_state.get_possible_heavy_actions()
+        possible_actions = self.current_game_state.get_possible_stateful_actions()
 
-        action = action.get_heavy_action(self.current_game_state)
+        action = action.get_stateful_action(self.current_game_state)
         if action not in possible_actions:
             raise ActionNotPermittedError()
 
@@ -144,19 +143,19 @@ class GameMaster:
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
 
         while not self.current_game_state.is_done():
-            curent_player_id = self.get_game_state().get_next_player().get_id()
-            logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} "
+            curent_player_id = self.get_game_state().get_active_player().get_id()
+            logger.info(f"Player now playing : {self.get_game_state().get_active_player().get_name()} "
                         f"- {curent_player_id}")
             try:
                 self.current_game_state = await self.step()
             except Exception as e:
                 if isinstance(e,SeahorseTimeoutError):
-                    logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}: "
+                    logger.error(f"Time credit expired for player {self.current_game_state.get_active_player()}: "
                                  f"{self.remaining_time[curent_player_id]}")
                 elif isinstance(e,ActionNotPermittedError) :
-                    logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
+                    logger.error(f"Action not permitted for player {self.current_game_state.get_active_player()}")
                 else:
-                    logger.exception(f"{self.current_game_state.get_next_player()} threw the following exception.")
+                    logger.exception(f"{self.current_game_state.get_active_player()} threw the following exception.")
 
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 temp_score[curent_player_id] = -1e9
@@ -182,7 +181,7 @@ class GameMaster:
                     "status": "cancelled",
                 }))
 
-                logger.verdict(f"{self.current_game_state.get_next_player().get_name()} has been disqualified")
+                logger.verdict(f"{self.current_game_state.get_active_player().get_name()} has been disqualified")
 
                 return self.winner
 
@@ -225,19 +224,19 @@ class GameMaster:
 
         i = 0
         while not self.current_game_state.is_done() and i<k:
-            curent_player_id = self.get_game_state().get_next_player().get_id()
-            logger.info(f"Player now playing : {self.get_game_state().get_next_player().get_name()} "
+            curent_player_id = self.get_game_state().get_active_player().get_id()
+            logger.info(f"Player now playing : {self.get_game_state().get_active_player().get_name()} "
                         f"- {curent_player_id}")
             try:
                 self.current_game_state = await self.step()
             except Exception as e:
                 if isinstance(e,SeahorseTimeoutError):
-                    logger.error(f"Time credit expired for player {self.current_game_state.get_next_player()}: "
+                    logger.error(f"Time credit expired for player {self.current_game_state.get_active_player()}: "
                                  f"{self.remaining_time[curent_player_id]}")
                 elif isinstance(e,ActionNotPermittedError) :
-                    logger.error(f"Action not permitted for player {self.current_game_state.get_next_player()}")
+                    logger.error(f"Action not permitted for player {self.current_game_state.get_active_player()}")
                 else:
-                    logger.exception(f"Player {self.current_game_state.get_next_player()} threw the following exception.")
+                    logger.exception(f"Player {self.current_game_state.get_active_player()} threw the following exception.")
 
                 #TODO: make this able to identify multiple invalid agents
                 await self.emitter.sio.emit("done",json.dumps({
