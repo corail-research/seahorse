@@ -99,8 +99,8 @@ class GameMaster:
         logger.info(f"time : {self.remaining_time[next_player.get_id()]}s")
 
         try:
-            action, time_diff = await next_player.play(self.current_game_state,
-                                                       self.remaining_time[next_player.get_id()])
+            action, time_diff = await next_player.play(current_state=self.current_game_state,
+                                                       remaining_time=self.remaining_time[next_player.get_id()])
         except TimeoutError as timeout:
             raise SeahorseTimeoutError() from timeout
 
