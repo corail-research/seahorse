@@ -2,8 +2,7 @@ import functools
 import json
 import time
 from abc import abstractmethod
-from collections.abc import Coroutine
-from typing import Callable, Optional
+from collections.abc import Callable, Coroutine
 
 from loguru import logger
 
@@ -292,7 +291,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
     """Proxy for interactive players,
        inherits from `LocalPlayerProxy`
     """
-    def __init__(self, mimics: Player, gui_path:Optional[str]=None, *args, **kwargs) -> None:
+    def __init__(self, mimics: Player, gui_path:str | None=None, *args, **kwargs) -> None:
         """
 
         Args:
@@ -305,7 +304,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
         self.shared_sid = None
         self.sid = None
 
-    async def play(self, current_state: GameState, **_) -> Action | Serializable:
+    async def play(self, current_state: GameState, **_) -> tuple[Action | Serializable, float]:
         if self.shared_sid and not self.sid:
             self.sid=self.shared_sid.sid
 
@@ -333,7 +332,7 @@ class InteractivePlayerProxy(LocalPlayerProxy):
             else:
                 await EventMaster.get_instance().sio.emit("ActionNotPermitted",None)
 
-        return action
+        return action, 0.0 # No time limit for interactive
 
     async def listen(self, master_address, *, keep_alive: bool) -> None:
         if not self.shared_sid:
