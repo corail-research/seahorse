@@ -3,7 +3,6 @@ import json
 import time
 from abc import abstractmethod
 from collections.abc import Callable, Coroutine
-from typing import Optional
 
 from loguru import logger
 
@@ -13,7 +12,7 @@ from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.game.stateless_action import StatelessAction
 from seahorse.player.contrainers import PlayerContainer
 from seahorse.player.player import Player
-from seahorse.utils.custom_exceptions import MethodNotImplementedError, ActionNotPermittedError
+from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.gui_client import GUIClient
 from seahorse.utils.serializer import Serializable
 
