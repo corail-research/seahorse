@@ -11,6 +11,8 @@ from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.serializer import Serializable
 
+from src.seahorse.game.game_layout.board import Board
+
 
 class GameState(Serializable):
     """
@@ -20,11 +22,11 @@ class GameState(Serializable):
         scores (Dict[int, Any]): The scores of the state for each player.
         active_player (Player): The player who can perform an action on the game state.
         players (List[Player]): The list of players.
-        rep (Representation): The representation of the game.
+        rep (Board): The Board of the game.
     """
 
     def __init__(self, scores: dict[int, Any], active_player: Player,
-                 players: list[Player], rep: Representation) -> None:
+                 players: list[Player], rep: Board) -> None:
         """
         Initializes a new instance of the GameState class.
 
