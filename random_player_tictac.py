@@ -32,6 +32,6 @@ class MyPlayer(PlayerTictac):
         Returns:
             Action: The selected action.
         """
-        possible_actions = current_state.generate_possible_actions()
+        possible_actions = current_state.get_possible_stateful_actions()
 
         return random.choice(list(possible_actions))

@@ -1,7 +1,8 @@
-import json
+from __future__ import annotations
+
+import ast
 
 from seahorse.player.player import Player
-from seahorse.utils.serializer import Serializable
 
 
 class PlayerTictac(Player):
@@ -32,9 +33,10 @@ class PlayerTictac(Player):
 
 
     def to_json(self) -> dict:
-        return {i:j for i,j in self.__dict__.items() if i!="timer"}
+        return {i:j for i,j in self.__dict__.items() if not i.startswith("_")}
 
     @classmethod
-    def from_json(cls, data) -> Serializable:
-        return PlayerTictac(**json.loads(data))
-
+    def from_json(cls, data) -> "PlayerTictac":
+        if isinstance(data, str):
+            data = ast.literal_eval(data)
+        return PlayerTictac(**data)

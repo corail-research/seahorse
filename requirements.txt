@@ -1,1 +1,1 @@
-seahorse>=0.0.1b4
+seahorse==1.2.1

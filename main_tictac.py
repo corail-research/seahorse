@@ -2,7 +2,6 @@ import argparse
 import asyncio
 import os
 from os.path import basename, splitext, dirname
-import platform
 import sys
 
 from loguru import logger
@@ -10,18 +9,19 @@ from board_tictac import BoardTictac
 from player_tictac import PlayerTictac
 from master_tictac import MasterTictac
 from game_state_tictac import GameStateTictac
-from seahorse.player.proxies import InteractivePlayerProxy, LocalPlayerProxy, RemotePlayerProxy
+from seahorse.player.proxies import InteractivePlayerProxy, LocalPlayerProxy, RemotePlayerProxy, PlayerProxy, ContaineredPlayerProxy
 from seahorse.utils.gui_client import GUIClient
 from seahorse.utils.recorders import StateRecorder
 
-def play(player1, player2, log_level, port, gui, gui_path, record, address) :
-    list_players = [player1, player2]
+def play(player1: PlayerProxy, player2: PlayerProxy, log_level, port, gui, gui_path, record, address) :
+    list_players_proxies = [player1, player2]
+    list_players = [player1.to_player(), player2.to_player()]
     init_scores = {player1.get_id(): 0, player2.get_id(): 0}
     init_rep = BoardTictac(env={}, dim=[3, 3])
     initial_game_state = GameStateTictac(
-        scores=init_scores, next_player=player1, players=list_players, rep=init_rep)
+        scores=init_scores, active_player=list_players[0], players=list_players, rep=init_rep)
     master = MasterTictac(
-        name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players, log_level=log_level, port=port, hostname=address
+        name="Tic-Tac-Toe", initial_game_state=initial_game_state, players_iterator=list_players_proxies, log_level=log_level, port=port, hostname=address
     )
     listeners = [GUIClient(path=gui_path)]*gui
     if record :
@@ -31,7 +31,7 @@ def play(player1, player2, log_level, port, gui, gui_path, record, address) :
 if __name__=="__main__":
 
     parser = argparse.ArgumentParser(
-                        prog="main_abalone.py",
+                        prog="main_tictac.py",
                         description="Description of the different execution modes:",
                         epilog='''
   ___           _                    
@@ -52,7 +52,6 @@ if __name__=="__main__":
                              +" - human_vs_human: Launches two GUIs locally for you to experiment the game's mechanics.\n"
                              +"\n"
                         )
-    parser.add_argument("-c","--config",required=False,choices=["classic","alien"], default="classic",help="\nSets the starting board configuration.")
     parser.add_argument("-a","--address",required=False, default="localhost",help="\nThe external ip of the machine that hosts the GameMaster.\n\n")
     parser.add_argument("-p","--port",required=False,type=int, default=16001, help="The port of the machine that hosts the GameMaster.\n\n")
     parser.add_argument("-g","--no-gui",action='store_false',default=True, help="Headless mode\n\n")
@@ -78,8 +77,8 @@ if __name__=="__main__":
         folder = dirname(list_players[1])
         sys.path.append(folder)
         player2_class = __import__(splitext(basename(list_players[1]))[0], fromlist=[None])
-        player1 = player1_class.MyPlayer("X", name=splitext(basename(list_players[0]))[0]+"_1")
-        player2 = player2_class.MyPlayer("O", name=splitext(basename(list_players[1]))[0]+"_2")
+        player1 = ContaineredPlayerProxy(player1_class.MyPlayer("X", name=splitext(basename(list_players[0]))[0]+"_1"))
+        player2 = ContaineredPlayerProxy(player2_class.MyPlayer("O", name=splitext(basename(list_players[1]))[0]+"_2"))
         play(player1=player1, player2=player2, log_level=log_level, port=port, address=address, gui=gui, record=record, gui_path=gui_path)
     elif type == "host_game" :
         folder = dirname(list_players[0])
@@ -110,5 +109,6 @@ if __name__=="__main__":
     elif type == "human_vs_human" :
         player1 = InteractivePlayerProxy(PlayerTictac("X", name="bob_1"),gui_path=gui_path,gs=GameStateTictac)
         player2 = InteractivePlayerProxy(PlayerTictac("O", name="alice_2"),gui_path=gui_path,gs=GameStateTictac)
+        player2.share_sid(player1)
         play(player1=player1, player2=player2, log_level=log_level, port=port, address=address, gui=False, record=record, gui_path=gui_path)
         

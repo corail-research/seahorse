@@ -33,9 +33,8 @@ class MasterTictac(GameMaster):
         Returns:
             Iterable[Player]: A list of the players who won the game.
         """
+        scores = self.current_game_state.get_scores()
         max_val = max(scores.values())
-        players_id = [key for key in scores if scores[key] == max_val]
-        winners = [player for player in self.players if player.get_id() in players_id]
-        if len(winners) > 1 :
-            winners = [winners[0]]
-        return winners
+        players_id = list(filter(lambda key: scores[key] == max_val, scores))
+        itera = list(filter(lambda x: x.get_id() in players_id, self.players))
+        return itera

@@ -1,13 +1,13 @@
 import copy
 import json
 from math import sqrt
-from typing import Dict, List, Optional, Set
+from typing import Generator, Optional
 
 from board_tictac import BoardTictac
-from loguru import logger
 from player_tictac import PlayerTictac
 
-from seahorse.game.action import Action
+from seahorse.game.stateful_action import StatefulAction
+from seahorse.game.stateless_action import StatelessAction
 from seahorse.game.game_layout.board import Piece
 from seahorse.game.game_state import GameState
 from seahorse.game.representation import Representation
@@ -21,22 +21,22 @@ class GameStateTictac(GameState):
 
     Attributes:
         score (List[float]): The scores of the state for each player.
-        next_player (Player): The next player to play.
+        active_player (Player): The player currently taking their turn.
         players (List[Player]): The list of players.
         rep (BoardTictac): The representation of the game.
     """
 
-    def __init__(self, scores: dict, next_player: Player, players: list[Player], rep: BoardTictac, *_, **__) -> None:
+    def __init__(self, scores: dict, active_player: Player, players: list[Player], rep: BoardTictac, *args, **kwargs) -> None:
         """
         Initializes a new instance of the GameStateTictac class.
 
         Args:
             scores (Dict): The scores of the state for each player.
-            next_player (Player): The next player to play.
+            active_player (Player): The player currently taking their turn.
             players (List[Player]): The list of players.
             rep (BoardTictac): The representation of the game.
         """
-        super().__init__(scores, next_player, players, rep)
+        super().__init__(scores, active_player, players, rep)
         self.num_pieces = self.get_rep().get_dimensions()[0] * self.get_rep().get_dimensions()[1]
 
     def get_num_pieces(self) -> int:
@@ -59,111 +59,100 @@ class GameStateTictac(GameState):
             return True
         return False
 
-    def generate_possible_actions(self) -> set[Action]:
+    def generate_possible_stateful_actions(self) -> Generator[StatefulAction, None, None]:
         """
         Generates possible actions.
 
         Returns:
-            Set[Action]: A set of possible future representations.
+            Generator[StatefulAction]: The possible actions.
         """
-        list_rep = []
         current_rep = self.get_rep()
-        next_player = self.get_next_player()
-        for i in range(current_rep.get_dimensions()[0]):
-            for j in range(current_rep.get_dimensions()[1]):
+        b = current_rep.get_env()
+        d = current_rep.get_dimensions()
+        active_player = self.get_active_player()
+        for i in range(d[0]):
+            for j in range(d[1]):
                 if not current_rep.get_env().get((i, j)):
-                    copy_rep = copy.deepcopy(current_rep)
-                    copy_rep.get_env()[(i, j)] = Piece(piece_type=next_player.get_piece_type(), owner=next_player)
-                    list_rep.append(copy.deepcopy(copy_rep))
-        poss_actions = {
-            Action(
-                self,
-                GameStateTictac(
-                    self.compute_scores(valid_next_rep),
-                    self.compute_next_player(),
-                    self.players,
-                    valid_next_rep,
-                ),
-            )
-            for valid_next_rep in list_rep
-        }
-        return poss_actions
+                    copy_b = copy.copy(b)
+                    copy_b[(i, j)] = Piece(piece_type=active_player.get_piece_type(), owner=active_player)
+                    new_board = BoardTictac(copy_b, d)
+                    yield StatefulAction(
+                        self,
+                        GameStateTictac(
+                            self.compute_scores(new_board),
+                            self.compute_next_player(),
+                            self.players,
+                            new_board,
+                        ),
+                    )
 
-    def compute_scores(self, representation: Representation) -> dict[int, float]:
+    def generate_possible_stateless_actions(self) -> Generator[StatelessAction, None, None]:
         """
-        Computes the score of each player in a list.
-
-        Args:
-            representation (BoardTictac): The current representation of the game state.
+        Generates possible actions.
 
         Returns:
-            Dict[int, float]: A dictionary with player ID as keys and scores as values.
+            Generator[StatelessAction]: The possible actions.
         """
-        scores = {}
-        bound = 2.0
-        for player in self.players:
-            _, pieces = representation.get_pieces_player(player)
-            if len(pieces) < representation.get_dimensions()[0]:
-                scores[player.get_id()] = 0.0
-            else:
-                success = False
-                env = representation.get_env()
-                dim = representation.get_dimensions()[0]
-                for i in range(dim):
-                    counter = 0.0
-                    for j in range(dim):
-                        if env.get((i, j), None) and env.get((i, j), None).get_owner_id() == player.get_id():
-                            counter += 1.0
-                    if counter > bound:
-                        scores[player.get_id()] = 1.0
-                        success = True
-                if success:
-                    continue
-                for i in range(dim):
-                    counter = 0.0
-                    for j in range(dim):
-                        if env.get((j, i), None) and env.get((j, i), None).get_owner_id() == player.get_id():
-                            counter += 1.0
-                    if counter > bound:
-                        scores[player.get_id()] = 1.0
-                        success = True
-                if success:
-                    continue
-                counter = 0.0
-                for i in range(dim):
-                    if env.get((i, i), None) and env.get((i, i), None).get_owner_id() == player.get_id():
-                        counter += 1.0
-                if counter > bound:
-                    scores[player.get_id()] = 1.0
-                    success = True
-                if success:
-                    continue
-                counter = 0.0
-                for i in range(dim):
-                    if (
-                        env.get((i, dim - 1 - i), None)
-                        and env.get((i, dim - 1 - i), None).get_owner_id() == player.get_id()
-                    ):
-                        counter += 1.0
-                if counter > bound:
-                    scores[player.get_id()] = 1.0
-                    success = True
-                if success:
-                    continue
-                else:
-                    scores[player.get_id()] = 0.0
-        return scores
+        current_rep = self.get_rep()
+        d = current_rep.get_dimensions()
+        active_player = self.get_active_player()
+        for i in range(d[0]):
+            for j in range(d[1]):
+                if not current_rep.get_env().get((i, j)):
+                    yield StatelessAction(
+                        data={"position": (i,j), "piece_type": active_player.get_piece_type()},
+                    )
 
-    def convert_light_action_to_action(self,data:dict) -> Action:
-        position = int(data["position"])
-        logger.debug(f"Converting light action {data}")
-        i = position//3
-        j = position%3
-        logger.debug(f"{i}{j}")
-        for action in self.get_possible_actions():
-            if action.get_next_game_state().get_rep().get_env().get((i,j),None) is not None:
-                return action
-        return None
+    def apply_action(self, action: StatelessAction) -> GameState:
+        """
+        Applies an action to the game state.
+
+        Args:
+            action (StatelessAction): The action to apply.
+        Returns:
+            GameState: The new game state.
+        """
+        (i,j) = action.data["position"]
+        piece_type = action.data["piece_type"]
+        current_rep = self.get_rep()
+        b = current_rep.get_env()
+        d = current_rep.get_dimensions()
+        active_player = self.get_active_player()
+        copy_b = copy.copy(b)
+        copy_b[(i, j)] = Piece(piece_type=piece_type, owner=active_player)
+        new_board = BoardTictac(copy_b, d)
+        return GameStateTictac(
+            self.compute_scores(new_board),
+            self.compute_next_player(),
+            self.players,
+            new_board,
+        )
+        
+    def compute_scores(self, representation: BoardTictac) -> dict[int, float]:
+        scores = {player.get_id(): 0.0 for player in self.players}
+        bound = 2.0
+        dim = representation.get_dimensions()[0]
+        env = representation.get_env()
+
+        for player in self.players:
+            player_id = player.get_id()
+            rows, cols, diag1, diag2 = [0]*dim, [0]*dim, 0, 0
+
+            for i in range(dim):
+                for j in range(dim):
+                    if env.get((i, j), None) and env[(i, j)].get_owner_id() == player_id:
+                        rows[i] += 1
+                        cols[j] += 1
+                        if i == j:
+                            diag1 += 1
+                        if i + j == dim - 1:
+                            diag2 += 1
+
+            if any(count > bound for count in rows + cols) or diag1 > bound or diag2 > bound:
+                scores[player_id] = 1.0
+                scores[next(iter(set(self.players) - {player})).get_id()] = -1.0
+
+        return scores
 
     def has_won(self) -> bool:
         """
@@ -172,30 +161,7 @@ class GameStateTictac(GameState):
         Returns:
             bool: True if a player has won, False otherwise.
         """
-        dim = self.get_num_pieces()
-        env = self.rep.get_env()
-        table = []
-        for k in range(dim):
-            table.append(
-                [p.get_owner_id() for p in [env.get((i, k), None) for i in range(int(sqrt(dim)))] if p is not None]
-            )
-            table.append(
-                [p.get_owner_id() for p in [env.get((k, i), None) for i in range(int(sqrt(dim)))] if p is not None]
-            )
-        table.append(
-            [p.get_owner_id() for p in [env.get((i, i), None) for i in range(int(sqrt(dim)))] if p is not None]
-        )
-        table.append(
-            [
-                p.get_owner_id()
-                for p in [env.get((i, int(sqrt(dim)) - i - 1), None) for i in range(int(sqrt(dim)))]
-                if p is not None
-            ]
-        )
-        for line in table:
-            if len(set(line)) == 1 and len(line) == int(sqrt(dim)):
-                return True
-        return False
+        return any(score > 0.0 for score in self.scores.values())
 
     def __str__(self) -> str:
         if not self.is_done():
@@ -203,9 +169,18 @@ class GameStateTictac(GameState):
         return "The game is finished!"
 
     def to_json(self) -> dict:
-        return { i:j for i,j in self.__dict__.items() if i!="_possible_actions"}
+        data = { i:j for i,j in self.__dict__.items() if i!="_possible_stateless_actions" and i!="_possible_stateful_actions"}
+        return data
 
     @classmethod
-    def from_json(cls,data:str,*,next_player:Optional[PlayerTictac]=None) -> Serializable:
+    def from_json(_,data:str,*,active_player:Optional[PlayerTictac]=None) -> Serializable:
         d = json.loads(data)
-        return cls(**{**d,"scores":{int(k):v for k,v in d["scores"].items()},"players":[PlayerTictac.from_json(json.dumps(x)) if not isinstance(x,str) else next_player for x in d["players"]],"next_player":next_player,"rep":BoardTictac.from_json(json.dumps(d["rep"]))})
+        scores = {int(k):v for k,v in d["scores"].items()}
+        players = [PlayerTictac.from_json(json.dumps(x)) for x in d["players"]]
+        rep = BoardTictac.from_json(json.dumps(d["rep"]))
+
+        if active_player is None:
+            active_player = players[0]
+
+        return GameStateTictac(scores=scores, active_player=active_player,
+                            players=players, rep=rep)
