@@ -10,7 +10,7 @@ from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
 from seahorse.game.io_stream import EventMaster, EventSlave
 from seahorse.game.stateless_action import StatelessAction
-from seahorse.player.contrainers import PlayerContainer
+from src.seahorse.player.containers import PlayerContainer
 from seahorse.player.player import Player
 from seahorse.utils.custom_exceptions import MethodNotImplementedError
 from seahorse.utils.gui_client import GUIClient

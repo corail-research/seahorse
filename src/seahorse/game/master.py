@@ -40,7 +40,7 @@ class GameMaster:
         initial_game_state: GameState,
         players_iterator: Iterable[PlayerProxy],
         log_level: str = "INFO",
-        port: int =8080,
+        port: int = 8080,
         hostname: str ="localhost",
         time_limit: float = 1e9,
     ) -> None:
@@ -223,7 +223,7 @@ class GameMaster:
             logger.info(f"Player : {player.get_name()} - {player.get_id()}")
 
         i = 0
-        while not self.current_game_state.is_done() and i<k:
+        while not self.current_game_state.is_done() and i < k:
             curent_player_id = self.get_game_state().get_active_player().get_id()
             logger.info(f"Player now playing : {self.get_game_state().get_active_player().get_name()} "
                         f"- {curent_player_id}")
@@ -347,7 +347,7 @@ class GameMaster:
         Computes custom statistics for the game.
         It should be overridden by subclasses to provide specific statistics.
         It should use self.get_game_state() to access the current game state.
-        If should use the format :
+        It should use the format :
         [
             {"name": "stat_name_1", "value": value_1, "agent_id": player_id_1},
             {"name": "stat_name_2", "value": value_2, "agent_id": player_id_2},
