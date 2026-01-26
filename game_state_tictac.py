@@ -173,14 +173,26 @@ class GameStateTictac(GameState):
         return data
 
     @classmethod
-    def from_json(_,data:str,*,active_player:Optional[PlayerTictac]=None) -> Serializable:
-        d = json.loads(data)
-        scores = {int(k):v for k,v in d["scores"].items()}
-        players = [PlayerTictac.from_json(json.dumps(x)) for x in d["players"]]
-        rep = BoardTictac.from_json(json.dumps(d["rep"]))
+    def from_json(_, data: str | dict, *, active_player: Optional[PlayerTictac] = None) -> Serializable:
+        if isinstance(data, str):
+            d = json.loads(data)
+            scores = {int(k): v for k, v in d["scores"].items()}
+            players = [PlayerTictac.from_json(json.dumps(x))
+                       for x in d["players"]]
+            rep = BoardTictac.from_json(json.dumps(d["rep"]))
 
-        if active_player is None:
-            active_player = players[0]
+            if active_player is None:
+                active_player = PlayerTictac.from_json(
+                    json.dumps(d["active_player"]))
+        else:
+            d = data
+            scores = d["scores"]
+            players = d["players"]
+            rep = d["rep"]
+
+            if active_player is None:
+                active_player = d["active_player"]
+
 
         return GameStateTictac(scores=scores, active_player=active_player,
-                            players=players, rep=rep)
+                               players=players, rep=rep)
