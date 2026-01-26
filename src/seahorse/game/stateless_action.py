@@ -27,7 +27,6 @@ class StatelessAction(Action):
         """
         self.data = data
 
-
     def get_stateful_action(self, game_state: GameState) -> StatefulAction:
         """
         Returns the stateful action.
@@ -40,7 +39,6 @@ class StatelessAction(Action):
 
         return StatefulAction(game_state, game_state.apply_action(self))
 
-
     def __hash__(self) -> int:
         return hash(tuple(self.data.items()))
 
@@ -51,4 +49,8 @@ class StatelessAction(Action):
         return "StatelessAction: " + str(self.data)
 
     def to_json(self) -> dict:
-        return self.__dict__
+        return self.__dict__ | {"action_type": type(self)}
+
+    @classmethod
+    def from_json(cls, data: dict) -> StatelessAction:
+        return StatelessAction(data["data"])

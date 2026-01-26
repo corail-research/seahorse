@@ -19,12 +19,14 @@ def container_player_loop(player: Player, in_queue: Queue, out_queue: Queue):
             break
         current_state, remaining_time, kwargs = in_value
         start = time.time()
-        action = player.compute_action(current_state=current_state, remaining_time=remaining_time,**kwargs)
+        action = player.compute_action(
+            current_state=current_state, remaining_time=remaining_time, **kwargs)
         end = time.time()
 
-        out_queue.put((action, end-start))
+        out_queue.put((action.to_json(), end-start))
 
     # return player, action, end-start
+
 
 class PlayerContainer(Serializable):
     def __init__(self, player: Player) -> None:
@@ -51,7 +53,7 @@ class PlayerContainer(Serializable):
             await self.close()
             raise e
 
-        return action, time_diff
+        return action["action_type"].from_json(action), time_diff
 
     async def close(self) -> None:
         if not self.closed:
@@ -61,7 +63,6 @@ class PlayerContainer(Serializable):
             while not self.in_queue.empty():
                 self.in_queue.get_nowait()
             self.manager.shutdown()
-
 
     def get_player(self) -> Player:
         return self.contained_player

@@ -65,4 +65,14 @@ class StatefulAction(Action):
         return "From:\n" + self.get_current_game_state().get_rep().__str__() + "\nto:\n" + self.get_next_game_state().get_rep().__str__()
 
     def to_json(self) -> dict:
-        return self.__dict__
+        return {"current_game_state": self.current_game_state.to_json(),
+                "next_game_state": self.next_game_state.to_json(),
+                "action_type": type(self),
+                "game_state_type": type(self.next_game_state)}
+
+    @classmethod
+    def from_json(cls, data: dict) -> StatefulAction:
+        current_st = data["game_state_type"].from_json(
+            data["current_game_state"])
+        next_st = data["game_state_type"].from_json(data["next_game_state"])
+        return StatefulAction(current_st, next_st)
