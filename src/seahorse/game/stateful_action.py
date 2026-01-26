@@ -71,7 +71,7 @@ class StatefulAction(Action):
                 "game_state_type": type(self.next_game_state)}
 
     @classmethod
-    def from_json(_, data: dict) -> StatefulAction:
+    def from_json(cls, data: dict) -> StatefulAction:
         current_st = data["game_state_type"].from_json(
             data["current_game_state"])
         next_st = data["game_state_type"].from_json(data["next_game_state"])

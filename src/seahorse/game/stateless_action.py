@@ -52,5 +52,5 @@ class StatelessAction(Action):
         return self.__dict__ | {"action_type": type(self)}
 
     @classmethod
-    def from_json(_, data: dict) -> StatelessAction:
+    def from_json(cls, data: dict) -> StatelessAction:
         return StatelessAction(data["data"])
