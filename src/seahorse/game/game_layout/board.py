@@ -70,8 +70,10 @@ class Piece(Serializable):
         return self.__dict__
 
     @classmethod
-    def from_json(cls,data,**_kwargs) -> Serializable:
-        return cls(**json.loads(data))
+    def from_json(cls,data: str | dict,**_kwargs) -> Serializable:
+        if isinstance(data, str):
+            data = json.loads(data)
+        return cls(**data)
 
 
 class Board(Representation):
