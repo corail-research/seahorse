@@ -15,7 +15,6 @@ from aiohttp import web
 from loguru import logger
 
 from seahorse.game.action import Action
-from seahorse.game.stateful_action import StatefulAction
 from seahorse.utils.serializer import Serializable
 
 
@@ -215,12 +214,11 @@ class EventMaster:
             # Setting the singleton instance
             EventMaster.__instance = self
 
-    async def wait_for_next_play(self,sid:int,players:list) -> tuple[Action,float]:
+    async def wait_for_next_play(self, sid: int) -> tuple[Action, float]:
         """Waiting for the next play action, this function is blocking
 
         Args:
             sid (int): sid corresponding to the player to wait for
-            players (list): the list of players
 
         Returns:
             Action: returns the received action
@@ -237,14 +235,6 @@ class EventMaster:
 
         action_type = dill.loads(action_json["__action_type__"])
         action = action_type.from_json(action_json)
-
-        # active_player_id = int(action_json["next_game_state"]["active_player"]["id"])
-        # active_player = next(iter(list(filter(lambda p:p.id==active_player_id,players))))
-
-        # past_gs = self.__game_state.from_json(json.dumps(action_json["current_game_state"]))
-        # past_gs.players = players
-        # new_gs = self.__game_state.from_json(json.dumps(action_json["next_game_state"]),active_player=active_player)
-        # new_gs.players = players
 
         return action, time_diff
 

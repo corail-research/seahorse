@@ -145,9 +145,8 @@ class RemotePlayerProxy(PlayerProxy, EventSlave):
                 emit_data = (state_data, remaining_time, kwargs)
                 await EventMaster.get_instance().sio.emit(label, emit_data,
                                                           to=self.sid)
-                out = await EventMaster\
-                    .get_instance()\
-                    .wait_for_next_play(self.sid, current_state.players)
+                out = await EventMaster.get_instance()\
+                    .wait_for_next_play(self.sid)
                 return out
 
             return wrapper
