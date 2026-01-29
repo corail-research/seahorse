@@ -11,6 +11,7 @@ from seahorse.utils.serializer import Serializable
 if TYPE_CHECKING:
     from seahorse.game.game_state import GameState
 
+
 class Player(Serializable):
     """
     A base class representing a player in the game.
@@ -20,7 +21,8 @@ class Player(Serializable):
         name (str) : the name of the player
     """
 
-    def __init__(self, name: str = "bob",*,id:int | None = None,**_) -> None:
+    def __init__(self, name: str = "bob", *,
+                 id: int | None = None, **_) -> None:
         """
         Initializes a new instance of the Player class.
 
@@ -50,10 +52,6 @@ class Player(Serializable):
         """
         raise MethodNotImplementedError()
 
-    # @abstractmethod
-    # def to_mimic(self) -> MimicPlayer:
-    #     raise MethodNotImplementedError()
-
     def get_id(self) -> int:
         """
         Returns:
@@ -82,17 +80,3 @@ class Player(Serializable):
             str: The string representation.
         """
         return f"Player {self.get_name()}({self.get_id()})"
-
-class MimicPlayer(Serializable):
-
-    def __init__(self, player_type: type[Player], *args, **kwargs) -> None:
-        self.mimic = player_type(*args, **kwargs)
-
-    def __getattr__(self, attr):
-        return getattr(self.mimic, attr)
-
-    def __str__(self) -> str:
-        return f"MimicPlayer {self.get_name()}({self.get_id()})"
-
-    def to_json(self) -> dict:
-        return self.mimic.__dict__
