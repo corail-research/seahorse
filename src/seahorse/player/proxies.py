@@ -67,8 +67,8 @@ class PlayerProxy(Serializable):
 
 class ContaineredPlayerProxy(PlayerProxy):
 
-    def __init__(self, wrapped_player: Player) -> None:
-        self.containered_player = PlayerContainer(wrapped_player)
+    def __init__(self, wrapped_player: Player, gs: type[GameState]) -> None:
+        self.containered_player = PlayerContainer(wrapped_player, gs=gs)
 
     async def play(self, current_state: GameState, remaining_time: float, **kwargs) -> tuple[Action, float]:
         return await self.containered_player.play(current_state, remaining_time, **kwargs)
@@ -131,16 +131,22 @@ class RemotePlayerProxy(PlayerProxy, EventSlave):
         """
         def meta_wrapper(fun: Callable):
             @functools.wraps(fun)
-            async def wrapper(self:"RemotePlayerProxy",current_state:GameState,
-                              remaining_time:float,*_,**kwargs) -> tuple[Action,float]:
+            async def wrapper(self: "RemotePlayerProxy",
+                              current_state: GameState,
+                              remaining_time: float,
+                              *_, **kwargs) -> tuple[Action, float]:
                 if self.sid is None:
-                    msg = f"Remote player {self} is not connected (SID missing)"
+                    msg = f"Remote player {self} \
+                            is not connected (SID missing)"
                     raise ValueError(msg)
 
                 state_data = json.dumps({**current_state.to_json()},
-                                  default=lambda x:x.to_json())
-                await EventMaster.get_instance().sio.emit(label,(state_data, remaining_time, kwargs),to=self.sid)
-                out = await EventMaster.get_instance().wait_for_next_play(self.sid,current_state.players)
+                                        default=lambda x: x.to_json())
+                emit_data = (state_data, remaining_time, kwargs)
+                await EventMaster.get_instance().sio.emit(label, emit_data,
+                                                          to=self.sid)
+                out = await EventMaster.get_instance()\
+                    .wait_for_next_play(self.sid)
                 return out
 
             return wrapper
@@ -154,7 +160,7 @@ class RemotePlayerProxy(PlayerProxy, EventSlave):
     async def close(self) -> None:
         return await self.close_connection()
 
-    async def listen(self,**_) -> None:
+    async def listen(self, **_) -> None:
         """
         Fires up the listening process
 
@@ -215,8 +221,8 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
             logger.debug(f"Data received : {data}")
             deserialized = json.loads(data[0])
             logger.debug(f"Deserialized data : \n{deserialized}")
-            action, _ = await self.play(gs.from_json(data[0],active_player=self),
-                                     remaining_time=data[1], kwargs=data[2])
+            action, _ = await self.play(gs.from_json(data[0], active_player=self),
+                                        remaining_time=data[1], kwargs=data[2])
             logger.info(f"{self.wrapped_player} played the following action : \n{action}")
 
         @self.sio.on("update_id")
@@ -235,7 +241,7 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
             @functools.wraps(fun)
             async def wrapper(self:EventSlave,*args,**kwargs):
                 action, time_diff = await fun(self,*args, **kwargs)
-                await self.sio.emit(label,(json.dumps(action.to_json(),default=lambda x:x.to_json()), time_diff))
+                await self.sio.emit(label,(action.to_json(), time_diff))
                 return (action, time_diff)
 
             return wrapper

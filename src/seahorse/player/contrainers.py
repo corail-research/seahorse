@@ -1,6 +1,8 @@
 import asyncio
 import time
 
+import dill
+
 from aioprocessing import AioManager, AioProcess
 from aioprocessing.managers import AioSyncManager as Manager
 from aioprocessing.process import AioProcess as Process
@@ -12,15 +14,19 @@ from seahorse.player.player import Player
 from seahorse.utils.serializer import Serializable
 
 
-def container_player_loop(player: Player, in_queue: Queue, out_queue: Queue):
+def container_player_loop(player: Player, in_queue: Queue,
+                          out_queue: Queue, gs: type[GameState]):
     while True:
         in_value = in_queue.get()
         if in_value is None:
             break
-        current_state, remaining_time, kwargs = in_value
+        current_state_json, remaining_time, kwargs = in_value
+        current_state = gs.from_json(current_state_json)
         start = time.time()
         action = player.compute_action(
-            current_state=current_state, remaining_time=remaining_time, **kwargs)
+            current_state=current_state,
+            remaining_time=remaining_time,
+            **kwargs)
         end = time.time()
 
         out_queue.put((action.to_json(), end-start))
@@ -29,7 +35,8 @@ def container_player_loop(player: Player, in_queue: Queue, out_queue: Queue):
 
 
 class PlayerContainer(Serializable):
-    def __init__(self, player: Player) -> None:
+    def __init__(self, player: Player,
+                 gs: type[GameState] = GameState) -> None:
         self.contained_player = player
         self.manager: Manager = AioManager()
         self.in_queue: Queue = self.manager.AioQueue()
@@ -39,21 +46,25 @@ class PlayerContainer(Serializable):
         self.process: Process = AioProcess(target=container_player_loop,
                                            daemon=True,
                                            args=(player, self.in_queue,
-                                                 self.out_queue))
+                                                 self.out_queue, gs))
 
         self.process.start()
 
-    async def play(self, current_state: GameState, remaining_time: float, **kwargs) -> tuple[Action, float]:
+    async def play(self, current_state: GameState,
+                   remaining_time: float, **kwargs) -> tuple[Action, float]:
         try:
-            await self.in_queue.coro_put((current_state, remaining_time, kwargs))
-            action, time_diff = await asyncio.wait_for(self.out_queue.coro_get(), timeout=remaining_time)
+            await self.in_queue.coro_put((current_state.to_json(),
+                                          remaining_time, kwargs))
+            action_json, time_diff = await asyncio.wait_for(self.out_queue.coro_get(),
+                                                            timeout=remaining_time)
         except Exception as e:
             while not self.out_queue.empty():
                 self.out_queue.get_nowait()
             await self.close()
             raise e
 
-        return action["action_type"].from_json(action), time_diff
+        action_type = dill.loads(action_json["__action_type__"])
+        return action_type.from_json(action_json), time_diff
 
     async def close(self) -> None:
         if not self.closed:

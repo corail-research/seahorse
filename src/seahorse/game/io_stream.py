@@ -8,12 +8,13 @@ from collections import deque
 from collections.abc import Awaitable, Callable
 from typing import Any
 
+import dill
 import socketio
+
 from aiohttp import web
 from loguru import logger
 
 from seahorse.game.action import Action
-from seahorse.game.stateful_action import StatefulAction
 from seahorse.utils.serializer import Serializable
 
 
@@ -213,12 +214,11 @@ class EventMaster:
             # Setting the singleton instance
             EventMaster.__instance = self
 
-    async def wait_for_next_play(self,sid:int,players:list) -> tuple[Action,float]:
+    async def wait_for_next_play(self, sid: int) -> tuple[Action, float]:
         """Waiting for the next play action, this function is blocking
 
         Args:
             sid (int): sid corresponding to the player to wait for
-            players (list): the list of players
 
         Returns:
             Action: returns the received action
@@ -229,18 +229,14 @@ class EventMaster:
         while not len(self.__identified_clients[self.__sid2ident[sid]]["incoming"]):
             await asyncio.sleep(.1)
         logger.info("Action received")
-        action, time_diff = self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop()
-        action = json.loads(action)
-        active_player_id = int(action["next_game_state"]["active_player"]["id"])
-        active_player = next(iter(list(filter(lambda p:p.id==active_player_id,players))))
+        action_json, time_diff = self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop()
+        if isinstance(action_json, str):
+            action_json = json.loads(action_json)
 
-        past_gs = self.__game_state.from_json(json.dumps(action["current_game_state"]))
-        past_gs.players = players
-        new_gs = self.__game_state.from_json(json.dumps(action["next_game_state"]),active_player=active_player)
-        new_gs.players = players
+        action_type = dill.loads(action_json["__action_type__"])
+        action = action_type.from_json(action_json)
 
-
-        return StatefulAction(past_gs,new_gs), time_diff
+        return action, time_diff
 
     async def wait_for_event(self,sid:int,label:str,*,flush_until:float | None=None) -> str | None:
         """Waits for an aribtrary event emitted by the connection identified by `sid`
