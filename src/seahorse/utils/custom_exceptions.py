@@ -1,3 +1,5 @@
+# TODO: General rework on the exceptions
+# Some are not used and most are not informative enough
 class AlreadyRunningError(Exception):
     """Thrown when trying to start somethin twice
     """
@@ -78,14 +80,5 @@ class ConnectionProblemError(Exception):
     """
 
     def __init__(self,  message: str = "Connection problem"):
-        self.message = message
-        super().__init__(message)
-
-
-class NoTournamentFailError(Exception):
-    """Thrown when trying to generate an action that's not permitted
-    """
-
-    def __init__(self,  message: str = "Tournament problem : tournament is none, please connect to an existing tournament or create a tournament"):
         self.message = message
         super().__init__(message)

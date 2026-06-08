@@ -1,4 +1,4 @@
-from typing import TypedDict
+from typing import TypedDict, Any
 
 
 class CustomStat(TypedDict):
@@ -7,10 +7,12 @@ class CustomStat(TypedDict):
 
     Attributes:
         name (str): The statistic name.
-        value (object): The statistic value.
+            Example: 'points_per_game', 'accuracy_rate'
+        value (Any): The statistic value.
+            Can be any data type (int, float, str, etc.)
         agent_id (int): The Player ID to which the statistic is attributed.
     """
 
     name: str
-    value: object
+    value: Any
     agent_id: int

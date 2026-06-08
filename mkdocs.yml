@@ -12,6 +12,7 @@ extra_javascript:
   - https://buttons.github.io/buttons.js
 plugins:
   - search
+  - autorefs
   - gen-files:
       scripts:
         - gen_ref_pages.py
@@ -20,6 +21,16 @@ plugins:
       handlers:
         python:
           paths: [src]
+          inventories:
+            - https://docs.python.org/3/objects.inv
+          options:
+            signature_crossrefs: true
+            relative_crossrefs: true
+            scoped_crossrefs: true
+            docstring_section_style: spacy
+            members_order: source
+
+
 extra:
   social:
     - icon: fontawesome/brands/github
@@ -30,7 +41,9 @@ extra:
 copyright: Copyright &copy; 2023 - 2023 CORAIL research group
 
 
-markdown_extensions: 
+markdown_extensions:
+  - admonition
+  - pymdownx.details
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -43,9 +56,11 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
   - attr_list
   - md_in_html
   - tables
   - pymdownx.emoji:
-      emoji_index: !!python/name:materialx.emoji.twemoji 
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
