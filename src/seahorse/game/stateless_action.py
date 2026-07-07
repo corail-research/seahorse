@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import json
+
 from typing import TYPE_CHECKING
+
+import dill
 
 from seahorse.game.action import Action
 from seahorse.game.stateful_action import StatefulAction
@@ -117,4 +121,10 @@ class StatelessAction(Action):
             dict: Dictionary containing all action data, ready for
                 network transmission or storage.
         """
-        return self.__dict__
+        return self.__dict__ | {"__action_type__": dill.dumps(type(self))}
+
+    @classmethod
+    def from_json(cls, data: str | dict) -> StatelessAction:
+        if isinstance(data, str):
+            data = json.loads(data)
+        return StatelessAction(data["data"])

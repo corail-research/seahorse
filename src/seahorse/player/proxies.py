@@ -190,14 +190,14 @@ class ContaineredPlayerProxy(PlayerProxy):
             and inter-process communication.
     """
 
-    def __init__(self, wrapped_player: Player) -> None:
+    def __init__(self, wrapped_player: Player, gs: type[GameState]) -> None:
         """
         Initializes the ContaineredPlayerProxy.
 
         Args:
             wrapped_player (Player): The player instance to containerize.
         """
-        self.containered_player = PlayerContainer(wrapped_player)
+        self.containered_player = PlayerContainer(wrapped_player, gs=gs)
 
     async def play(self, current_state: GameState,
                    remaining_time: float, **kwargs) -> tuple[Action, float]:
@@ -369,21 +369,17 @@ class RemotePlayerProxy(PlayerProxy, EventSlave):
                               remaining_time: float,
                               *_, **kwargs) -> tuple[Action, float]:
                 if self.sid is None:
-                    msg = (f"Remote player {self} "
-                           "is not connected (SID missing)")
+                    msg = f"Remote player {self} \
+                            is not connected (SID missing)"
                     raise ValueError(msg)
 
                 state_data = json.dumps({**current_state.to_json()},
                                         default=lambda x: x.to_json())
-
-                master = EventMaster.get_instance()
-
-                await master.sio.emit(label,
-                                      (state_data, remaining_time, kwargs),
-                                      to=self.sid)
-
-                out = await master.wait_for_next_play(self.sid,
-                                                      current_state.players)
+                emit_data = (state_data, remaining_time, kwargs)
+                await EventMaster.get_instance().sio.emit(label, emit_data,
+                                                          to=self.sid)
+                out = await EventMaster.get_instance()\
+                    .wait_for_next_play(self.sid)
                 return out
 
             return wrapper
@@ -558,10 +554,8 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
             logger.debug(f"Data received : {data}")
             deserialized = json.loads(data[0])
             logger.debug(f"Deserialized data : \n{deserialized}")
-            action, _ = await self.play(gs.from_json(data[0],
-                                                     active_player=self),
-                                        remaining_time=data[1],
-                                        kwargs=data[2])
+            action, _ = await self.play(gs.from_json(data[0], active_player=self),
+                                        remaining_time=data[1], kwargs=data[2])
             logger.info(f"{self.wrapped_player} played the following action : \n{action}")
 
         @self.sio.on("update_id")

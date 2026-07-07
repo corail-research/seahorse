@@ -137,8 +137,8 @@ class Piece(Serializable):
         Returns:
             Piece: Deserialized Piece instance.
         """
-        if isinstance(str, data):
-            return cls(**json.loads(data))
+        if isinstance(data, str):
+            data = json.loads(data)
         return cls(**data)
 
 

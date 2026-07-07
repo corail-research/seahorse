@@ -8,7 +8,9 @@ from collections import deque
 from collections.abc import Awaitable, Callable
 from typing import Any
 
+import dill
 import socketio
+
 from aiohttp import web
 from loguru import logger
 
@@ -359,7 +361,7 @@ class EventMaster:
             # Setting the singleton instance
             EventMaster._instance = self
 
-    async def wait_for_next_play(self, sid: str, players: list[Player]) -> tuple[Action, float]:
+    async def wait_for_next_play(self, sid: str) -> tuple[Action, float]:
         """
         Waits for a specific client to send their action.
 
@@ -380,18 +382,14 @@ class EventMaster:
         while not len(self._identified_clients[self._sid2ident[sid]]["incoming"]):
             await asyncio.sleep(.1)
         logger.info("Action received")
-        action, time_diff = self._identified_clients[self._sid2ident[sid]]["incoming"].pop()
-        action = json.loads(action)
-        active_player_id = int(action["next_game_state"]["active_player"]["id"])
-        active_player = next(iter(list(filter(lambda p:p.id==active_player_id,players))))
+        action_json, time_diff = self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop()
+        if isinstance(action_json, str):
+            action_json = json.loads(action_json)
 
-        past_gs = self._game_state.from_json(json.dumps(action["current_game_state"]))
-        past_gs.players = players
-        new_gs = self._game_state.from_json(json.dumps(action["next_game_state"]),active_player=active_player)
-        new_gs.players = players
+        action_type = dill.loads(action_json["__action_type__"])
+        action = action_type.from_json(action_json)
 
-
-        return StatefulAction(past_gs,new_gs), time_diff
+        return action, time_diff
 
     async def wait_for_event(self, sid: str, label: str, *,
                              flush_until: float | None = None) -> str | None:

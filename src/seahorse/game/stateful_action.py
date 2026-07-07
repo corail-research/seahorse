@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import dill
+
 from seahorse.game.action import Action
 
 if TYPE_CHECKING:
@@ -61,7 +63,7 @@ class StatefulAction(Action):
         """
         return self.next_game_state
 
-    def get_stateful_action(self, *_) -> StatefulAction:
+    def get_stateful_action(self, *_, **_kwargs) -> StatefulAction:
         """
         Returns self since this action is already stateful.
 
@@ -122,4 +124,14 @@ class StatefulAction(Action):
         Returns:
             dict: Dictionary containing both game states.
         """
-        return self.__dict__
+        return {"current_game_state": self.current_game_state.to_json(),
+                "next_game_state": self.next_game_state.to_json(),
+                "__action_type__": dill.dumps(type(self)),
+                "__game_state_type__": dill.dumps(type(self.next_game_state))}
+
+    @classmethod
+    def from_json(cls, data: dict) -> StatefulAction:
+        game_state_type = dill.loads(data["__game_state_type__"])
+        current_st = game_state_type.from_json(data["current_game_state"])
+        next_st = game_state_type.from_json(data["next_game_state"])
+        return StatefulAction(current_st, next_st)
