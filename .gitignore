@@ -135,3 +135,4 @@ sandbox/
 
 *.json
 log.txt
+environment.yml

@@ -2,47 +2,45 @@
 
 [![PyPI - Version](https://img.shields.io/pypi/v/seahorse.svg)](https://pypi.org/project/seahorse)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/seahorse.svg)](https://pypi.org/project/seahorse)
-![License](https://img.shields.io/github/license/corail-research/seahorse)
-![GitHub Workflow Status (with event)](https://img.shields.io/github/actions/workflow/status/corail-research/seahorse/python-testing.yml)
-![GitHub stars](https://img.shields.io/github/stars/corail-research/seahorse)
-![GitHub contributors](https://img.shields.io/github/contributors/corail-research/seahorse)
+[![License](https://img.shields.io/github/license/corail-research/seahorse)](https://opensource.org/license/bsd-3-clause/)
+[![Tests](https://github.com/corail-research/seahorse/actions/workflows/python-testing.yml/badge.svg)](https://github.com/corail-research/seahorse/actions/workflows/python-testing.yml)
+[![Stars](https://img.shields.io/github/stars/corail-research/seahorse)](https://github.com/corail-research/seahorse/stargazers)
 
+# A handy package for kickstarting AI game environments.
 
-# A handy package for kickstarting AI contests
+## ✨ Why Seahorse?
+Developing a game environnement for autonomous agents is complex.
+Seahorse is a lightweight Python framework for building turn‑based adversarial games and running matches with AI agents.
+This package is battle-tested and tailored to educational use cases
 
-We proudly provide a Python framework that makes the building of an environment for adversarial agents easy ! 
+- **Define your own game** – describe the states, rules, possible moves, and winning condition.
+- **Plug in any agent** – implement the decision logic once.
+- **Interaction via proxies** - agents can compete whether they are all run locally or on another machine. human can also play against agent through an interactive GUI.
+- **Let the master run the match** – the built‑in game master enforces turn order, time budgets, move legality, and determines winners.
+- **Real‑time communication** – a server broadcasts game states and collects actions, making remote play and live recording effortless.
 
-A lot of fun functionalities are provided an easily usable out of the box ! 
+## 📦 Installation
 
- - Implementing a new game setup from scratch ? **Painless !**
- - Playing against remote agents ? **Easy !** 
- - Generating and collecting data about played games ? **Worriless !**
- - Organizing a contest for a large range of agents ? **Quick and reliable !**
-
-## Installation
-The package is publicly available on PyPI.
-
-We strongly encourage the use of a virtual environment:
-
-```
-    $ python3 -m venv venv
-
-    $ source venv/bin/[activate|Activate.ps1]
-
-    (venv)$ pip install seahorse
-
+```bash
+pip install seahorse
 ```
 
-## Documentation 
-Our full documentation and a series of tutorials are available on <a href="https://corail-research.github.io/seahorse/" target="blank">corail-research.github.io</a>.
+## 📖 Documentation & Examples
+
+For detailed tutorials, references, and advanced examples, please visit our full documentation: **[corail-research.github.io/seahorse/](https://corail-research.github.io/seahorse/)**
+
+## 🤝 Contributing
+
+We welcome contributions!
+If you encounter a bug, have a feature request, or want to improve the documentation, please fork the repository and open a pull request.
 
 ## Main contributors
-We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.
-Checkout our [lab's page](https://corail-research.github.io/team/) for more information.
+We are an enthusiastic team of M.Sc. and PhD candidates led by Pr. Quentin Cappart at Polytechnique Montréal.
+The package was originally developed in the context of an introductory course to artificial intelligence given to computer and software engineering students.
 
 ## License
 
-`seahorse` is distributed under the termes of the <a href="https://opensource.org/license/bsd-3-clause/" target="blank_">3-Clause BSD License</a>.
+`seahorse` is distributed under the **BSD 3‑Clause License**. See the [`LICENSE`](LICENSE) file for details.
 
 <div class="horizontal-container" style="display:inline-block; width:100%"> <p><img src="https://raw.githubusercontent.com/corail-research/seahorse/main/docs/assets/corail-logo.png" width=400/><img src="https://raw.githubusercontent.com/corail-research/seahorse/main/docs/assets/logo_poly.png" width=150/></p>
 </p>  </div>
