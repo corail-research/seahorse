@@ -368,10 +368,12 @@ class GameState(Serializable):
         Returns:
             str: Formatted string showing scores and active player.
         """
-        to_print = f"Current scores are {self.get_scores()}.\n"
-        to_print += "Next person to play is player" \
-            f"{self.get_active_player().get_id()} " \
-            f"({self.get_active_player().get_name()}).\n"
+        to_print = (
+                f"Current scores are {self.get_scores()}.\n"
+                "Next person to play is player"
+                f"{self.get_active_player().get_id()} "
+                f"({self.get_active_player().get_name()}).\n"
+        )
         return to_print
 
     @classmethod
