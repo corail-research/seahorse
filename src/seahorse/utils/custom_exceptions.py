@@ -15,12 +15,15 @@ class NotRunningError(Exception):
         self.message = message
         super().__init__(message)
 
+
 class NoGameStateProvidedError(Exception):
     """Thrown when trying to get a stateful action from a stateless action without providing a game state
     """
     def __init__(self,  message: str = "Cannot apply a stateless action without current game state."):
         self.message = message
         super().__init__(message)
+
+
 class PlayerDuplicateError(Exception):
     """Thrown when trying to stop somethin twice
     """
@@ -65,6 +68,7 @@ class ActionNotPermittedError(Exception):
         self.message = message
         super().__init__(message)
 
+
 class StopAndStartError(Exception):
     """Thrown when trying to generate an action that's not permitted
     """
@@ -73,19 +77,11 @@ class StopAndStartError(Exception):
         self.message = message
         super().__init__(message)
 
+
 class ConnectionProblemError(Exception):
     """Thrown when trying to generate an action that's not permitted
     """
 
     def __init__(self,  message: str = "Connection problem"):
-        self.message = message
-        super().__init__(message)
-
-
-class NoTournamentFailError(Exception):
-    """Thrown when trying to generate an action that's not permitted
-    """
-
-    def __init__(self,  message: str = "Tournament problem : tournament is none, please connect to an existing tournament or create a tournament"):
         self.message = message
         super().__init__(message)
