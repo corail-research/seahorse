@@ -1,4 +1,4 @@
-<span class="seahorse-text-blue large-text">SEAHORSE<span>
+<span class="seahorse-text-blue large-text">SEAHORSE</span>
 
 [![PyPI - Version](https://img.shields.io/pypi/v/seahorse.svg)](https://pypi.org/project/seahorse)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/seahorse.svg)](https://pypi.org/project/seahorse)
@@ -10,91 +10,129 @@
 <a class="github-button" href="https://github.com/corail-research/seahorse/archive/HEAD.zip" data-size="large" data-icon="octicon-download" aria-label="Download corail-research/seahorse on GitHub">Download</a>
 <a class="github-button" data-icon="octicon-star" href="https://github.com/corail-research/seahorse" data-size="large" data-show-count="true" aria-label="Star corail-research/seahorse on GitHub">Stars</a>
 <a class="github-button" data-icon="octicon-issue-opened" href="https://github.com/corail-research/seahorse/issues" data-size="large" data-show-count="true" aria-label="Issue corail-research/seahorse on GitHub">Issue</a>
-# A handy package for kickstarting AI contests
 
-We proudly provide a Python framework that makes the building of an environment for adversarial search agents easy! 
+# A handy package for building turn‑based game environments for AI agents
 
-A lot of fun functionalities are provided an easily usable out of the box! 
+We proudly provide a lightweight Python framework that makes it easy to create adversarial games and run matches with AI agents – whether they run **locally**, **in isolated processes**, **over a network**, or are **human‑controlled via a GUI**.
 
- - Implementing a new game setup from scratch? **Painless!**
- - Playing against remote agents? **Easy!** 
- - Generating and collecting data about played games? **Worriless!**
- - Organizing a contest for a large range of agents? **Quick and reliable!**
+## Why Seahorse?
+
+Developing a game environment for autonomous agents involves many repetitive tasks: managing turns, validating moves, enforcing time limits, handling player connections, and recording results.
+Seahorse takes care of all that boilerplate, letting you focus on your game logic and agent strategies.
+
+- **Define your own game** – describe the states, rules, possible moves, and winning condition.
+- **Plug in any agent** – implement the decision logic once.
+- **Interaction via proxies** - agents can compete whether they are all run locally or on another machine. human can also play against agent through an interactive GUI.
+- **Let the master run the match** – the built‑in game master enforces turn order, time budgets, move legality, and determines winners.
+- **Real‑time communication** – a server broadcasts game states and collects actions, making remote play and live recording effortless.
 
 ## Installation
-The package is publicly available on PyPI.
+The package is publicly available on [PyPI](https://pypi.org/project/seahorse).
+We strongly recommend using a virtual environment:
 
-We strongly encourage the use of a virtual environment:
+```bash
+python3 -m venv venv
 
+# On Linux / macOS:
+source venv/bin/activate
+
+# On Windows (PowerShell):
+# venv\Scripts\Activate.ps1
+
+pip install seahorse
 ```
-    $ python3 -m venv venv
 
-    $ source venv/bin/[activate|Activate.ps1]
+## Core concepts
 
-    (venv)$ pip install seahorse
+Seahorse is built around a few simple ideas that work together seamlessly.
 
-```
+| Concept | What it does |
+|---------|---------------|
+| **[Game State][seahorse.game.game_state.GameState]** | Stores the active player, the environment representation, etc. It also encapsulate legal moves and game termination computation. |
+| **[Action][seahorse.game.action.Action]** | A generic representation of a player move or decision during their turn that affect the current game state. |
+| **[Player][seahorse.player.player.Player]** | The agent that receives the current game informations and returns an action. |
+| **[Proxy][seahorse.player.proxies.PlayerProxy]** | A wrapper that runs an agent in a specific environment or allows human interaction with the game. The game master interact with agents only through their proxy. |
+| **[Game master][seahorse.game.master.GameMaster]** | The referee that initialises the game, asks each proxy for an action on the player’s turn, validates the move, checks time limits, updates the state, and broadcasts everything with the event master singleton. |
+| **[EventMaster][seahorse.game.io_stream.EventMaster]** | A WebSocket server that all proxies and listeners connect to. It relays game states and receives actions, enabling real‑time remote play and recording. All clients identify themselves, and the hub routes messages accordingly. |
 
-## Running the example
+Seahorse also provide several utilities in the form of JSON serialization for all core objects, custom exceptions for game mechanics, or recorders for logging game traces.
+Please consider reading the [overview](overview/index.md) section for further informations.
+
+## Example: Tic‑Tac‑Toe
 
 |Initial state|Intermediate state|Final state|
 |:-:|:-:|:-:|
 |![](./assets/tictac_init.png)|![](./assets/tictac_state.png)|![](./assets/tictac_final.png)|
 
-An example implementation featuring the famous game of *tic-tac-toe* is available on the github repository under the branch with its name:
+A complete implementation of Tic‑Tac‑Toe is available in the [seahorse-zoo](https://github.com/corail-research/seahorse-zoo/) repository. It demonstrates how to define the game state, possible actions, and a simple minimax agent.
+
+Follow our **[tutorials](tutorials/1-getting_started.md)** to learn how to run the example and create your own game.
 
 ```shell
-git clone https://github.com/corail-research/seahorse/ \
---branch tictactoe \
---single-branch tictactoe
 ```
 
-Learn on how to launch the example and recreate one of your own through our [tutorials](tutorials/1-getting_started.md)
-
 ## Main contributors
-We are an enthusiastic team of M.Sc candidates led by Pr. Quentin Cappart at Polytechnique Montréal. The package was originally developed in the context of a introductory course to artificial intelligence given to undergrad computer and software engineering students.
+We are an enthusiastic team of M.Sc. and PhD candidates led by Pr. Quentin Cappart at Polytechnique Montréal.
+The package was originally developed in the context of an introductory course to artificial intelligence given to computer and software engineering students.
 
-<div class="horizontal-container"> 
-    <div class="card">
-    <img class="face" src="./assets/qcappart.jpg" alt="Avatar" style="width:100%">
-    <div class="container">
-        <h4><b>Quentin <br>Cappart</b></h4>
-        <p>Professor & team lead</p>
-        <a href="https://www.linkedin.com/in/quentin-cappart/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
-    </div>
-    </div>
-    <div class="card">
-    <img class="face" src="./assets/aguichard.jpeg" alt="Avatar" style="width:100%">
-    <div class="container">
-        <h4><b>Amaury <br>Guichard</b></h4>
-        <p>UX Design & architecture</p>
-        <a href="https://www.linkedin.com/in/amaury-guichard-a558b617a/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
-    </div>
-    </div>
-    <div class="card">
-    <img class="face" src="./assets/lgrumiaux.jpg" alt="Avatar" style="width:100%">
-    <div class="container">
-        <h4><b>Loïc <br>Grumiaux</b></h4>
-        <p>Networking & DevOps</p>
-        <a href="https://www.linkedin.com/in/loïc-grumiaux-76b77121b" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
-    </div>
-    </div>
-    <div class="card">
-    <img class="face" src="./assets/tjacquet.jpg" alt="Avatar" style="width:100%">
-    <div class="container">
-        <h4><b>Thomas <br>Jacquet</b></h4>
-        <p>Algorithms & architecture</p>
-        <a href="https://www.linkedin.com/in/thomas-jacquet/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
-    </div>
-    </div>
-    <div class="card">
-    <img class="face" src="./assets/lgillon.png" alt="Avatar" style="width:100%;object-position: 100% 0;">
-    <div class="container">
-        <h4><b>Louis <br>Gillon</b></h4>
-        <p>Architecture & parallelization</p>
-        <a href="https://www.linkedin.com/in/louis-gillon-281a8a161/" target="_blank"><div class="lk-link"><span class="twemoji"><img src="https://raw.githubusercontent.com/squidfunk/mkdocs-material/master/material/templates/.icons/simple/linkedin.svg"></span></div></a>
-    </div>
-    </div>
+<div class="grid cards narrow-grid" markdown>
+
+-   ![Quentin Cappart](./assets/qcappart.jpg)
+
+    ### Quentin Cappart
+
+    [:fontawesome-brands-linkedin:](https://www.linkedin.com/in/quentin-cappart/){ .icon-link target="_blank" }
+    [:fontawesome-brands-github:](https://github.com/qcappart){ .icon-link target="_blank" }
+    [:material-web:](https://qcappart.github.io/){ .icon-link target="_blank" }
+
+-   ![Hugo Barral](./assets/hbarral.jpg)
+
+    ### Hugo Barral
+
+    [:fontawesome-brands-linkedin:](https://www.linkedin.com/in/hugo-barral/){ .icon-link target="_blank" }
+    [:fontawesome-brands-github:](https://github.com/arc-hugo){ .icon-link target="_blank" }
+
+-   ![Amaury Guichard](./assets/aguichard.jpeg)
+
+    ### Amaury Guichard
+
+    [:fontawesome-brands-linkedin:](https://www.linkedin.com/in/amaury-guichard-a558b617a/){ .icon-link target="_blank" }
+    [:fontawesome-brands-github:](https://github.com/RevenMyst){ .icon-link target="_blank" }
+
+-   ![Loïc Grumiaux](./assets/lgrumiaux.jpg)
+
+    ### Loïc Grumiaux
+
+    [:fontawesome-brands-linkedin:](https://www.linkedin.com/in/loïc-grumiaux-76b77121b/){ .icon-link target="_blank" }
+    [:fontawesome-brands-github:](https://github.com/l9kd1){ .icon-link target="_blank" }
+
+-   ![Louis Gillon](./assets/lgillon.png)
+
+    ### Louis Gillon
+
+    [:fontawesome-brands-linkedin:](https://www.linkedin.com/in/louis-gillon-281a8a161/){ .icon-link target="_blank" }
+    [:fontawesome-brands-github:](https://github.com/gillonlo){ .icon-link target="_blank" }
+
+-   ![Thomas Jacquet](./assets/tjacquet.jpg)
+
+    ### Thomas Jacquet
+
+    [:fontawesome-brands-linkedin:](https://www.linkedin.com/in/thomas-jacquet/){ .icon-link target="_blank" }
+    [:fontawesome-brands-github:](https://github.com/Thomasj17){ .icon-link target="_blank" }
+
+-   ![Emile Jehaes](./assets/ejehaes.jpg)
+
+    ### Emile Jehaes
+
+    [:fontawesome-brands-linkedin:](https://www.linkedin.com/in/emile-jehaes-187776282/){ .icon-link target="_blank" }
+    [:fontawesome-brands-github:](https://github.com/milo3141592){ .icon-link target="_blank" }
+
+-   ![Yoann Sabatier Montanaro](./assets/ysabatier.jpg)
+
+    ### Yoann Sabatier Montanaro
+
+    [:fontawesome-brands-github:](https://github.com/YoannSab){ .icon-link target="_blank" }
+
 </div>
 
 ---------------------------------

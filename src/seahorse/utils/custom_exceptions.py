@@ -1,3 +1,5 @@
+# TODO: General rework on the exceptions
+# Some are not used and most are not informative enough
 class AlreadyRunningError(Exception):
     """Thrown when trying to start somethin twice
     """

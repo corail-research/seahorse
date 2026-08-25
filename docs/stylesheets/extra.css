@@ -12,42 +12,101 @@
     --md-mermaid-label-bg-color:var(--md-primary-fg-color--light);
   }
 
-.horizontal-container{
-  display: inline-block;
+/* ========================================= */
+/* Narrow contributor cards – fixed width    */
+/* Bottom-aligned links, multiple per row    */
+/* ========================================= */
+
+/* Grid container – controls columns */
+.md-typeset .grid.narrow-grid {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+/* The UL (direct child) – we don't need to style it specifically, but ensure it takes full height */
+.md-typeset .grid.narrow-grid ul {
+  display: contents !important;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Each card (the LI) – now gets the flex column */
+.md-typeset .grid.narrow-grid li {
+  display: flex !important;
+  flex-direction: column;
+  background: var(--md-default-bg-color);
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  padding: 1rem;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
   width: 100%;
-  vertical-align: top;
+  box-sizing: border-box;
+  list-style: none; /* remove bullet */
 }
 
-.horizontal-container .card{
-  display: inline-block;
-  vertical-align: top;
+.md-typeset .grid.narrow-grid li:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.1);
 }
 
-.card {
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
-  transition: 0.3s;
-  width: 132px;
-}
-
-.card:hover {
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
-}
-
-.card p {
-  font-size:small;
-}
-
-.card .face {
+.md-typeset .grid.narrow-grid img {
+  width: 100px;
+  height: 100px;
   object-fit: cover;
-  height:170px;
+  border-radius: 50%;
+  margin: 0 auto 0.75rem auto;
+  display: block;
+  flex-shrink: 0;
 }
 
-.container {
-  padding: 2px 16px;
+.md-typeset .grid.narrow-grid h3 {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.3;
+  /* no flex-grow – let natural height */
+}
+
+.md-typeset .grid.narrow-grid p:last-child {
+  margin-top: auto;  /* pushes links to bottom */
+  margin-bottom: 0;
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+.md-typeset .grid.narrow-grid .icon-link {
+  font-size: 1.3rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.md-typeset .grid.narrow-grid .icon-link:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
+
+/* Tabbed content */
+.md-typeset .tabbed-set {
+  border: 0.5px solid lightgray;
+}
+
+.md-typeset .tabbed-content {
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
 .md-logo img{
-  height: 2.1rem !important;
+  height: 2.1rem;
   transform: translate(57px,-8px) scale(1.2);
 }
 .md-header__topic:first-child, .md-header__topic{
@@ -63,7 +122,6 @@
   text-transform: uppercase;
   font-weight: 200;
   color:#1cacd1;
-  
 }
 
 .lk-link{
@@ -97,12 +155,6 @@
 
 .seahorse-text-blue{
   transform: translateX(0px);
-}
-
-.large-text{
-  font-size:4em !important;
-}
-
 }
 
 .large-text{
