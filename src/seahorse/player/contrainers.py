@@ -58,7 +58,6 @@ def container_player_loop(player: Player, in_queue: Queue,
         excpt_queue.put(e)
         out_queue.put((None, None))
 
-
 class PlayerContainer(Serializable):
     """
     Container for running Player instances in separate processes.

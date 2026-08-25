@@ -59,6 +59,7 @@ class GameMaster:
         port: int = 8080,
         hostname: str = "localhost",
         time_limit: float = 1e9,
+        timetol: float = 0
     ) -> None:
         """
         Initializes a new instance of the GameMaster class.
@@ -78,6 +79,9 @@ class GameMaster:
             time_limit (float):
                 Time limit in seconds for each player.
                 Defaults to 1e9.
+            timetol (float):
+                Time tolerance in seconds.
+                Defaults to 0.
 
         Raises:
             PlayerDuplicateError: If multiple players have the same name.
@@ -95,6 +99,7 @@ class GameMaster:
         self.players_proxy = list(players_iterator)
         self.remaining_time = {
             player.get_id(): time_limit for player in self.players}
+        self.timetol = timetol
 
         player_names = [x.name for x in self.players]
         if len(set(player_names)) < len(self.players):
@@ -227,7 +232,7 @@ class GameMaster:
                 else:
                     logger.error(
                         f"{self.current_game_state.get_active_player()} threw the following exception:")
-                    logger.exception(e)
+                    logger.error(e)
 
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 temp_score[current_player.get_id()] = -1e9
@@ -336,7 +341,7 @@ class GameMaster:
                 else:
                     logger.error(
                         f"{self.current_game_state.get_active_player()} threw the following exception:")
-                    logger.exception(e)
+                    logger.error(e)
 
                 # TODO: make this able to identify multiple invalid agents
                 await self.emitter.sio.emit("done", json.dumps({
