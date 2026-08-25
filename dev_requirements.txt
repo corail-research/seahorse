@@ -6,7 +6,7 @@ anyio==4.4.0
 async-timeout==4.0.3
 asyncio==4.0.0
 attrs==25.4.0
-Babel==2.15.0
+babel==2.18.0
 backports.zstd==1.7.0
 backrefs==8.0
 bidict==0.23.1
