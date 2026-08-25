@@ -2,8 +2,6 @@ import builtins
 import os
 import platform
 import subprocess
-from collections.abc import Coroutine
-from typing import Any
 
 from loguru import logger
 

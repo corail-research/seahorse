@@ -16,7 +16,8 @@ from seahorse.utils.serializer import Serializable
 
 
 def container_player_loop(player: Player, in_queue: Queue,
-                          out_queue: Queue, gs: type[GameState]):
+                          out_queue: Queue, excpt_queue: Queue,
+                          gs: type[GameState]):
     """
     Main loop for player processes running in separate containers.
 
@@ -33,22 +34,29 @@ def container_player_loop(player: Player, in_queue: Queue,
         out_queue:
             Queue for sending computed actions
             and time back to the main process.
+        excpt_queue:
+            Queue for sending eventual exceptions.
+        gs:
+            Derived GameState type for the implemented game
     """
-    while True:
-        in_value = in_queue.get()
-        if in_value is None:
-            break
-        current_state_json, remaining_time, kwargs = in_value
-        current_state = gs.from_json(current_state_json)
-        start = time.time()
-        action = player.compute_action(
-            current_state=current_state,
-            remaining_time=remaining_time,
-            **kwargs)
-        end = time.time()
+    try:
+        while True:
+            in_value = in_queue.get()
+            if in_value is None:
+                break
+            current_state_json, remaining_time, kwargs = in_value
+            current_state = gs.from_json(current_state_json)
+            start = time.time()
+            action = player.compute_action(
+                current_state=current_state,
+                remaining_time=remaining_time,
+                **kwargs)
+            end = time.time()
 
-        out_queue.put((action.to_json(), end-start))
-
+            out_queue.put((action.to_json(), end-start))
+    except Exception as e:
+        excpt_queue.put(e)
+        out_queue.put((None, None))
 
 
 class PlayerContainer(Serializable):
@@ -62,12 +70,20 @@ class PlayerContainer(Serializable):
     process management and communication.
 
     Attributes:
-        contained_player (Player): The Player instance being wrapped.
-        manager (Manager): AioManager for managing inter-process communication.
-        in_queue (Queue): Queue for sending data to the player process.
-        out_queue (Queue): Queue for receiving results from the player process.
-        closed (bool): Boolean indicating if the container has been closed.
-        process (Process): The AioProcess instance running the player.
+        contained_player (Player):
+            The Player instance being wrapped.
+        manager (Manager):
+            AioManager for managing inter-process communication.
+        in_queue (Queue):
+            Queue for sending data to the player process.
+        out_queue (Queue):
+            Queue for receiving results from the player process.
+        excpt_queue (Queue):
+            Queue for receiving expections from the player process.
+        closed (bool):
+            Boolean indicating if the container has been closed.
+        process (Process):
+            The AioProcess instance running the player.
 
     Note:
         Attributes leverage the
@@ -88,12 +104,15 @@ class PlayerContainer(Serializable):
         self.manager: Manager = AioManager()
         self.in_queue: Queue = self.manager.AioQueue()
         self.out_queue: Queue = self.manager.AioQueue()
+        self.excpt_queue: Queue = self.manager.AioQueue()
         self.closed = False
 
         self.process: Process = AioProcess(target=container_player_loop,
                                            daemon=True,
                                            args=(player, self.in_queue,
-                                                 self.out_queue, gs))
+                                                 self.out_queue,
+                                                 self.excpt_queue,
+                                                 gs))
 
         self.process.start()
 
@@ -122,13 +141,18 @@ class PlayerContainer(Serializable):
             Exception: If the player times out or encounters an error.
         """
         try:
-            await self.in_queue.coro_put((current_state.to_json(),
-                                          remaining_time, kwargs))
-            action_json, time_diff = await asyncio.wait_for(self.out_queue.coro_get(),
-                                                            timeout=remaining_time)
+            await self.in_queue.coro_put(
+                    (current_state.to_json(), remaining_time, kwargs))
+            action_json, time_diff = await asyncio.wait_for(
+                    self.out_queue.coro_get(), timeout=remaining_time)
         except Exception as e:
             while not self.out_queue.empty():
                 self.out_queue.get_nowait()
+            await self.close()
+            raise e
+
+        if action_json is None or time_diff is None:
+            e = await self.excpt_queue.coro_get()
             await self.close()
             raise e
 

@@ -16,10 +16,6 @@ from loguru import logger
 
 from seahorse.game.action import Action
 from seahorse.game.game_state import GameState
-from seahorse.game.stateful_action import StatefulAction
-from seahorse.player.player import Player
-from seahorse.utils.serializer import Serializable
-
 
 class EventSlave:
     """

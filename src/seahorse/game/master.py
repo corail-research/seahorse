@@ -225,8 +225,9 @@ class GameMaster:
                     logger.error(
                         f"Action not permitted for {current_player}")
                 else:
-                    logger.exception(
-                        f"{current_player} threw the following exception.")
+                    logger.error(
+                        f"{self.current_game_state.get_active_player()} threw the following exception:")
+                    logger.exception(e)
 
                 temp_score = copy.copy(self.current_game_state.get_scores())
                 temp_score[current_player.get_id()] = -1e9
@@ -333,8 +334,9 @@ class GameMaster:
                     logger.error("Action not permitted for player"
                                  f"{current_player}")
                 else:
-                    logger.exception(
-                        f"{current_player} threw the following exception.")
+                    logger.error(
+                        f"{self.current_game_state.get_active_player()} threw the following exception:")
+                    logger.exception(e)
 
                 # TODO: make this able to identify multiple invalid agents
                 await self.emitter.sio.emit("done", json.dumps({

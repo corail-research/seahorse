@@ -71,7 +71,7 @@ class Piece(Serializable):
         """
         return self.owner_id
 
-    def copy(self, no_owner: bool = True) -> Piece:
+    def copy(self, *, no_owner: bool = True) -> Piece:
         """
         Creates a deep copy of the piece.
         Copy can be created with or without owner reference.
@@ -113,7 +113,8 @@ class Piece(Serializable):
                 False otherwise.
         """
         if not isinstance(other, Piece):
-            raise ValueError("Must compare two Piece object for equality")
+            msg = "Must compare two Piece object for equality"
+            raise ValueError(msg)
         return hash(self) == hash(other)
 
     def to_json(self) -> dict:
@@ -235,7 +236,8 @@ class Board(Representation):
                 positions, False otherwise.
         """
         if not isinstance(other, Board):
-            raise ValueError("Must compare two Board object for equality")
+            msg = "Must compare two Board object for equality"
+            raise ValueError(msg)
         return hash(self) == hash(other)
 
     def __str__(self) -> str:
