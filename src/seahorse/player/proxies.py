@@ -376,10 +376,9 @@ class RemotePlayerProxy(PlayerProxy, EventSlave):
                 state_data = json.dumps({**current_state.to_json()},
                                         default=lambda x: x.to_json())
                 emit_data = (state_data, remaining_time, kwargs)
-                await EventMaster.get_instance().sio.emit(label, emit_data,
-                                                          to=self.sid)
-                out = await EventMaster.get_instance()\
-                    .wait_for_next_play(self.sid)
+                master = EventMaster.get_instance()
+                await master.sio.emit(label, emit_data, to=self.sid)
+                out = await master.wait_for_next_play(self.sid)
                 return out
 
             return wrapper
@@ -430,8 +429,8 @@ class RemotePlayerProxy(PlayerProxy, EventSlave):
                 If the remote player doesn't connect within a reasonable time.
         """
         master = EventMaster.get_instance()
-        idmap = await master.wait_for_identified_client(self.name,
-                                                        self.instance_id)
+        idmap = await master.wait_for_identified_client(
+                self.name, self.instance_id)
         self.sid = idmap["sid"]
 
     def to_player(self) -> Player:
@@ -619,7 +618,7 @@ class LocalPlayerProxy(PlayerProxy, EventSlave):
                             **kwargs)
         end = time.time()
 
-        return action.get_stateful_action(game_state=current_state), end-start
+        return (action.get_stateful_action(game_state=current_state), end-start)
 
     async def close(self) -> None:
         """
@@ -783,11 +782,10 @@ class InteractivePlayerProxy(LocalPlayerProxy):
                    "is not connected (SID missing)")
             raise ValueError(msg)
 
+        master = EventMaster.get_instance()
         while True:
-            master = EventMaster.get_instance()
-            response = master.wait_for_event(self.sid,
-                                             "interact",
-                                             flush_until=time.time())
+            response = await master.wait_for_event(
+                    self.sid, "interact", flush_until=time.time())
             if response is None:
                 msg = "No response from 'interact' event"
                 raise ValueError(msg)

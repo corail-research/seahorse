@@ -306,18 +306,20 @@ class EventMaster:
                 self._events[sid][event].appendleft((time.time(), data))
 
             @self.sio.on("action")
-            async def handle_play(sid: str, data: tuple[Action, float]):
+            async def handle_play(sid: str, action: Action, elapsed: float):
                 """
                 Handles incoming player actions.
 
                 Args:
                     sid (str): Session ID of the client sending the action.
-                    data (tuple[Action, float]): Action data from the client.
+                    action (Action): Action data from the client.
+                    time (float): Elapsed time reported by the client.
                 """
                 # TODO : cope with race condition "action" before "identify"
                 try:
-                    self._identified_clients[self._sid2ident[sid]]["incoming"].appendleft(data)
-                # Plainly throw away packets that belong to disconnected clients
+                    self._identified_clients[self._sid2ident[sid]]["incoming"]\
+                            .appendleft((action, elapsed))
+                # Plainly throw away packets from disconnected clients
                 except KeyError:
                     pass
 
@@ -378,7 +380,7 @@ class EventMaster:
         while not len(self._identified_clients[self._sid2ident[sid]]["incoming"]):
             await asyncio.sleep(.1)
         logger.info("Action received")
-        action_json, time_diff = self.__identified_clients[self.__sid2ident[sid]]["incoming"].pop()
+        action_json, time_diff = self._identified_clients[self._sid2ident[sid]]["incoming"].pop()
         if isinstance(action_json, str):
             action_json = json.loads(action_json)
 
