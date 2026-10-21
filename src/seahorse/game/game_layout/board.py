@@ -264,7 +264,7 @@ class Board(Representation):
         to_print = ""
         for i in range(dim[0]):
             for j in range(dim[1]):
-                if self.get_env().get((i, j), -1) != -1:
+                if (i, j) in self.get_env():
                     to_print += str(self.get_env()[(i, j)].get_type()) + " "
                 else:
                     to_print += "_ "
